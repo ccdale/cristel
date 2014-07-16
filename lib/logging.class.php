@@ -9,11 +9,11 @@
  * daemon@cca.me.uk
  *
  * Started: Saturday 19 December 2009, 07:00:46
- * Last Modified: Tuesday 10 June 2014, 12:08:38
+ * Last Modified: Wednesday 16 July 2014, 05:35:13
  * Version: $Id: logging.class.php 447 2010-07-28 06:41:05Z chris $
  */
 
-require_once "Shell/cli.class.php"; /* for colour output definitions */
+require_once "cli.class.php"; /* for colour output definitions */
 
 class Logging
 {
