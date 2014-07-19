@@ -9,7 +9,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Wednesday 16 July 2014, 04:36:37
- * Last Modified: Wednesday 16 July 2014, 11:42:31
+ * Last Modified: Friday 18 July 2014, 12:11:45
  * Revision: $Id$
  * Version: 0.00
  */
@@ -18,6 +18,8 @@ require_once "base.class.php";
 require_once "logging.class.php";
 require_once "cli.class.php"; // required by logging class
 require_once "simple-mysql.class.php";
+require_once "radiotimes.class.php";
+require_once "filldb.class.php";
 
 class Cristel extends Base
 {
@@ -41,6 +43,8 @@ class Cristel extends Base
         $this->mx=new MySql($this->logg,$this->dbhost,$this->dbuser,$this->dbpass,$this->dbname);
         if($this->mx->amOK()){
             $this->debug("Connected to db ok");
+            $this->initialise();
+            $this->doRadioTimes();
         }
     }/*}}}*/
     public function __destruct()/*{{{*/
@@ -98,6 +102,14 @@ class Cristel extends Base
             $sql="insert into system (confname,confval) values ('$confname','$confval')";
         }
         $this->mx->query($sql);
+    }/*}}}*/
+    private function doRadioTimes()/*{{{*/
+    {
+        $rt=new RadioTimes($this->logg);
+        $fdb=new FillDb($this->logg,$this->mx,$rt);
+        $fdb->cleanDB();
+        $fdb=null;
+        $rt=null;
     }/*}}}*/
 }
 ?>

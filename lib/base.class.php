@@ -9,7 +9,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Friday 24 May 2013, 23:41:08
- * Last Modified: Sunday  1 June 2014, 08:59:02
+ * Last Modified: Friday 18 July 2014, 10:11:40
  * Revision: $Id: base.class.php 7515 2013-06-25 12:25:34Z chris.allison $
  * Version: 0.00
  */
@@ -162,6 +162,34 @@ class Base
         }else{
             return $path . "/";
         }
+    } /*}}}*/
+    /** checkFile {{{
+     * checks for the existance or non-existance of file(s).
+     *
+     * checks if file $fn exists or doesn't exist depending on
+     * the $exists parameter (true || false).
+     * If file $fn is an array, the operation is performed on each
+     * member of the array, with the results anded together.
+     * 
+     * @param array|string $fn 
+     * @param bool $exists 
+     * @access public
+     * @return bool
+     */
+    public function checkFile($fn="",$exists=true)
+    {
+        $ret=false;
+        if(is_string($fn) && strlen($fn)){
+            $ret=$exists?file_exists($fn):!file_exists($fn);
+        }elseif(is_array($fn)){
+            $tmp=true;
+            $c=count($fn);
+            for($x=0;$x<$c;$x++){
+                $tmp=$this->checkFile($fn[$x],$exists) && $tmp;
+            }
+            $ret=$tmp;
+        }
+        return $ret;
     } /*}}}*/
 }
 ?>
