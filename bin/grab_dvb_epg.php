@@ -10,7 +10,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday 21 July 2014, 02:33:36
- * Last Modified: Monday 21 July 2014, 02:52:58
+ * Last Modified: Monday 21 July 2014, 02:56:51
  * Revision: $Id$
  * Version: 0.00
  */
@@ -49,7 +49,7 @@ require_once "simple-mysql.class.php";
 require_once "logging.class.php";
 require_once "epg.class.php";
 
-$logg=new Logging(true,"EPGTEST",0,LOG_INFO,false,false,-1,LOG_INFO);
+$logg=new Logging(true,"DVBEPG",0,LOG_INFO,false,false,-1,LOG_INFO);
 $mx=new Mysql($logg,"localhost","tvapp","tvapp","tv");
 $dvb=new DvbStreamer($logg,0,"tvc","tvc");
 $epg=new EPG($logg,"127.0.0.1","tvc","tvc",0,$dvb,$mx,false);
