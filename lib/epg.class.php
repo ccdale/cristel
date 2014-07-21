@@ -9,7 +9,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 15 June 2014, 09:52:57
- * Last Modified: Saturday 19 July 2014, 23:05:17
+ * Last Modified: Monday 21 July 2014, 02:32:57
  * Revision: $Id$
  * Version: 0.00
  */
@@ -25,8 +25,15 @@ class EPG extends DVBCtrl
     private $warningcn=0;
     private $infomap;
     private $dbkeys;
+    private $firsteventid=false;
     private $currenteventid=false;
     private $currentevent=false;
+    private $dbnotfound=0;
+    private $mismatchedtitle=0;
+    private $updated=0;
+    private $noseriesprogid=0;
+    private $dbinserted=0;
+    private $ignored=0;
 
     public function __construct($logg=false,$host="",$user="",$pass="",$adaptor=0,$dvb=false,$mx=false,$truncate=true)/*{{{*/
     {
@@ -232,9 +239,9 @@ class EPG extends DVBCtrl
                 break;
             }
             if(strlen($usql)){
-                $usql.=",$key='" . $this->mx->escape($val) . "'";
+                $usql.=",$key=" . $this->makeSqlString($val);
             }else{
-                $usql="$key='" . $this->mx->escape($val) . "'";
+                $usql="$key=" . $this->makeSqlString($val);
             }
         }
         return $usql;
@@ -274,7 +281,7 @@ class EPG extends DVBCtrl
         if('"'==($junk=substr($tmp,strlen($tmp)-1,1))){
             $tmp=substr($tmp,0,strlen($tmp)-1);
         }
-        $tmp=$this->mx->escape($str);
+        $tmp=$this->mx->escape($tmp);
         return "'$tmp'";
     }/*}}}*/
     private function subSql($sinfo)/*{{{*/
@@ -375,27 +382,100 @@ class EPG extends DVBCtrl
         }elseif($this->currenteventid==$event["eventid"]){
             $this->currentevent=array_merge($this->currentevent,$event);
         }else{
-            $this->updateDB();
-            $this->currentevent=$event;
-            $this->currenteventid=$event["eventid"];
+            if(false===$this->firsteventid){
+                // ignore the very first full event received as it may be incomplete
+                // make a note of the next eventid so that we can stop when we see it again
+                $this->firsteventid=$event["eventid"];
+                $this->currentevent=$event;
+                $this->currenteventid=$event["eventid"];
+            }else{
+                $this->updateDB();
+                $this->numevents++;
+                $this->currentevent=$event;
+                $this->currenteventid=$event["eventid"];
+            }
         }
+    }/*}}}*/
+    private function insertEventIntoDB()/*{{{*/
+    {
+        $rtid=0;
+        $sql="select rtid from channel where freeviewid = (select id from freeview where networkid='" . $this->currentevent["netid"] . "')";
+        if(false!==($arr=$this->mx->arrayQuery($sql))){
+            if(isset($arr[0]["rtid"])){
+                $rtid=$arr[0]["rtid"];
+            }
+        }
+        $hsql="insert into schedule (channel,title,description,starttime,endtime";
+        $sql=$rtid . ",";
+        $sql.=$this->makeSqlString($this->currentevent["title"]) . ",";
+        $sql.=$this->makeSqlString($this->currentevent["description"]) . ",";
+        $sql.=$this->currentevent["start"] . ",";
+        $sql.=$this->currentevent["end"];
+        if(isset($this->currentevent["content"])){
+            $sql.=",'" . $this->currentevent["content"] . "'";
+            $hsql.=",programid";
+        }
+        if(isset($this->currentevent["series"])){
+            $sql.=",'" . $this->currentevent["series"] . "'";
+            $hsql.=",seriesid";
+        }
+        $hsql.=") values ($sql)";
+        $this->mx->query($hsql);
+        $this->dbinserted++;
     }/*}}}*/
     private function updateDB()/*{{{*/
     {
-        $sql="select * from schedule where channel = (select rtid from channel where freeviewid = (select id from freeview where networkid='" . $this->currentevent["netid"] . "')) and starttime = " . $this->currentevent["start"] . " and endtime = " . $this->currentevent["end"];
+        $sql="select networkid from freeview,channel where channel.getdata=1 and channel.freeviewid=freeview.id and freeview.networkid='" . $this->currentevent["netid"] . "'";
         if(false!==($arr=$this->mx->arrayQuery($sql))){
-            if($arr["title"]!==$this->currentevent["title"]){
-                $this->debug("titles do not match - not updating db: " . $arr["title"] . " and " . $this->currentevent["title"]);
+            $sql="select * from schedule where channel = (select rtid from channel where freeviewid = (select id from freeview where networkid='" . $this->currentevent["netid"] . "')) and starttime = " . $this->currentevent["start"] . " and endtime = " . $this->currentevent["end"];
+            if(false!==($arr=$this->mx->arrayQuery($sql))){
+                if(0==($cn=$this->ValidArray($arr))){
+                    // event doesn't yet exist in db
+                    // so insert it
+                    $this->insertEventIntoDB();
+                    $this->dbnotfound++;
+                }else{
+                    if(isset($arr[0]["title"])){
+                        if($arr[0]["title"]!==$this->currentevent["title"]){
+                            $this->debug("titles do not match - not updating db: " . $arr[0]["title"] . " and " . $this->currentevent["title"]);
+                            $this->mismatchedtitle++;
+                        }else{
+                            $sql="update schedule set ";
+                            $esql=" where id=" . $arr[0]["id"];
+                            $ssql="";
+                            if(isset($this->currentevent["content"]) && strlen($this->currentevent["content"])){
+                                //$sql="update schedule set programid='" . $this->currentevent["content"] . "' where id=" . $arr[0]["id"];
+                                $ssql="programid='" . $this->currentevent["content"] . "'";
+                                // $this->mx->query($sql);
+                            }
+                            if(isset($this->currentevent["series"]) && strlen($this->currentevent["series"])){
+                                // $sql="update schedule set seriesid='" . $this->currentevent["series"] . "' where id=" . $arr[0]["id"];
+                                // $this->mx->query($sql);
+                                if(strlen($ssql)){
+                                    $ssql.=", seriesid='" . $this->currentevent["series"] . "'";
+                                }else{
+                                    $ssql="seriesid='" . $this->currentevent["series"] . "'";
+                                }
+                            }
+                            if(strlen($ssql)){
+                                $this->mx->query($sql . $ssql . $esql);
+                                $this->updated++;
+                            }else{
+                                $this->noseriesprogid++;
+                            }
+                        }
+                    }else{
+                        $tmp=print_r($arr,true);
+                        $this->debug("array title not set");
+                        $this->debug($tmp);
+                    }
+                }
             }else{
-                if(isset($this->currentevent["content"]) && strlen($this->currentevent["content"])){
-                    $sql="update schedule set programid='" . $this->currentevent["content"] . "' where id=" . $arr[0]["id"];
-                    $this->mx->query($sql);
-                }
-                if(isset($this->currentevent["series"]) && strlen($this->currentevent["series"])){
-                    $sql="update schedule set seriesid='" . $this->currentevent["series"] . "' where id=" . $arr[0]["id"];
-                    $this->mx->query($sql);
-                }
+                $this->insertEventIntoDB();
+                $this->dbnotfound++;
             }
+        }else{
+            $this->ignored++;
         }
     }/*}}}*/
     public function getNumEvents()/*{{{*/
@@ -441,33 +521,46 @@ class EPG extends DVBCtrl
     }/*}}}*/
     public function epgCapStop()/*{{{*/
     {
+        // this may not work as dvbstreamer may ignore it
         if(false!==($junk=$this->request("epgcapstop"))){
             $this->epgcapturing=false;
             $this->disconnect();
-            $this->connect();
-            return true;
+            // $this->connect();
+        }else{
+            // disconnect anyway, then dvbstreamer knows 
+            // we don't want anymore data
+            $this->disconnect();
         }
-        return false;
+        return true;
     }/*}}}*/
     public function epgEvent()/*{{{*/
     {
         $ret=false;
-        if(false!==($eventstr=$this->rcvEpgEvent())){
-            try{
-                $this->xml->xml($eventstr);
-                $this->warningcn=0;
-                if(false!==($event=$this->processXml())){
-                    // $this->updateEPG($event);
-                    $this->processEvent($event);
-                    $ret=$this->numevents;
-                }
-            }catch(Exception $e){
-                $this->warning("failed to interpret string as valid xml");
-                $this->warning($e->getMessage());
-                $this->warningcn++;
-                if($this->warningcn>9){
-                    $this->error("10 straight failed xml interpretations");
-                    $this->epgCapStop();
+        $currentnumevents=$this->numevents;
+        while($currentnumevents==$this->numevents){
+            if(false!==($eventstr=$this->rcvEpgEvent())){
+                try{
+                    $this->xml->xml($eventstr);
+                    $this->warningcn=0;
+                    if(false!==($event=$this->processXml())){
+                        // $this->updateEPG($event);
+                        $this->processEvent($event);
+                        if($this->firsteventid==$this->currenteventid && $this->numevents>1){
+                            $this->info("First event received again");
+                            $ret=array("numevents"=>$this->numevents,"dbnotfound"=>$this->dbnotfound,"mismatchedtitle"=>$this->mismatchedtitle,"updated"=>$this->updated,"noseriesprogid"=>$this->noseriesprogid,"dbinserted"=>$this->dbinserted,"ignored"=>$this->ignored,"stopnow"=>true);
+                        }else{
+                            $ret=array("numevents"=>$this->numevents,"dbnotfound"=>$this->dbnotfound,"mismatchedtitle"=>$this->mismatchedtitle,"updated"=>$this->updated,"noseriesprogid"=>$this->noseriesprogid,"dbinserted"=>$this->dbinserted,"ignored"=>$this->ignored,"stopnow"=>false);
+                        }
+                        // $ret=$this->numevents;
+                    }
+                }catch(Exception $e){
+                    $this->warning("failed to interpret string as valid xml");
+                    $this->warning($e->getMessage());
+                    $this->warningcn++;
+                    if($this->warningcn>9){
+                        $this->error("10 straight failed xml interpretations");
+                        $this->epgCapStop();
+                    }
                 }
             }
         }
