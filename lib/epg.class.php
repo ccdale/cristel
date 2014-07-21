@@ -9,7 +9,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 15 June 2014, 09:52:57
- * Last Modified: Monday 21 July 2014, 02:32:57
+ * Last Modified: Monday 21 July 2014, 11:22:14
  * Revision: $Id$
  * Version: 0.00
  */
@@ -34,8 +34,9 @@ class EPG extends DVBCtrl
     private $noseriesprogid=0;
     private $dbinserted=0;
     private $ignored=0;
+    private $channel;
 
-    public function __construct($logg=false,$host="",$user="",$pass="",$adaptor=0,$dvb=false,$mx=false,$truncate=true)/*{{{*/
+    public function __construct($logg=false,$host="",$user="",$pass="",$adaptor=0,$dvb=false,$mx=false,$truncate=true,$channel="BBC TWO")/*{{{*/
     {
         parent::__construct($logg,$host,$user,$pass,$adaptor,$dvb);
         if(false===$mx){
@@ -47,6 +48,7 @@ class EPG extends DVBCtrl
             $this->mx->query("truncate epg");
             $this->debug("epg table truncated");
         }
+        $this->channel=$channel;
         $this->infomap=array(
             "networkid"=>"ID",
             "mux"=>"Multiplex UID",
@@ -438,17 +440,18 @@ class EPG extends DVBCtrl
                     if(isset($arr[0]["title"])){
                         if($arr[0]["title"]!==$this->currentevent["title"]){
                             $this->debug("titles do not match - not updating db: " . $arr[0]["title"] . " and " . $this->currentevent["title"]);
+                            $this->debug("at " . $this->currentevent["start"] . " on " . $this->currentevent["netid"]);
                             $this->mismatchedtitle++;
                         }else{
                             $sql="update schedule set ";
                             $esql=" where id=" . $arr[0]["id"];
                             $ssql="";
-                            if(isset($this->currentevent["content"]) && strlen($this->currentevent["content"])){
+                            if(isset($this->currentevent["content"]) && strlen($this->currentevent["content"]) && $arr[0]["programid"]!=$this->currentevent["content"]){
                                 //$sql="update schedule set programid='" . $this->currentevent["content"] . "' where id=" . $arr[0]["id"];
                                 $ssql="programid='" . $this->currentevent["content"] . "'";
                                 // $this->mx->query($sql);
                             }
-                            if(isset($this->currentevent["series"]) && strlen($this->currentevent["series"])){
+                            if(isset($this->currentevent["series"]) && strlen($this->currentevent["series"]) && $arr[0]["seriesid"]!=$this->currentevent["series"]){
                                 // $sql="update schedule set seriesid='" . $this->currentevent["series"] . "' where id=" . $arr[0]["id"];
                                 // $this->mx->query($sql);
                                 if(strlen($ssql)){
@@ -484,7 +487,7 @@ class EPG extends DVBCtrl
     }/*}}}*/
     public function epgCapStart()/*{{{*/
     {
-        $srv="BBC TWO";
+        $srv=$this->channel;
         $nottuned=true;
         // stop capturing if it is currently running
         // and ignore any errors if this fails

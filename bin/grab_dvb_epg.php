@@ -10,7 +10,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday 21 July 2014, 02:33:36
- * Last Modified: Monday 21 July 2014, 02:56:51
+ * Last Modified: Monday 21 July 2014, 11:09:19
  * Revision: $Id$
  * Version: 0.00
  */
@@ -20,6 +20,7 @@ function logInfo($logg,$arr)/*{{{*/
     $logg->info("Received " . $arr["numevents"] . " events");
     $logg->info("Updated " . $arr["updated"] . " schedule events");
     $logg->info($arr["dbinserted"] . " events inserted into the schedule");
+    $logg->info($arr["noseriesprogid"] . " events are the same");
     $logg->info($arr["ignored"] . " events have been ignored");
 }/*}}}*/
 function setUpIncludePath()/*{{{*/
@@ -49,34 +50,38 @@ require_once "simple-mysql.class.php";
 require_once "logging.class.php";
 require_once "epg.class.php";
 
-$logg=new Logging(true,"DVBEPG",0,LOG_INFO,false,false,-1,LOG_INFO);
+$channels=array("BBC TWO","ITV","Channel 4");
+$logg=new Logging(false,"DVBEPG");
 $mx=new Mysql($logg,"localhost","tvapp","tvapp","tv");
 $dvb=new DvbStreamer($logg,0,"tvc","tvc");
-$epg=new EPG($logg,"127.0.0.1","tvc","tvc",0,$dvb,$mx,false);
-
-$epg->epgCapStart();
-$nevents=0;
-$killtime=3600; // 1 hour
-$startcaptime=time();
-while(true){
-    if(false!==($arr=$epg->epgEvent())){
-        if($arr["numevents"]>0 && 0==($arr["numevents"]%1000)){
-            logInfo($logg,$arr);
-            if($arr["stopnow"]){
-                break;
-            }
-        }else{
-            if($arr["stopnow"]){
+foreach($channels as $channel){
+    $logg->info("Using channel $channel");
+    $epg=new EPG($logg,"127.0.0.1","tvc","tvc",0,$dvb,$mx,false,$channel);
+    $epg->epgCapStart();
+    $nevents=0;
+    $killtime=3600; // 1 hour
+    $startcaptime=time();
+    while(true){
+        if(false!==($arr=$epg->epgEvent())){
+            if($arr["numevents"]>0 && 0==($arr["numevents"]%1000)){
                 logInfo($logg,$arr);
-                break;
+                if($arr["stopnow"]){
+                    break;
+                }
+            }else{
+                if($arr["stopnow"]){
+                    logInfo($logg,$arr);
+                    break;
+                }
             }
         }
+        if(time()>($startcaptime+$killtime)){
+            logInfo($logg,$arr);
+            $logg->info("times up");
+            break;
+        }
     }
-    if(time()>($startcaptime+$killtime)){
-        logInfo($logg,$arr);
-        $logg->info("times up");
-        break;
-    }
+    $epg=null;
 }
 $logg->info("Shutting down");
 $epg=null;
