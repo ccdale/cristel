@@ -9,7 +9,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Friday 24 May 2013, 23:41:08
- * Last Modified: Friday 18 July 2014, 10:11:40
+ * Last Modified: Tuesday 22 July 2014, 11:20:33
  * Revision: $Id: base.class.php 7515 2013-06-25 12:25:34Z chris.allison $
  * Version: 0.00
  */
@@ -64,6 +64,34 @@ class Base
         }else{
             return false;
         }
+    }/*}}}*/
+    public function testArrayMember($arr,$member)/*{{{*/
+    {
+        $ret=false;
+        if(false!==($junk=$this->ValidArray($arr))){
+            if(false!=($cn=$this->ValidString($member))){
+                if($cn>0){
+                    if(isset($arr[$member])){
+                        $ret=$this->ValidString($arr[$member]);
+                    }
+                }
+            }
+        }
+        return $ret;
+    }/*}}}*/
+    public function testArrayMemberInt($arr,$member)/*{{{*/
+    {
+        $ret=false;
+        if(false!==($junk=$this->ValidArray($arr))){
+            $junk=intval($member);
+            $junk+=0;
+            if($junk===$member){
+                if(isset($arr[$member])){
+                    $ret=$this->ValidString($arr[$member]);
+                }
+            }
+        }
+        return $ret;
     }/*}}}*/
     public function hmsToSec($hms) // {{{
     {
