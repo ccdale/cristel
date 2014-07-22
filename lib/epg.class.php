@@ -9,7 +9,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 15 June 2014, 09:52:57
- * Last Modified: Tuesday 22 July 2014, 11:45:56
+ * Last Modified: Tuesday 22 July 2014, 11:53:38
  * Revision: $Id$
  * Version: 0.00
  */
@@ -520,7 +520,8 @@ class EPG extends DVBCtrl
                     }
                 }
             }else{
-                $this->insertEventIntoDB();
+                // $this->insertEventIntoDB();
+                $this->insertEventIntoEPG();
                 $this->dbnotfound++;
             }
         }else{
