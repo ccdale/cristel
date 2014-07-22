@@ -10,7 +10,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday 21 July 2014, 02:33:36
- * Last Modified: Monday 21 July 2014, 11:09:19
+ * Last Modified: Tuesday 22 July 2014, 11:41:29
  * Revision: $Id$
  * Version: 0.00
  */
@@ -50,13 +50,14 @@ require_once "simple-mysql.class.php";
 require_once "logging.class.php";
 require_once "epg.class.php";
 
-$channels=array("BBC TWO","ITV","Channel 4");
+// $rtids=array(106,24,132); // bbc2 east, itv, channel 4
+$rtids=array(106,24); // bbc2 east, itv
 $logg=new Logging(false,"DVBEPG");
 $mx=new Mysql($logg,"localhost","tvapp","tvapp","tv");
 $dvb=new DvbStreamer($logg,0,"tvc","tvc");
-foreach($channels as $channel){
-    $logg->info("Using channel $channel");
-    $epg=new EPG($logg,"127.0.0.1","tvc","tvc",0,$dvb,$mx,false,$channel);
+foreach($rtids as $rtid){
+    $logg->info("Using channel $rtid");
+    $epg=new EPG($logg,"127.0.0.1","tvc","tvc",0,$dvb,$mx,false,$rtid);
     $epg->epgCapStart();
     $nevents=0;
     $killtime=3600; // 1 hour
