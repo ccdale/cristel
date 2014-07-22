@@ -9,7 +9,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 15 June 2014, 09:52:57
- * Last Modified: Tuesday 22 July 2014, 11:37:08
+ * Last Modified: Tuesday 22 July 2014, 11:45:56
  * Revision: $Id$
  * Version: 0.00
  */
@@ -448,8 +448,9 @@ class EPG extends DVBCtrl
             }
         }
         if($fid>0){
-            $hsql="insert into epg (networkid,starttime,endtime,title,description";
-            $sql=$this->makeSqlString($this->currentevent["netid"]) . ",";
+            $hsql="insert into epg (fromrtid,networkid,starttime,endtime,title,description";
+            $sql=$this->rtid . ",";
+            $sql.=$this->makeSqlString($this->currentevent["netid"]) . ",";
             $sql.=$this->currentevent["start"] . ",";
             $sql.=$this->currentevent["end"];
             $sql.=$this->makeSqlString($this->currentevent["title"]) . ",";
