@@ -9,7 +9,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 15 June 2014, 09:52:57
- * Last Modified: Tuesday 22 July 2014, 12:14:30
+ * Last Modified: Tuesday 22 July 2014, 12:18:59
  * Revision: $Id$
  * Version: 0.00
  */
@@ -448,8 +448,9 @@ class EPG extends DVBCtrl
             }
         }
         if($fid>0){
-            $hsql="insert into epg (fromrtid,networkid,starttime,endtime,title,description";
+            $hsql="insert into epg (fromrtid,eventid,networkid,starttime,endtime,title,description";
             $sql=$this->rtid . ",";
+            $sql.=$this->makeSqlString($this->currentevent["eventid"]) . ",";
             $sql.=$this->makeSqlString($this->currentevent["netid"]) . ",";
             $sql.=$this->currentevent["start"] . ",";
             $sql.=$this->currentevent["end"] . ",";
@@ -457,11 +458,11 @@ class EPG extends DVBCtrl
             $sql.=$this->makeSqlString($this->currentevent["description"]);
             if(false!==($cn=$this->testArrayMember($this->currentevent,"content"))){
                 $sql.=",'" . $this->currentevent["content"] . "'";
-                $hsql.=",programid";
+                $hsql.=",content";
             }
             if(false!==($cn=$this->testArrayMember($this->currentevent,"series"))){
                 $sql.=",'" . $this->currentevent["series"] . "'";
-                $hsql.=",seriesid";
+                $hsql.=",series";
             }
             $hsql.=") values ($sql)";
             $this->mx->query($hsql);
