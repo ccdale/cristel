@@ -9,7 +9,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 15 June 2014, 09:52:57
- * Last Modified: Tuesday 22 July 2014, 11:56:44
+ * Last Modified: Tuesday 22 July 2014, 12:14:30
  * Revision: $Id$
  * Version: 0.00
  */
@@ -452,9 +452,9 @@ class EPG extends DVBCtrl
             $sql=$this->rtid . ",";
             $sql.=$this->makeSqlString($this->currentevent["netid"]) . ",";
             $sql.=$this->currentevent["start"] . ",";
-            $sql.=$this->currentevent["end"];
+            $sql.=$this->currentevent["end"] . ",";
             $sql.=$this->makeSqlString($this->currentevent["title"]) . ",";
-            $sql.=$this->makeSqlString($this->currentevent["description"]) . ",";
+            $sql.=$this->makeSqlString($this->currentevent["description"]);
             if(false!==($cn=$this->testArrayMember($this->currentevent,"content"))){
                 $sql.=",'" . $this->currentevent["content"] . "'";
                 $hsql.=",programid";
