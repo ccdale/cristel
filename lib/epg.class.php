@@ -9,7 +9,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 15 June 2014, 09:52:57
- * Last Modified: Monday 21 July 2014, 11:22:14
+ * Last Modified: Tuesday 22 July 2014, 11:27:31
  * Revision: $Id$
  * Version: 0.00
  */
@@ -33,6 +33,7 @@ class EPG extends DVBCtrl
     private $updated=0;
     private $noseriesprogid=0;
     private $dbinserted=0;
+    private $dbfailed=0;
     private $ignored=0;
     private $channel;
 
@@ -425,6 +426,37 @@ class EPG extends DVBCtrl
         $this->mx->query($hsql);
         $this->dbinserted++;
     }/*}}}*/
+    private function insertEventIntoEPG()/*{{{*/
+    {
+        $fid=0;
+        $sql="select id from freeview where networkid='" . $this->currentevent["netid"] . "'";
+        if(false!==($arr=$this->mx->arrayQuery($sql))){
+            if(isset($arr[0]["id"])){
+                $fid=$arr[0]["id"];
+            }
+        }
+        if($fid>0){
+            $hsql="insert into epg (networkid,starttime,endtime,title,description";
+            $sql=$this->makeSqlString($this->currentevent["netid"]) . ",";
+            $sql.=$this->currentevent["start"] . ",";
+            $sql.=$this->currentevent["end"];
+            $sql.=$this->makeSqlString($this->currentevent["title"]) . ",";
+            $sql.=$this->makeSqlString($this->currentevent["description"]) . ",";
+            if(false!==($cn=$this->testArrayMember($this->currentevent,"content"))){
+                $sql.=",'" . $this->currentevent["content"] . "'";
+                $hsql.=",programid";
+            }
+            if(false!==($cn=$this->testArrayMember($this->currentevent,"series"))){
+                $sql.=",'" . $this->currentevent["series"] . "'";
+                $hsql.=",seriesid";
+            }
+            $hsql.=") values ($sql)";
+            $this->mx->query($hsql);
+            $this->dbinserted++;
+        }else{
+            $this->dbfailed++;
+        }
+    }/*}}}*/
     private function updateDB()/*{{{*/
     {
         $sql="select networkid from freeview,channel where channel.getdata=1 and channel.freeviewid=freeview.id and freeview.networkid='" . $this->currentevent["netid"] . "'";
@@ -434,7 +466,8 @@ class EPG extends DVBCtrl
                 if(0==($cn=$this->ValidArray($arr))){
                     // event doesn't yet exist in db
                     // so insert it
-                    $this->insertEventIntoDB();
+                    $this->insertEventIntoEPG();
+                    // $this->insertEventIntoDB();
                     $this->dbnotfound++;
                 }else{
                     if(isset($arr[0]["title"])){
@@ -550,9 +583,9 @@ class EPG extends DVBCtrl
                         $this->processEvent($event);
                         if($this->firsteventid==$this->currenteventid && $this->numevents>1){
                             $this->info("First event received again");
-                            $ret=array("numevents"=>$this->numevents,"dbnotfound"=>$this->dbnotfound,"mismatchedtitle"=>$this->mismatchedtitle,"updated"=>$this->updated,"noseriesprogid"=>$this->noseriesprogid,"dbinserted"=>$this->dbinserted,"ignored"=>$this->ignored,"stopnow"=>true);
+                            $ret=array("numevents"=>$this->numevents,"dbnotfound"=>$this->dbnotfound,"mismatchedtitle"=>$this->mismatchedtitle,"updated"=>$this->updated,"noseriesprogid"=>$this->noseriesprogid,"dbinserted"=>$this->dbinserted,"ignored"=>$this->ignored,"stopnow"=>true,"dbfailed"=>$this->dbfailed);
                         }else{
-                            $ret=array("numevents"=>$this->numevents,"dbnotfound"=>$this->dbnotfound,"mismatchedtitle"=>$this->mismatchedtitle,"updated"=>$this->updated,"noseriesprogid"=>$this->noseriesprogid,"dbinserted"=>$this->dbinserted,"ignored"=>$this->ignored,"stopnow"=>false);
+                            $ret=array("numevents"=>$this->numevents,"dbnotfound"=>$this->dbnotfound,"mismatchedtitle"=>$this->mismatchedtitle,"updated"=>$this->updated,"noseriesprogid"=>$this->noseriesprogid,"dbinserted"=>$this->dbinserted,"ignored"=>$this->ignored,"stopnow"=>false,"dbfailed"=>$this->dbfailed);
                         }
                         // $ret=$this->numevents;
                     }
