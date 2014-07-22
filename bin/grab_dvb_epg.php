@@ -10,7 +10,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday 21 July 2014, 02:33:36
- * Last Modified: Tuesday 22 July 2014, 11:41:29
+ * Last Modified: Tuesday 22 July 2014, 11:42:37
  * Revision: $Id$
  * Version: 0.00
  */
@@ -60,7 +60,7 @@ foreach($rtids as $rtid){
     $epg=new EPG($logg,"127.0.0.1","tvc","tvc",0,$dvb,$mx,false,$rtid);
     $epg->epgCapStart();
     $nevents=0;
-    $killtime=3600; // 1 hour
+    $killtime=300; // 5 minutes
     $startcaptime=time();
     while(true){
         if(false!==($arr=$epg->epgEvent())){
