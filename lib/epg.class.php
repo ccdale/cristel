@@ -9,7 +9,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 15 June 2014, 09:52:57
- * Last Modified: Tuesday 22 July 2014, 11:53:38
+ * Last Modified: Tuesday 22 July 2014, 11:56:44
  * Revision: $Id$
  * Version: 0.00
  */
@@ -52,7 +52,7 @@ class EPG extends DVBCtrl
         }
         if($rtid>0){
             $this->rtid=$rtid;
-            $sql="select channelname from freeview where id=(select freeviewid from channel where id=$rtid)";
+            $sql="select channelname from freeview where id=(select freeviewid from channel where rtid=$rtid)";
             if(false!==($arr=$this->mx->arrayQuery($sql))){
                 if(isset($arr[0]["channelname"])){
                     $this->channel=$arr[0]["channelname"];
