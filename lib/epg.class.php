@@ -9,7 +9,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 15 June 2014, 09:52:57
- * Last Modified: Tuesday 22 July 2014, 11:27:31
+ * Last Modified: Tuesday 22 July 2014, 11:37:08
  * Revision: $Id$
  * Version: 0.00
  */
@@ -36,8 +36,9 @@ class EPG extends DVBCtrl
     private $dbfailed=0;
     private $ignored=0;
     private $channel;
+    private $rtid;
 
-    public function __construct($logg=false,$host="",$user="",$pass="",$adaptor=0,$dvb=false,$mx=false,$truncate=true,$channel="BBC TWO")/*{{{*/
+    public function __construct($logg=false,$host="",$user="",$pass="",$adaptor=0,$dvb=false,$mx=false,$truncate=true,$rtid=106)/*{{{*/
     {
         parent::__construct($logg,$host,$user,$pass,$adaptor,$dvb);
         if(false===$mx){
@@ -49,7 +50,18 @@ class EPG extends DVBCtrl
             $this->mx->query("truncate epg");
             $this->debug("epg table truncated");
         }
-        $this->channel=$channel;
+        if($rtid>0){
+            $this->rtid=$rtid;
+            $sql="select channelname from freeview where id=(select freeviewid from channel where id=$rtid)";
+            if(false!==($arr=$this->mx->arrayQuery($sql))){
+                if(isset($arr[0]["channelname"])){
+                    $this->channel=$arr[0]["channelname"];
+                }else{
+                    $this->channel="BBC TWO";
+                }
+            }
+        }
+        // $this->channel=$channel;
         $this->infomap=array(
             "networkid"=>"ID",
             "mux"=>"Multiplex UID",
