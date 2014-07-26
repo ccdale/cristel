@@ -4,7 +4,7 @@
  * defs.h
  *
  * Started: Sunday 23 December 2012, 19:43:27
- * Last Modified: Friday 25 July 2014, 09:12:19
+ * Last Modified: Saturday 26 July 2014, 05:50:22
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -42,6 +42,25 @@
 #include <errno.h>
 #include <limits.h>
 #include <dirent.h>
+
+#define PROGNAME "cristel"
+#define PROGVERSION "0.01"
+#define PROGEMAIL "chris.allison@hotmail.com"
+#define PROGCOPYRIGHT "Copyright (C) 2014 Chris Allison"
+#define PROGLICENSE "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n"
+#define PROGCONF "/home/chris/src/cristel/recorder/"PROGNAME".conf"
+
+#define CCA_HOME "/"
+#define CCA_LOCK_FILE "/home/chris/"PROGNAME".pid"
+#define MAX_MSG_LEN 4096
+
+#define CCA_DEFAULT_DBNAME "tv"
+#define CCA_DEFAULT_DBHOST "localhost"
+#define CCA_DEFAULT_DBUSER "tvapp"
+#define CCA_DEFAULT_DBPASS "tvapp"
+#define CCA_DEFAULT_DVBUSER "tvc"
+#define CCA_DEFAULT_DVBPASS "tvc"
+#define CCA_DEFAULT_CONFIGFILE PROGCONF
 
 /*
 #define CCA_DEFAULT_DAEMONIZE "1"

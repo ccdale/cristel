@@ -4,7 +4,7 @@
  * configfile.c
  *
  * Started: Sunday 23 December 2012, 09:47:48
- * Last Modified: Friday 25 July 2014, 09:32:25
+ * Last Modified: Saturday 26 July 2014, 04:42:06
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -34,6 +34,7 @@ int initConfig( void )/* {{{1 */
     configuration->key=NULL;
     configuration->value=NULL;
     configuration->next=NULL;
+    DBG("Configuration initialised");
     return 0;
 }/* }}} */
 void getConfigFromFile(char *filename)/* {{{1 */

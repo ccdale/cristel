@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Friday 25 July 2014, 09:28:46
+ * Last Modified: Saturday 26 July 2014, 06:26:49
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -24,12 +24,6 @@
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define PROGNAME "cristel"
-#define PROGVERSION "0.01"
-#define PROGEMAIL "chris.allison@hotmail.com"
-#define PROGCOPYRIGHT "Copyright (C) 2014 Chris Allison"
-#define PROGLICENSE "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n"
-
 #include "defs.h"
 #include "macros.h"
 #include "globals.h"
@@ -39,5 +33,11 @@
 
 /* globals */
 struct ConfigItem *configuration;
+struct sigaction *siga;
+int timetodie=0;
 
+void catchsignal(int sig);
+int daemonize();
+int setDefaultConfig( void );
+int mainLoop();
 int main(int argc,char **argv);

@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Friday 25 July 2014, 08:48:15
+ * Last Modified: Saturday 26 July 2014, 07:17:44
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -26,18 +26,215 @@
 
 #include "cristel.h"
 
+void catchsignal(int sig)/* {{{1 */
+{
+    DBGL("Received signal: %d",sig);
+    timetodie=1;
+    // signal(sig,catchsignal);
+} /* }}} */
+int daemonize()/* {{{ */
+{
+    int i,lfp;
+    char str[MAX_MSG_LEN];
+    char *env;
+    int junk;
+    int ret=0;
+
+    if(getppid()==1) return; /* already a daemon */
+    DBG("Forking");
+    i=fork();
+    if (i<0) 
+    {
+        CCAE(1,"fork failed. Exiting");
+    }
+    if (i>0) 
+    {
+        DBG("parent returning 1");
+        /*
+        exit(0);
+        */
+        return 1;
+    } /* parent exits */
+    /* child (daemon) continues */
+    DBG("fork success. Child process continues.");
+    setsid(); /* obtain a new process group */
+    DBG("closing file descriptors");
+    /* Close out the standard file descriptors */
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+    DBG("redirecting standard i/o to /dev/null");
+    i=open("/dev/null",O_RDWR); dup(i); dup(i); /* handle standard I/O */
+    DBG("setting umask to 027");
+    umask(027); /* set newly created file permissions */
+    DBGL("cd'ing to %s",CCA_HOME);
+    chdir(CCA_HOME); /* change running directory */
+    DBG("Creating lock file");
+    lfp=open(CCA_LOCK_FILE,O_RDWR|O_CREAT,0640);
+    if (lfp<0) {
+        CCAE(1,"Failed to create lock file, exiting.");
+    } /* can not open */
+    if (lockf(lfp,F_TLOCK,0)<0) {
+        CCAE(1,"Cannot lock, another instance running? qitting");
+    } /* can not lock */
+    DBG("File locked.");
+    /* first instance continues */
+    sprintf(str,"%d",getpid());
+    write(lfp,str,strlen(str)); /* record pid to lockfile */
+    DBG("pid written to lock file");
+
+    /* testing getting env strings */
+    if(env=getenv("HOME")){
+        DBG("HOME is");
+        DBG(env);
+    }
+    DBG("setting signal handlers");
+    /*
+    sigemptyset(siga->sa_mask);
+    sigaddset(siga->sa_mask,SIGCHLD);
+    sigaddset(siga->sa_mask,SIGTSTP);
+    sigaddset(siga->sa_mask,SIGTTOU);
+    sigaddset(siga->sa_mask,SIGTTIN);
+    */
+    DBG("sigchld");
+    siga->sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGCHLD,siga,NULL))!=0){
+        CCAE(1,"cannot ignore signal SIGCHLD");
+    }
+    DBG("sigtstp");
+    siga->sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGTSTP,siga,NULL))!=0){
+        CCAE(1,"cannot ignore signal SIGTSTP");
+    }
+    DBG("sigttou");
+    siga->sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGTTOU,siga,NULL))!=0){
+        CCAE(1,"cannot ignore signal SIGTTOU");
+    }
+    DBG("sigttin");
+    siga->sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGTTIN,siga,NULL))!=0){
+        CCAE(1,"cannot ignore signal SIGTTIN");
+    }
+    /*
+       siga->sa_handler=catchsignal;
+       if((junk=sigaction(SIGHUP,siga,NULL))!=0){
+       CCAE(1,"cannot set handler for SIGHUP");
+       }
+       siga->sa_handler=catchsignal;
+       if((junk=sigaction(SIGTERM,siga,NULL))!=0){
+       CCAE(1,"cannot set handler for SIGHUP");
+       }
+       */
+    DBG("sighup");
+    siga->sa_handler=catchsignal;
+    if((junk=sigaction(SIGHUP,siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGHUP");
+    }
+    DBG("sigterm");
+    siga->sa_handler=catchsignal;
+    if((junk=sigaction(SIGTERM,siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGTERM");
+    }
+    DBG("sigint");
+    siga->sa_handler=catchsignal;
+    if((junk=sigaction(SIGINT,siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGINT");
+    }
+    DBG("sigusr1");
+    siga->sa_handler=catchsignal;
+    if((junk=sigaction(SIGUSR1,siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGUSR1");
+    }
+    DBG(PROGNAME" daemonized");
+    DBG("Child returning 0");
+    return 0;
+}/* }}} */
+int setDefaultConfig( void )/* {{{ */
+{
+    char *tk;
+    char *tv;
+    int ret;
+
+    if((ret = initConfig()) == 0){
+        tk=strdup("dbname");
+        tv=strdup(CCA_DEFAULT_DBNAME);
+        updateConfig(tk,tv);
+        tk=strdup("dbhost");
+        tv=strdup(CCA_DEFAULT_DBHOST);
+        updateConfig(tk,tv);
+        tk=strdup("dbuser");
+        tv=strdup(CCA_DEFAULT_DBUSER);
+        updateConfig(tk,tv);
+        tk=strdup("dbpass");
+        tv=strdup(CCA_DEFAULT_DBPASS);
+        updateConfig(tk,tv);
+        tk=strdup("dvbuser");
+        tv=strdup(CCA_DEFAULT_DVBUSER);
+        updateConfig(tk,tv);
+        tk=strdup("dbpass");
+        tv=strdup(CCA_DEFAULT_DVBPASS);
+        updateConfig(tk,tv);
+    }
+    return ret;
+}/*}}}*/
+int mainLoop()/*{{{*/
+{
+    int ret=0;
+
+    do{
+        if(timetodie!=0){
+            break;
+        }
+        sleep(1);
+    }
+    while(1);
+    return ret;
+}/*}}}*/
+int startDvbStreamer(int adaptor)/*{{{*/
+{
+    char cmd[]="/usr/bin/dvbstreamer";
+    char *user;
+    char *pass;
+    char *adap;
+    int pid;
+    int len;
+
+    DBG("forking dvbstreamer");
+    pid=fork();
+    if(pid==0){
+        len=snprintf(adap,0,"%d",adaptor);
+        len++;
+        if(( adap=malloc(len)) == NULL){
+            CCAE(1,"Out of memory.");
+        }
+        len=snprintf(adap,len,"%d",adaptor);
+        user=configValue("dvbuser");
+        pass=configValue("dvbpass");
+        execl(cmd,cmd,"-d","-a",adap,"-u",user,"-p",pass,(char *)0);
+    }
+    DBGL("dvbstreamer pid: %d",pid);
+    return pid;
+}/*}}}*/
 int main(int argc,char **argv)/*{{{*/
 {
+    char *conffile;
+    int ret=0;
+    int pid;
+
     /* Define the allowable command line options, collecting them in argtable[] */
+    struct arg_file *conf = arg_file0("c",NULL,"/etc/cristel.conf","configuration file");
     struct arg_lit *help = arg_lit0("h","help","print this help and exit");
     struct arg_lit *vers = arg_lit0("v","version","print version information and exit");
     struct arg_end *end  = arg_end(20);
-    void *argtable[] = {help,vers,end};
+    void *argtable[] = {conf,help,vers,end};
     int exitcode=0;
     int nerrors;
 
     /* check the argtable[] entries where correctly allocated */
     if(arg_nullcheck(argtable) == 0){
+        /* set default config filename */
+        conf->filename[0]=PROGCONF;
         /* parse the command line */
         nerrors = arg_parse(argc,argv,argtable);
 
@@ -47,7 +244,7 @@ int main(int argc,char **argv)/*{{{*/
             printf("Usage: %s",PROGNAME);
             arg_print_syntax(stdout,argtable,"\n");
             printf("Start the %s tv recorder\n\n",PROGNAME);
-            arg_print_glossary(stdout,argtable,"  %-15s %s\n");
+            arg_print_glossary(stdout,argtable,"  %-20s %s\n");
             /* free up memory used for argument processing */
             arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
             printf("\nreport bugs to %s\n",PROGEMAIL);
@@ -71,11 +268,58 @@ int main(int argc,char **argv)/*{{{*/
             arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
             return 1;
         }
+
+        /* command line processing completed */
+
+        conffile=strdup(conf->filename[0]);
+        /* free up memory used for argument processing */
+        arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
+        
+        /* setup daemon */
+        if((siga=malloc(sizeof(struct sigaction)))==NULL){
+            CCAE(1,"out of memory setting up signal handler.");
+        }
+        siga->sa_handler=catchsignal;
+        sigemptyset(&siga->sa_mask);
+        siga->sa_flags=0;
+        ret=daemonize();
+        if(ret==1){
+            DBG("I am the parent, freeing memory and buggering off");
+            free(conffile);
+            free(siga);
+            exit(0);
+        }
+        DBG("daemonize returned");
+
+        /* setup config */
+        if((exitcode=setDefaultConfig()) == 0){
+            /*
+             * config setup ok
+             * read in config settings from conf file
+             */
+
+            getConfigFromFile(conffile);
+
+            free(conffile);
+
+            /* start dvbstreamer */
+            pid=startDvbStreamer(0);
+            /* enter the main loop */
+            exitcode=mainLoop();
+
+            DBG("loop completed.  exiting");
+
+            /* main loop completed, time to shut down */
+            deleteConfig();
+
+            DBG("Freeing signal handling struct.");
+            free(siga);
+        }else{
+            DBG("Failed to setup default config");
+        }
     }else{
         /* error allocating memory for argtable entries */
         CCAE(1,"Command line processing: Out of memory");
     }
-    /* free up memory used for argument processing */
-    arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
     return exitcode;
 }/*}}}*/
