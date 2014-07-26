@@ -1,10 +1,10 @@
 /*
  * vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4 foldmethod=marker:
  *
- * cristel.h
- * 
- * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Friday 25 July 2014, 09:28:46
+ * globals.h
+ *
+ * Started: Friday 28 December 2012, 22:09:57
+ * Last Modified: Friday 25 July 2014, 08:56:19
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -24,20 +24,4 @@
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define PROGNAME "cristel"
-#define PROGVERSION "0.01"
-#define PROGEMAIL "chris.allison@hotmail.com"
-#define PROGCOPYRIGHT "Copyright (C) 2014 Chris Allison"
-#define PROGLICENSE "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n"
-
-#include "defs.h"
-#include "macros.h"
-#include "globals.h"
-#include "tools.h"
-#include "configfile.h"
-#include <argtable2.h>
-
-/* globals */
-struct ConfigItem *configuration;
-
-int main(int argc,char **argv);
+extern struct ConfigItem *configuration;

@@ -4,7 +4,7 @@
  * macros.h
  *
  * Started: Sunday 23 December 2012, 19:43:14
- * Version: 0.00
+ * Last Modified: Friday 25 July 2014, 08:32:57
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -23,9 +23,9 @@
  * You should have received a copy of the GNU General Public License
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
-// #define PRODUCTION
+/* #define PRODUCTION */
 #ifndef PRODUCTION
-#define CCA_ERR_CONT(...) syslog(LOG_ERR,__VA_ARGS__);fprintf(stderr,__VA_ARGS__);
+#define CCA_ERR_CONT(...) syslog(LOG_ERR,__VA_ARGS__);fprintf(stderr, __VA_ARGS__);
 #define CCA_ERR_EXIT(ccaex,...) CCA_ERR_CONT(__VA_ARGS__);exit(ccaex);
 #define CCAC(...) CCA_ERR_CONT(__VA_ARGS__)
 #define CCAE(ccaex,...) CCA_ERR_EXIT(ccaex,__VA_ARGS__)

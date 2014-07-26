@@ -1,10 +1,10 @@
 /*
  * vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4 foldmethod=marker:
  *
- * cristel.h
- * 
- * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Friday 25 July 2014, 09:28:46
+ * configfile.h
+ *
+ * Started: Monday 24 December 2012, 13:11:56
+ * Last Modified: Friday 25 July 2014, 08:55:27
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -23,21 +23,31 @@
  * You should have received a copy of the GNU General Public License
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#define PROGNAME "cristel"
-#define PROGVERSION "0.01"
-#define PROGEMAIL "chris.allison@hotmail.com"
-#define PROGCOPYRIGHT "Copyright (C) 2014 Chris Allison"
-#define PROGLICENSE "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n"
+#ifndef CCA_CONFIGFILE_H
+#define CCA_CONFIGFILE_H
 
 #include "defs.h"
 #include "macros.h"
-#include "globals.h"
 #include "tools.h"
-#include "configfile.h"
-#include <argtable2.h>
 
-/* globals */
-struct ConfigItem *configuration;
+#include "globals.h"
 
-int main(int argc,char **argv);
+struct ConfigItem{
+    char *key;
+    char *value;
+    struct ConfigItem *next;
+};
+
+#endif
+
+int initConfig( void );
+void getConfigFromFile(char *filename);
+struct ConfigItem *addConfig(char *key, char *value);
+struct ConfigItem *updateConfig(char *key, char *value);
+int deleteConfigItem(char *key);
+void unlinkConfig(struct ConfigItem *prev, struct ConfigItem *dc);
+void deleteConfig( void );
+struct ConfigItem *searchConfigP(char *key);
+char *configValueDup(char *key);
+char *configValue(char *key);
+void printConfig( void );
