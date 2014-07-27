@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Saturday 26 July 2014, 07:17:44
+ * Last Modified: Sunday 27 July 2014, 06:53:06
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -169,10 +169,13 @@ int setDefaultConfig( void )/* {{{ */
         tk=strdup("dbpass");
         tv=strdup(CCA_DEFAULT_DBPASS);
         updateConfig(tk,tv);
+        tk=strdup("dvbhost");
+        tv=strdup(CCA_DEFAULT_DVBHOST);
+        updateConfig(tk,tv);
         tk=strdup("dvbuser");
         tv=strdup(CCA_DEFAULT_DVBUSER);
         updateConfig(tk,tv);
-        tk=strdup("dbpass");
+        tk=strdup("dvbpass");
         tv=strdup(CCA_DEFAULT_DVBPASS);
         updateConfig(tk,tv);
     }

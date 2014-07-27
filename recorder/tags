@@ -1,0 +1,42 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+addConfig	configfile.c	/^struct ConfigItem *addConfig(char *key, char *value)\/* {{{1 *\/$/;"	f
+bname	tools.c	/^char *bname(char *fqfilename)\/* {{{1 *\/$/;"	f
+catchsignal	cristel.c	/^void catchsignal(int sig)\/* {{{1 *\/$/;"	f
+chomp	tools.c	/^char *chomp(char *str) \/* {{{1 *\/$/;"	f
+configValue	configfile.c	/^char *configValue(char *key)\/* {{{1 *\/$/;"	f
+configValueDup	configfile.c	/^char *configValueDup(char *key)\/* {{{1 *\/$/;"	f
+daemonize	cristel.c	/^int daemonize()\/* {{{ *\/$/;"	f
+deleteConfig	configfile.c	/^void deleteConfig( void )\/* {{{1 *\/$/;"	f
+deleteConfigItem	configfile.c	/^int deleteConfigItem(char *key)\/* {{{1 *\/$/;"	f
+dvbc_connect	dvbctrl.c	/^bool dvbc_connect(int adapternum)\/*{{{*\/$/;"	f
+escapestr	tools.c	/^char *escapestr(char *str)\/* {{{1 *\/$/;"	f
+filenumberFromFilename	tools.c	/^int filenumberFromFilename(char *filename)\/* {{{1 *\/$/;"	f
+filesize	tools.c	/^long filesize(char *filename)\/* {{{1 *\/$/;"	f
+getConfigFromFile	configfile.c	/^void getConfigFromFile(char *filename)\/* {{{1 *\/$/;"	f
+initConfig	configfile.c	/^int initConfig( void )\/* {{{1 *\/$/;"	f
+initTm	tools.c	/^struct tm *initTm(void)\/* {{{1 *\/$/;"	f
+lefttrim	tools.c	/^char* lefttrim(char *string, char junk)\/* {{{1 *\/$/;"	f
+ltrim	tools.c	/^char *ltrim(char *str)\/* {{{1 *\/$/;"	f
+ltrimsp	tools.c	/^char *ltrimsp(char *str)\/* {{{1 *\/$/;"	f
+ltrimt	tools.c	/^char *ltrimt(char *str)\/*{{{1*\/$/;"	f
+main	cristel.c	/^int main(int argc,char **argv)\/*{{{*\/$/;"	f
+mainLoop	cristel.c	/^int mainLoop()\/*{{{*\/$/;"	f
+newstringpointer	tools.c	/^char *newstringpointer(char *str)\/* {{{1 *\/$/;"	f
+numtostr	tools.c	/^char *numtostr(long long num)\/* {{{1 *\/$/;"	f
+printConfig	configfile.c	/^void printConfig( void )\/* {{{1 *\/$/;"	f
+righttrim	tools.c	/^char *righttrim(char *string, char junk)\/* {{{1 *\/$/;"	f
+rtrim	tools.c	/^char *rtrim(char *str)\/* {{{1 *\/$/;"	f
+rtrimsp	tools.c	/^char *rtrimsp(char *str)\/* {{{1 *\/$/;"	f
+rtrimt	tools.c	/^char *rtrimt(char *str)\/*{{{1*\/$/;"	f
+searchConfigP	configfile.c	/^struct ConfigItem *searchConfigP(char *key)\/* {{{1 *\/$/;"	f
+setDefaultConfig	cristel.c	/^int setDefaultConfig( void )\/* {{{ *\/$/;"	f
+startDvbStreamer	cristel.c	/^int startDvbStreamer(int adaptor)\/*{{{*\/$/;"	f
+strtolong	tools.c	/^long strtolong(char *str)\/* {{{1 *\/$/;"	f
+trim	tools.c	/^char *trim(char *str)\/*{{{1*\/$/;"	f
+unlinkConfig	configfile.c	/^void unlinkConfig(struct ConfigItem *prev, struct ConfigItem *dc)\/* {{{1 *\/$/;"	f
+updateConfig	configfile.c	/^struct ConfigItem *updateConfig(char *key, char *value)\/* {{{1 *\/$/;"	f

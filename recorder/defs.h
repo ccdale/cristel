@@ -4,7 +4,7 @@
  * defs.h
  *
  * Started: Sunday 23 December 2012, 19:43:27
- * Last Modified: Saturday 26 July 2014, 05:50:22
+ * Last Modified: Sunday 27 July 2014, 07:00:27
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -42,6 +42,8 @@
 #include <errno.h>
 #include <limits.h>
 #include <dirent.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 #define PROGNAME "cristel"
 #define PROGVERSION "0.01"
@@ -58,9 +60,12 @@
 #define CCA_DEFAULT_DBHOST "localhost"
 #define CCA_DEFAULT_DBUSER "tvapp"
 #define CCA_DEFAULT_DBPASS "tvapp"
+#define CCA_DEFAULT_DVBHOST "127.0.0.1"
 #define CCA_DEFAULT_DVBUSER "tvc"
 #define CCA_DEFAULT_DVBPASS "tvc"
 #define CCA_DEFAULT_CONFIGFILE PROGCONF
+
+#define REMOTEINTERFACE_PORT 54197
 
 /*
 #define CCA_DEFAULT_DAEMONIZE "1"

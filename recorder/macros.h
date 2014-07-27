@@ -4,7 +4,7 @@
  * macros.h
  *
  * Started: Sunday 23 December 2012, 19:43:14
- * Last Modified: Friday 25 July 2014, 08:32:57
+ * Last Modified: Sunday 27 July 2014, 15:25:50
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -29,6 +29,7 @@
 #define CCA_ERR_EXIT(ccaex,...) CCA_ERR_CONT(__VA_ARGS__);exit(ccaex);
 #define CCAC(...) CCA_ERR_CONT(__VA_ARGS__)
 #define CCAE(ccaex,...) CCA_ERR_EXIT(ccaex,__VA_ARGS__)
+#define CCAL(...) syslog(LOG_INFO,__VA_ARGS__)
 #else
 #define CCA_ERR_CONT(...) syslog(LOG_ERR,__VA_ARGS__)
 #define CCA_ERR_EXIT(ccaex,...) CCA_ERR_CONT(__VA_ARGS__);exit(ccaex);
