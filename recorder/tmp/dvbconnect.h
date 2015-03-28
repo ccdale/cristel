@@ -1,10 +1,10 @@
 /*
  * vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4 foldmethod=marker:
  *
- * tools.h
+ * dvbconnect.h
  *
- * Started: Wednesday 21 November 2012, 12:44:26
- * Last Modified: Tuesday 12 August 2014, 04:47:54
+ * Started: Saturday  9 August 2014, 15:58:39
+ * Last Modified: Sunday 10 August 2014, 17:56:36
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -26,23 +26,22 @@
 
 #include "defs.h"
 #include "macros.h"
+#include "configfile.h"
+#include "tools.h"
 
-int filenumberFromFilename(char *filename);
-char *escapestr(char *str);
-struct tm *initTm(void);
-char *bname(char *fqfilename);
-long filesize(char *filename);
-int readPidFile(char *filename);
-char *newstringpointer(char *str);
-long strtolong(char *str);
-char *numtostr(long long num);
-char *trim(char *str);
-char *chomp(char *str) ;
-char *ltrim(char *str);
-char *rtrim(char *str);
-char *ltrimsp(char *str);
-char *rtrimsp(char *str);
-char *ltrimt(char *str);
-char *rtrimt(char *str);
-char* lefttrim(char *string, char junk);
-char *righttrim(char *string, char junk);
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
+#define MAX_LINE_LENGTH 256
+#define RCV_BUFFER_LENGTH 8192
+
+int dvbc_connect(int adapternum);
+void dvbc_disconnect(void);
+int Authenticate();
+int sendData(char *cmd);
+int request(char *cmd);
+int receiveData(void);
+void addLineToBuffer(void);
+void emptyBuffer(void);
+void clear_dvbcmsg(void);

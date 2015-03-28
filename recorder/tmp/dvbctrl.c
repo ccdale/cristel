@@ -1,10 +1,10 @@
 /*
  * vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4 foldmethod=marker:
  *
- * tools.h
+ * dvbctrl.c
  *
- * Started: Wednesday 21 November 2012, 12:44:26
- * Last Modified: Tuesday 12 August 2014, 04:47:54
+ * Started: Sunday 27 July 2014, 06:07:48
+ * Last Modified: Tuesday 12 August 2014, 05:43:12
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -24,25 +24,32 @@
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "defs.h"
-#include "macros.h"
+#include "dvbctrl.h"
 
-int filenumberFromFilename(char *filename);
-char *escapestr(char *str);
-struct tm *initTm(void);
-char *bname(char *fqfilename);
-long filesize(char *filename);
-int readPidFile(char *filename);
-char *newstringpointer(char *str);
-long strtolong(char *str);
-char *numtostr(long long num);
-char *trim(char *str);
-char *chomp(char *str) ;
-char *ltrim(char *str);
-char *rtrim(char *str);
-char *ltrimsp(char *str);
-char *rtrimsp(char *str);
-char *ltrimt(char *str);
-char *rtrimt(char *str);
-char* lefttrim(char *string, char junk);
-char *righttrim(char *string, char junk);
+void doCommand(char cmd)
+{
+    int nlines;
+
+    nlines=request(cmd);
+    DBGL("%d lines recieved for request %s",nlines,cmd);
+}
+void lsjunk()/*{{{*/
+{
+    int nlines;
+    char cmd[]="lsjunk";
+
+    nlines=request(cmd);
+    DBGL("%d lines recieved for request %s",nlines,cmd);
+    DBGL("%s",rcvbuf);
+    clear_dvbcmsg();
+}/*}}}*/
+void lssfs()/*{{{*/
+{
+    int nlines;
+
+    sprintf(line,"lssfs");
+    nlines=request(line);
+    DBGL("%d lines recieved for request lssfs",nlines);
+    DBGL("%s",rcvbuf);
+    clear_dvbcmsg();
+}/*}}}*/

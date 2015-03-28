@@ -4,7 +4,7 @@
  * tools.c
  *
  * Started: Wednesday 21 November 2012, 10:46:01
- * Last Modified: Friday 25 July 2014, 09:31:47
+ * Last Modified: Thursday  1 January 2015, 19:46:34
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -160,6 +160,42 @@ long filesize(char *filename)/* {{{1 */
     /* syslog(LOG_DEBUG,"returning from filesize: %ld",fsize); */
     return fsize;
 }/* }}} */
+int readPidFile(char *filename)/*{{{*/
+{
+    /*
+     * returns the first line of the file filename
+     * converted to an int.
+     * returns 0 if an error occurred
+     */
+    /* int pid=0; */
+    int xpid=0;
+    int fsize;
+    char buf[16];
+    char *junk;
+    FILE *fp;
+
+    if((fsize=filesize(filename)) > -1){
+        if((fp=fopen(filename,"r"))!=NULL){
+            if((junk=fgets(buf,16,fp))!=NULL){
+                DBGL("read %s, contents: %s",filename,buf);
+                if((xpid=atoi(buf))>0){
+                    DBGL("converted %s to integer %d",buf,xpid);
+                    /* pid=xpid; */
+                }else{
+                    DBGL("Failed to convert contents of %s: %s to an integer",filename,buf);
+                }
+            }else{
+                CCAL("File is empty: %s",filename);
+            }
+        }else{
+            CCAL("cannot open %s for reading",filename);
+        }
+    }else{
+        CCAL("pidfile %s does not exist",filename);
+    }
+    DBGL("returning %d",xpid);
+    return xpid;
+}/*}}}*/
 char *newstringpointer(char *str)/* {{{1 */
 {
     /* don't use this, use strdup(3) instead */

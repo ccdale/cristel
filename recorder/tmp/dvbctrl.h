@@ -1,10 +1,13 @@
 /*
  * vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4 foldmethod=marker:
  *
- * tools.h
+ * dvbctrl.h
  *
- * Started: Wednesday 21 November 2012, 12:44:26
- * Last Modified: Tuesday 12 August 2014, 04:47:54
+ * C.C.Allison
+ * chris.allison@hotmail.com
+ *
+ * Started: Sunday 27 July 2014, 06:09:19
+ * Last Modified: Sunday 10 August 2014, 18:00:24
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -26,23 +29,9 @@
 
 #include "defs.h"
 #include "macros.h"
+#include "configfile.h"
+#include "tools.h"
+#include "dvbconnect.h"
 
-int filenumberFromFilename(char *filename);
-char *escapestr(char *str);
-struct tm *initTm(void);
-char *bname(char *fqfilename);
-long filesize(char *filename);
-int readPidFile(char *filename);
-char *newstringpointer(char *str);
-long strtolong(char *str);
-char *numtostr(long long num);
-char *trim(char *str);
-char *chomp(char *str) ;
-char *ltrim(char *str);
-char *rtrim(char *str);
-char *ltrimsp(char *str);
-char *rtrimsp(char *str);
-char *ltrimt(char *str);
-char *rtrimt(char *str);
-char* lefttrim(char *string, char junk);
-char *righttrim(char *string, char junk);
+void lsjunk();
+void lssfs();

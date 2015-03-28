@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Sunday 27 July 2014, 06:53:06
+ * Last Modified: Thursday  1 January 2015, 19:48:08
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -185,6 +185,9 @@ int mainLoop()/*{{{*/
 {
     int ret=0;
 
+    /*
+    dvbc_connect(0);
+    */
     do{
         if(timetodie!=0){
             break;
@@ -194,30 +197,68 @@ int mainLoop()/*{{{*/
     while(1);
     return ret;
 }/*}}}*/
-int startDvbStreamer(int adaptor)/*{{{*/
+void startDvbStreamer(int adaptor)/*{{{*/
 {
     char cmd[]="/usr/bin/dvbstreamer";
     char *user;
     char *pass;
     char *adap;
+    char adap0[]="0";
+    char adap1[]="1";
     int pid;
     int len;
 
     DBG("forking dvbstreamer");
     pid=fork();
     if(pid==0){
+        /*
         len=snprintf(adap,0,"%d",adaptor);
         len++;
         if(( adap=malloc(len)) == NULL){
             CCAE(1,"Out of memory.");
         }
         len=snprintf(adap,len,"%d",adaptor);
+        */
+        /*
+         * this kludge is used instead of asking for memory (as commented above)
+         * which I have no way of freeing once I execl (and I am not sure if 
+         * freeing the memory is actually necessary or not)
+         */
+        if(adaptor==0){
+            adap=adap0;
+        }else{
+            adap=adap1;
+        }
         user=configValue("dvbuser");
         pass=configValue("dvbpass");
         execl(cmd,cmd,"-d","-a",adap,"-u",user,"-p",pass,(char *)0);
     }
-    DBGL("dvbstreamer pid: %d",pid);
-    return pid;
+}/*}}}*/
+void stopDvbStreamer(int adaptor)/*{{{*/
+{
+    char *pidfile;
+    char *env;
+    int len;
+    int pid=0;
+
+    /*
+     * attempts to stop the dvbstreamer process
+     */
+    env=getenv("HOME");
+    len=snprintf(pidfile,0,"%s/.dvbstreamer/dvbstreamer-%d.pid",env,adaptor);
+    len++;
+    if(pidfile=malloc(len)){
+        len=snprintf(pidfile,len,"%s/.dvbstreamer/dvbstreamer-%d.pid",env,adaptor);
+        DBGL("reading %s for pid",pidfile);
+        pid=readPidFile(pidfile);
+        if(pid>0){
+            DBGL("Sending SIGTERM to dvbstreamer adaptor %d, pid: %d",adaptor,pid);
+            kill((pid_t)pid,SIGTERM);
+        }
+        free(pidfile);
+    }else{
+        CCAE(1,"Out of memory allocating strings for stop dvbstreamer");
+    }
 }/*}}}*/
 int main(int argc,char **argv)/*{{{*/
 {
@@ -305,12 +346,32 @@ int main(int argc,char **argv)/*{{{*/
 
             free(conffile);
 
+            /* mysql connection */
+            DBGL("Setting up mysql connect to %s",configValue("dbhost"));
+            if((myconn = mysql_init(NULL)) == NULL ){
+                CCAE(1,"cannot initialise connection to mysql libraries.");
+            }
+            DBGL("connecting to mysql: %s, db: %s, user: %s, pass: %s",configValue("dbhost"),configValue("dbdb"),configValue("dbuser"),configValue("dbpass"));
+            if(mysql_real_connect(myconn,configValue("dbhost"),configValue("dbuser"),configValue("dbpass"),configValue("dbdb"),0,NULL,0)==NULL){
+                CCAE(1,"cannot connect to mysql server.");
+            }
+
             /* start dvbstreamer */
-            pid=startDvbStreamer(0);
+            startDvbStreamer(0);
+            startDvbStreamer(1);
+
             /* enter the main loop */
             exitcode=mainLoop();
 
             DBG("loop completed.  exiting");
+
+            /* stop dvbstreamer */
+            stopDvbStreamer(0);
+            stopDvbStreamer(1);
+
+            /* stop mysql */
+            DBG("freeing mysql library stuff");
+            mysql_close(myconn);
 
             /* main loop completed, time to shut down */
             deleteConfig();

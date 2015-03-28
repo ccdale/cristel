@@ -4,7 +4,7 @@
  * globals.h
  *
  * Started: Friday 28 December 2012, 22:09:57
- * Last Modified: Friday 25 July 2014, 08:56:19
+ * Last Modified: Wednesday 31 December 2014, 10:09:03
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
