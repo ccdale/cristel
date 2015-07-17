@@ -3,28 +3,35 @@
  *
  * tools.c
  *
+ * C.C.Allison
+ * chris.allison@hotmail.com
+ *
  * Started: Wednesday 21 November 2012, 10:46:01
- * Last Modified: Thursday  1 January 2015, 19:46:34
- *
- * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
- *
- * This file is part of cristel.
- * 
- * cristel is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * cristel is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
+ * Version: 0.00
+ * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
+ * Last Modified: Friday 17 July 2015, 08:40:07
  */
+
 #include "tools.h"
 
+void *xmalloc(size_t size)/*{{{*/
+{
+    void *xmem;
+    xmem=malloc(size);
+    if(xmem!=NULL){
+        return xmem;
+    }
+    /* exit due to allocation error */
+    CCAE(1,"Failed to allocate %d bytes of memory",(int)size);
+}/*}}}*/
+void *xcalloc(size_t nmemb, size_t size)/*{{{*/
+{
+    void *xmem;
+
+    xmem=xmalloc(nmemb*size);
+    xmem=memset(xmem,0,nmemb*size);
+    return xmem;
+}/*}}}*/
 int filenumberFromFilename(char *filename)/* {{{1 */
 {
     /*
@@ -66,7 +73,7 @@ char *escapestr(char *str)/* {{{1 */
 
     length=strlen(str);
     length=length*2; /* double the amount of space should be sufficient */
-    if((top=malloc(length))){
+    if((top=xmalloc(length))){
         titer=top;
         iter=str;
         while(iter != '\0' && current < length){
@@ -78,7 +85,7 @@ char *escapestr(char *str)/* {{{1 */
             iter++;
         }
         titer='\0';
-        if((op=malloc(++current))){
+        if((op=xmalloc(++current))){
             strcpy(op,top);
             free(top);
         }else{
@@ -93,7 +100,7 @@ struct tm *initTm(void)/* {{{1 */
 {
     struct tm *tim;
 
-    tim=(struct tm *) malloc(sizeof(struct tm));
+    tim=(struct tm *) xmalloc(sizeof(struct tm));
     if(tim){
         tim->tm_sec=0;
         tim->tm_min=0;
@@ -125,9 +132,7 @@ char *bname(char *fqfilename)/* {{{1 */
     len=snprintf(tbname,0,"%s",tmp);
     /* + terminating null */
     len++;
-    if((tbname=malloc(len)) == NULL){
-        CCAE(1,"out of memory");
-    }
+    tbname=xmalloc(len);
     len=snprintf(tbname,len,"%s",tmp);
     return tbname;
 }/* }}} */
@@ -141,61 +146,21 @@ long filesize(char *filename)/* {{{1 */
     long fsize=-1;
     struct stat *statbuf;
 
-    statbuf=malloc(sizeof(struct stat));
-    if(statbuf){
-        /* syslog(LOG_DEBUG,"in filesize, malloced statbuf, statting"); */
-        ret=stat(filename,statbuf);
-        if(ret==0){
-            /* syslog(LOG_DEBUG,"stat ok. reading file size"); */
-            fsize=statbuf->st_size;
-            /* syslog(LOG_DEBUG,"file size: %ld",fsize); */
-        }else{
-            syslog(LOG_ERR,"Cannot read file %s",filename);
-        }
-        /* syslog(LOG_DEBUG,"freeing stat buffer"); */
-        free(statbuf);
+    statbuf=xmalloc(sizeof(struct stat));
+    /* syslog(LOG_DEBUG,"in filesize, malloced statbuf, statting"); */
+    ret=stat(filename,statbuf);
+    if(ret==0){
+        /* syslog(LOG_DEBUG,"stat ok. reading file size"); */
+        fsize=statbuf->st_size;
+        /* syslog(LOG_DEBUG,"file size: %ld",fsize); */
     }else{
-        syslog(LOG_ERR,"Cannot allocate memory for stat buffer");
+        syslog(LOG_ERR,"Cannot read file %s",filename);
     }
+    /* syslog(LOG_DEBUG,"freeing stat buffer"); */
+    free(statbuf);
     /* syslog(LOG_DEBUG,"returning from filesize: %ld",fsize); */
     return fsize;
 }/* }}} */
-int readPidFile(char *filename)/*{{{*/
-{
-    /*
-     * returns the first line of the file filename
-     * converted to an int.
-     * returns 0 if an error occurred
-     */
-    /* int pid=0; */
-    int xpid=0;
-    int fsize;
-    char buf[16];
-    char *junk;
-    FILE *fp;
-
-    if((fsize=filesize(filename)) > -1){
-        if((fp=fopen(filename,"r"))!=NULL){
-            if((junk=fgets(buf,16,fp))!=NULL){
-                DBGL("read %s, contents: %s",filename,buf);
-                if((xpid=atoi(buf))>0){
-                    DBGL("converted %s to integer %d",buf,xpid);
-                    /* pid=xpid; */
-                }else{
-                    DBGL("Failed to convert contents of %s: %s to an integer",filename,buf);
-                }
-            }else{
-                CCAL("File is empty: %s",filename);
-            }
-        }else{
-            CCAL("cannot open %s for reading",filename);
-        }
-    }else{
-        CCAL("pidfile %s does not exist",filename);
-    }
-    DBGL("returning %d",xpid);
-    return xpid;
-}/*}}}*/
 char *newstringpointer(char *str)/* {{{1 */
 {
     /* don't use this, use strdup(3) instead */
@@ -203,15 +168,12 @@ char *newstringpointer(char *str)/* {{{1 */
     char *junk;
     int slen=0;
     slen=strlen(str);
-    if((nsp=malloc(slen+1))){
-        junk=strcpy(nsp,str);
-        if(junk!=nsp){
-            syslog(LOG_ERR,"failure in copying string.");
-            free(nsp);
-            nsp=NULL;
-        }
-    }else{
-        syslog(LOG_ERR,"cannot allocate memory for new string pointer.");
+    nsp=xmalloc(slen+1);
+    junk=strcpy(nsp,str);
+    if(junk!=nsp){
+        syslog(LOG_ERR,"failure in copying string.");
+        free(nsp);
+        nsp=NULL;
     }
     return nsp;
 }/* }}} */
@@ -237,12 +199,9 @@ char *numtostr(long long num)/* {{{1 */
     char *buffer=NULL;
     length=snprintf(buffer,0,"%lld",num);
     length++;
-    buffer=malloc(length);
-    if(buffer){
-        length=snprintf(buffer,length,"%lld",num);
-        return buffer;
-    }
-    return NULL;
+    buffer=xmalloc(length);
+    length=snprintf(buffer,length,"%lld",num);
+    return buffer;
 }/* }}} */
 char *trim(char *str)/*{{{1*/
 {
@@ -317,3 +276,24 @@ char *righttrim(char *string, char junk)/* {{{1 */
         original[*original == junk ? 0 : 1] = '\0';
     return string;
 }/* }}} */
+int readPidFile(char *fn)/*{{{*/
+{
+    int fsz;
+    FILE *fp;
+    char *buf;
+    char *test;
+    int pid=-1;
+
+    buf=xmalloc(MAX_LINE_LENGTH);
+    if((fsz=filesize(fn))>0){
+        if((fp=fopen(fn,"r"))){
+            test=fgets(buf,MAX_LINE_LENGTH,fp);
+            if(test==buf){
+                pid=atoi(buf);
+            }
+            fclose(fp);
+        }
+    }
+    free(buf);
+    return pid;
+}/*}}}*/

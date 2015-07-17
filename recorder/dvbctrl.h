@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:09:19
- * Last Modified: Sunday 27 July 2014, 16:25:47
+ * Last Modified: Friday 17 July 2015, 08:11:28
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -35,10 +35,27 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <string.h>
 
+struct StreamerData {
+    FILE *socketfp;
+    int connected;
+    int authenticated;
+    int errornumber;
+    char *ver;
+    char *errmsg;
+    char *line;
+    char *data;
+};
+
+static void setupConnect(int adapternum);
+static void closeConnect();
+static void prepare_streamer_data(void);
+static void free_streamer_data(void);
 static int dvbc_connect(int adapternum);
-static int Authenticate(FILE *socketfp, char *username, char *password);
-static int sendData(FILE *socketfp, char *cmd);
-static int request(FILE *socketfp, char *cmd, char **ver, int *errno, char **errmsg);
-static int receiveData(FILE *socketfp, char **ver, int* errno, char **errmsg);
-static void addLineToBuffer(void);
+static int Authenticate(char *username, char *password);
+static int sendData(char *cmd);
+static int request(char *cmd);
+static int rcvData(void);
+static void addLineToBuffer();
+char * lsservices(int adaptornum);

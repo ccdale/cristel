@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  1 January 2015, 19:48:08
+ * Last Modified: Friday 17 July 2015, 16:57:21
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -30,7 +30,7 @@ void catchsignal(int sig)/* {{{1 */
 {
     DBGL("Received signal: %d",sig);
     timetodie=1;
-    // signal(sig,catchsignal);
+    /* signal(sig,catchsignal); */
 } /* }}} */
 int daemonize()/* {{{ */
 {
@@ -40,7 +40,7 @@ int daemonize()/* {{{ */
     int junk;
     int ret=0;
 
-    if(getppid()==1) return; /* already a daemon */
+    if(getppid()==1) return 0; /* already a daemon */
     DBG("Forking");
     i=fork();
     if (i<0) 
@@ -184,6 +184,8 @@ int setDefaultConfig( void )/* {{{ */
 int mainLoop()/*{{{*/
 {
     int ret=0;
+    int cc=0;
+    char *svc;
 
     /*
     dvbc_connect(0);
@@ -193,6 +195,12 @@ int mainLoop()/*{{{*/
             break;
         }
         sleep(1);
+        if((++cc)>30){
+            svc=lsservices(0);
+            DBGL("%s",svc);
+            free(svc);
+            break;
+        }
     }
     while(1);
     return ret;
@@ -265,6 +273,8 @@ int main(int argc,char **argv)/*{{{*/
     char *conffile;
     int ret=0;
     int pid;
+
+    setlocale(LC_ALL, "");
 
     /* Define the allowable command line options, collecting them in argtable[] */
     struct arg_file *conf = arg_file0("c",NULL,"/etc/cristel.conf","configuration file");

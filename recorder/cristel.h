@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Wednesday 31 December 2014, 10:22:08
+ * Last Modified: Friday 17 July 2015, 16:58:36
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -26,6 +26,7 @@
 
 #include <sys/types.h>
 #include "defs.h"
+#include <locale.h>
 #include "macros.h"
 /* #include "globals.h" */
 #include "tools.h"
@@ -34,6 +35,7 @@
 /* mysql connection */
 #include <my_global.h>
 #include <mysql.h>
+#include "dvbctrl.h"
 
 /* globals */
 struct ConfigItem *configuration;

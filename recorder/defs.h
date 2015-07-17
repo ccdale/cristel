@@ -4,7 +4,7 @@
  * defs.h
  *
  * Started: Sunday 23 December 2012, 19:43:27
- * Last Modified: Sunday 27 July 2014, 07:00:27
+ * Last Modified: Friday 17 July 2015, 07:31:39
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -63,42 +63,11 @@
 #define CCA_DEFAULT_DVBHOST "127.0.0.1"
 #define CCA_DEFAULT_DVBUSER "tvc"
 #define CCA_DEFAULT_DVBPASS "tvc"
+#define CCA_DEFAULT_DVBBANNER "DVBStreamer/"
 #define CCA_DEFAULT_CONFIGFILE PROGCONF
 
 #define REMOTEINTERFACE_PORT 54197
 
-/*
-#define CCA_DEFAULT_DAEMONIZE "1"
-#define CCA_DEFAULT_CONFIGFILE "/etc/qillsd.conf"
-#define CCA_DEFAULT_SUMMARY_SIZE "500"
-#define CCA_DEFAULT_BUFFERSIZE "2048000"
-#define CCA_DEFAULT_SLEEPTIME "1"
-#define CCA_DEFAULT_SUMMARIZE "0"
-#define CCA_DEFAULT_FPOS "0"
-#define CCA_DEFAULT_SEARCH "(ERROR:.*)"
-#define CCA_DEFAULT_TIME_FORMAT "%Y-%m-%d %H:%M:%S"
-#define CCA_DEFAULT_FILEBIN "/usr/bin/file"
-#define CCA_DEFAULT_FILEBINARGS "-ib"
-#define CCA_DEFAULT_GUNZIPBIN "/bin/gunzip"
-#define CCA_DEFAULT_GUNZIPBINARGS "-c"
-#define CCA_DEFAULT_UNZIPBIN "/usr/bin/unzip"
-#define CCA_DEFAULT_UNZIPBINARGS "-p"
-#define CCA_DEFAULT_INDEXROTATEDLOGFILES "1"
-#define CCA_DEFAULT_RLFEXT ""
-#define CCA_DEFAULT_MISSINGFILES "0"
-#define CCA_DEFAULT_DBHOST "localhost"
-#define CCA_DEFAULT_DBDB "qills"
-#define CCA_DEFAULT_DBTABLE_SERVER "lognames"
-#define CCA_DEFAULT_DBTABLE_LOG "loglines"
-#define CCA_DEFAULT_DBUSER "logserver"
-#define CCA_DEFAULT_DBPASS "logserver"
-#define CCA_DEFAULT_DBENV "live"
-#define CCA_DEFAULT_DBSERVICE "qills"
-#define CCA_DEFAULT_DBTYPE "app"
-#define CCA_DEFAULT_DBNUMBER "1"
+#define MAX_LINE_LENGTH 256
+#define RCV_BUFFER_LENGTH 8192
 
-#define CCA_HOME "/"
-#define CCA_LOCK_FILE "/var/run/qillsd.pid"
-#define MAX_MSG_LEN 4096
-#define CCA_MAX_ROTATED_FILES 25
-*/

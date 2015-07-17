@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:07:48
- * Last Modified: Sunday 27 July 2014, 16:23:23
+ * Last Modified: Friday 17 July 2015, 16:41:14
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -29,27 +29,58 @@
 
 #include "dvbctrl.h"
 
-#define MAX_LINE_LENGTH 256
-#define RCV_BUFFER_LENGTH 8192
+static struct StreamerData SD;
 
-static const char responselineStart[] = "DVBStreamer/";
-static char line[MAX_LINE_LENGTH];
-static char rcvbuf[RCV_BUFFER_LENGTH];
-static int connected=0;
-static int authenticated=0;
-
-static int dvbc_connect(int adapternum)/*{{{*/
+static void setupConnect(int adaptornum)/*{{{*/
+{
+    prepare_streamer_data();
+    dvbc_connect(adaptornum);
+}/*}}}*/
+static void closeConnect()/*{{{*/
+{
+    free_streamer_data();
+}/*}}}*/
+static void prepare_streamer_data(void)/*{{{*/
+{
+    SD.socketfp=NULL;
+    SD.connected=0;
+    SD.authenticated=0;
+    SD.errornumber=0;
+    SD.ver=xmalloc(10);
+    SD.errmsg=xmalloc(MAX_LINE_LENGTH);
+    SD.line=xmalloc(MAX_LINE_LENGTH);
+    SD.data=xmalloc(RCV_BUFFER_LENGTH);
+}/*}}}*/
+static void free_streamer_data(void)/*{{{*/
+{
+    if(SD.socketfp){
+        DBG("Closing socket");
+        fclose(SD.socketfp);
+    }
+    if(SD.ver){
+        DBGL("free SD.ver: %s",SD.ver);
+        free(SD.ver);
+    }
+    if(SD.errmsg){
+        DBGL("free SD.errmsg: %s",SD.errmsg);
+        free(SD.errmsg);
+    }
+    if(SD.line){
+        DBGL("free SD.line: %s",SD.line);
+        free(SD.line);
+    }
+    if(SD.data){
+        DBGL("free SD.data: %s",SD.data);
+        free(SD.data);
+    }
+}/*}}}*/
+static int dvbc_connect(int adaptornum)/*{{{*/
 {
     socklen_t address_len;
     struct sockaddr_storage address;
     struct addrinfo *addrinfo, hints;
     char portnumber[10];    
     int socketfd = -1;
-    FILE *socketfp;
-    char *ver;
-    int errno;
-    int *errnop=&errno;
-    char *errmsg;
     char *username;
     char *password;
     char *host;
@@ -57,8 +88,7 @@ static int dvbc_connect(int adapternum)/*{{{*/
     host=configValue("dvbhost");
     username=configValue("dvbuser");
     password=configValue("dvbpass");
-
-    sprintf(portnumber, "%d", REMOTEINTERFACE_PORT + adapternum);
+    sprintf(portnumber, "%d", REMOTEINTERFACE_PORT + adaptornum);
     memset((void *)&hints, 0, sizeof(hints));
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_ADDRCONFIG;
@@ -84,92 +114,82 @@ static int dvbc_connect(int adapternum)/*{{{*/
     }
     if (connect(socketfd, (const struct sockaddr *) &address, address_len))
     {
-        CCAC("Failed to connect to host %s port %d", host, REMOTEINTERFACE_PORT + adapternum);
+        CCAC("Failed to connect to host %s port %d", host, REMOTEINTERFACE_PORT + adaptornum);
         return 1;
     }
-    CCAL("Socket connected to host %s port %d", host, REMOTEINTERFACE_PORT + adapternum);
-    socketfp = fdopen(socketfd, "r+");
-    receiveData(socketfp, &ver, errnop, &errmsg);
-    /*
-    if (!fgets(line , MAX_LINE_LENGTH, socketfp))
-    {
-        CCAC("No ready line received from server.");
-        fclose(socketfp);
-        return 1;
+    CCAL("Socket connected to host %s port %d", host, REMOTEINTERFACE_PORT + adaptornum);
+    SD.socketfp = fdopen(socketfd, "r+");
+    rcvData();
+    if(SD.errornumber != 0){
+        CCAC("%s",SD.errmsg);
+        return SD.errornumber;
     }
-    ProcessResponseLine(line, &ver, &errno, &errmsg);
-    */
-    if (errno != 0)
-    {
-        CCAC("%s", errmsg);
-        fclose(socketfp);
-        return errno;
-    }
-    connected=1;
+    SD.connected=1;
+    SD.authenticated=Authenticate(username,password);
     return 0;
 }/*}}}*/
-static int Authenticate(FILE *socketfp, char *username, char *password)/*{{{*/
+static int Authenticate(char *username, char *password)/*{{{*/
 {
-    char * ver;
-    int errno;
-    char *errmsg;
-    sprintf(line, "auth %s %s", username, password);
-    SendCommand(socketfp, line, &ver, &errno, &errmsg);
-    authenticated=(errno==0);
-    return authenticated;
+    sprintf(SD.line, "auth %s %s", username, password);
+    request(SD.line);
+    return (SD.errornumber==0);
 }/*}}}*/
-static int sendData(FILE *socketfp, char *data)/*{{{*/
+static int sendData(char *data)/*{{{*/
 {
     int len=strlen(data);
 
-    if(connected){
+    if(SD.connected){
         if(len){
             DBGL("Sending data '%s'",data);
             if(data[len-1]=='\n'){
-                fprintf(socketfp,"%s",data);
+                fprintf(SD.socketfp,"%s",data);
             }else{
-                fprintf(socketfp,"%s\n",data);
+                fprintf(SD.socketfp,"%s\n",data);
             }
         }
     }
     return len;
 }/*}}}*/
-static int request(FILE *socketfp, char *cmd, char **ver, int *errno, char **errmsg)/*{{{*/
+static int request(char *cmd)/*{{{*/
 {
     int numlines=0;
-    int len=0;
+    size_t len=0;
 
-    len=sendData(socketfp,cmd);
+    len=sendData(cmd);
     if(len==strlen(cmd)){
-        numlines=receiveData(socketfp,&ver,&errno,&errmsg);
+        numlines=rcvData();
     }
     return numlines;
 }/*}}}*/
-static int receiveData(FILE *socketfp, char **ver, int* errno, char **errmsg)/*{{{*/
+static int rcvData(void)/*{{{*/
 {
     char *seperator;
     char *start;
     int numlines=0;
+    char *responselineStart;
+    int rls;
 
-    if(connected){
-        while(!feof(socketfp)){
-            if(fgets(line,MAX_LINE_LENGTH,socketfp)){
-                if(strncmp(line,responselineStart,sizeof(responselineStart)-1)==0){
+    responselineStart=configValue("dvbbanner");
+    rls=strlen(responselineStart);
+    if(SD.connected){
+        while(!feof(SD.socketfp)){
+            if(fgets(SD.line,MAX_LINE_LENGTH,SD.socketfp)){
+                if(strncmp(SD.line,responselineStart,rls-1)==0){
                     /* last line */
-                    chomp(line);
-                    seperator=strchr(line+sizeof(responselineStart),'/');
+                    chomp(SD.line);
+                    seperator=strchr(SD.line+rls,'/');
                     if(seperator){
                         *seperator=0;
-                        start=line+sizeof(responselineStart);
-                        *ver=strdup(start);
+                        start=SD.line+rls;
+                        SD.ver=strdup(start);
                         start=seperator+1;
-                        seperator=strchr(separator+1," ");
+                        seperator=strchr(seperator+1,' ');
                         if(seperator)
                         {
                             *seperator=0;
-                            *errmsg=strdup(seperator+1);
+                            SD.errmsg=strdup(seperator+1);
                         }
-                        *errno=atoi(start);
+                        SD.errornumber=atoi(start);
                         numlines++;
                     }
                     break;
@@ -183,17 +203,33 @@ static int receiveData(FILE *socketfp, char **ver, int* errno, char **errmsg)/*{
     }
     return numlines;
 }/*}}}*/
-static void addLineToBuffer(void)/*{{{*/
+static void addLineToBuffer()/*{{{*/
 {
     int cn;
     int bufflen;
 
-    bufflen=strlen(rcvbuf);
-    cn=bufflen+strlen(line);
+    bufflen=strlen(SD.data);
+    cn=bufflen+strlen(SD.line);
     if(cn<RCV_BUFFER_LENGTH){
-        sprintf(rcvbuf+bufflen,"%s\n",line);
+        sprintf(SD.data+bufflen,"%s\n",SD.line);
     }else{
         CCAC("buffer is undersized");
-        DBG(line);
+        DBG(SD.line);
     }
+}/*}}}*/
+char * lsservices(int adaptornum)/*{{{*/
+{
+    char *services=NULL;
+    int nl;
+
+    setupConnect(adaptornum);
+    if(SD.authenticated){
+        sprintf(SD.line,"%s","lsservices");
+        nl=request(SD.line);
+        if(nl>0){
+            services=strdup(SD.data);
+        }
+    }
+    closeConnect();
+    return services;
 }/*}}}*/
