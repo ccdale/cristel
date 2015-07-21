@@ -57,8 +57,8 @@ def startdvbstreamer(na,un,pw):
     """
     if not isdvbstreamerrunning():
         for a in range(na):
-            print "Starting adadaptor: %d with username: %s, password: %s" % (a,username,password)
-            os.system("dvbstreamer -d -a %d -u %s -p %s" % (a,username,password))
+            print "Starting adadaptor: %d with username: %s, password: %s" % (a,un,pw)
+            os.system("dvbstreamer -d -a %d -u %s -p %s" % (a,un,pw))
     else:
         print "dvbstreamer is already running"
 
