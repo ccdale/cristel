@@ -118,21 +118,24 @@ class DvbSession(Session):
     def safe_to_record(self,channel):
         """checks that it is safe to tune to channel on a free service filter"""
         freesf=self.find_free_sf()
-        res=0
         if freesf > -1:
             if freesf > 0:
                 # <Primary> is in use so check what mux it is using
                 sfs=self.get_service_filters()
                 si=self.get_service_info(sfs[0].name)
                 nsi=self.get_service_info(channel)
-                if nsi.mux_uid == si.mux_uid:
-                    res=1
-            else:
-                res=1
+                if nsi.mux_uid != si.mux_uid:
+                    freesf=-1
 
-        return res
+        return freesf
 
-    def recordprogramme(self,channel,file):
+    def recordprogramme(self,channel,filename):
         """makes a recording into the named file of the named channel"""
-        freesf=self.find_free_sf()
+        freesf=self.safe_to_record(channel)
         if freesf > -1:
+            test=self.set_sf(freesf,channel)
+            if test:
+                test=self.set_mrl_sf(freesf,"file://%s" % filename)
+                if test:
+                    return 1
+        return 0
