@@ -139,3 +139,24 @@ class DvbSession(Session):
                 if test:
                     return 1
         return 0
+
+    def stoprecording(self,sfnum,filename):
+        """stops a current recording
+
+        either supply the service filter number or the recording filename
+        both cannot be null
+        @returns: int: true if service filter was updated, false otherwise
+        """
+        if sfnum==None & filename==None:
+            return 0
+        sfs=self.get_service_filters()
+        if sfnum > -1:
+            res=self.set_mrl_sf(sfnum,"null://")
+            return res
+        count=0
+        for sf in sfs:
+            if ("file://%s" % filename)==sf.mrl:
+                res=self.set_mrl_sf(count,"null://")
+                return res
+            count=count+1
+        return 0
