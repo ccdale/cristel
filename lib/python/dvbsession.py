@@ -1,15 +1,6 @@
 """
 Module to extend (and fix) the dvbstreamer Session class
 """
-# TODO: 
-# check tuning status (festatus: 
-# Tuner status: [ Signal, Lock, Carrier, VITERBI, Sync  ]
-# Signal Strength: 61%
-# SNR: 100%
-# BER: 0
-# Uncorrected Blocks: 789
-# )
-#
 import time
 import logging
 from dvbstreamer.session import Session
