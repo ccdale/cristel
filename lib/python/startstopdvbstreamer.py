@@ -26,6 +26,7 @@ is designed to be hard linked to:
 import os
 import psutil
 from optparse import OptionParser
+import logging
 
 def checkdvbstreamerrunning():
     """return a list of dvbstreamer pids."""
@@ -57,10 +58,10 @@ def startdvbstreamer(na,un,pw):
     """
     if not isdvbstreamerrunning():
         for a in range(na):
-            print "Starting adadaptor: %d with username: %s, password: %s" % (a,un,pw)
+            logging.info("Starting adadaptor: %d with username: %s, password: %s" % (a,un,pw))
             os.system("dvbstreamer -d -a %d -u %s -p %s" % (a,un,pw))
     else:
-        print "dvbstreamer is already running"
+        logging.warning("dvbstreamer is already running")
 
 def stopdvbstreamer():
     """
@@ -70,10 +71,10 @@ def stopdvbstreamer():
     l=len(pids)
     if l > 0:
         for pid in pids:
-            print "killing Dvbstreamer at %d" % pid
+            logging.info("killing Dvbstreamer at %d" % pid)
             os.system("kill %d" % pid)
     else:
-        print "Dvbstreamer is not running."
+        logging.warning("Dvbstreamer is not running.")
 
 if __name__ == '__main__':
     prog=os.path.basename(__file__)
