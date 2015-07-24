@@ -100,6 +100,8 @@ if __name__ == '__main__':
             username=options.username
         if options.password:
             password=options.password
+        if options.numadaptors:
+            numadaptors=options.numadaptors
         if options.start:
             startdvbstreamer(numadaptors,username,password)
         if options.stop:
