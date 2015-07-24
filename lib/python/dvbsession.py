@@ -3,13 +3,23 @@ Module to extend (and fix) the dvbstreamer Session class
 """
 import time
 import logging
+import logging.handlers
 from dvbstreamer.session import Session
 from dvbstreamer.info import *
+
+# log=logging.getLogger(__name__)
+# # log.setLevel(logging.DEBUG)
+# handler=logging.handlers.SysLogHandler(address = '/dev/log', facility=logging.handlers.SysLogHandler.LOG_DAEMON)
+# log.addHandler(handler)
+
+log=None
 
 class DvbSession(Session):
     """Class represents an instance of a dvbstreamer server"""
 
-    def __init__(self, host, adaptor, username='dvbstreamer', password='control'):
+    def __init__(self, host, adaptor, username='dvbstreamer', password='control',logg=None):
+        global log
+        log=logg
         Session.__init__(self,host,adaptor,username,password)
 
     def execute_command(self, command, authenticate=True):
@@ -19,7 +29,7 @@ class DvbSession(Session):
         @param authenticate: Whether the connection needs to be authenticated
         before running the command.
         """
-        logging.debug("attempting command: %s" % command)
+        log.debug("attempting command: %s" % command)
         conn = self._get_connection(authenticate)
         try:
             result = conn.execute_command(command)
@@ -81,11 +91,11 @@ class DvbSession(Session):
         if (sfnum > -1) & (sfnum > 0):
             emsg, res = self.execute_command('addsf dvb%d null://' % sfnum)
             if emsg == "OK":
-                logging.debug("Added filter dvb%d" % sfnum)
+                log.debug("Added filter dvb%d" % sfnum)
                 return sfnum
             else:
-                logging.warning("Failed to add filter dvb%d" % sfnum)
-        logging.error("filter number: <%s> out of bounds" % sfnum)
+                log.warning("Failed to add filter dvb%d" % sfnum)
+        log.error("filter number: <%s> out of bounds" % sfnum)
         return res 
 
     def set_sf(self,sfnum,service):
@@ -98,13 +108,13 @@ class DvbSession(Session):
         emsg,res=self.execute_command(cmd)
         if emsg == "OK":
             if self.waitfortune():
-                logging.debug("Tuned to %s for filter %d" % (service,sfnum))
+                log.debug("Tuned to %s for filter %d" % (service,sfnum))
                 return res
             else:
-                logging.error("Failed to tune to %s for filter %d" % (service,sfnum))
+                log.error("Failed to tune to %s for filter %d" % (service,sfnum))
                 return False
         else:
-            logging.error("Failed to select service %s for filter %d" % (service,sfnum))
+            log.error("Failed to select service %s for filter %d" % (service,sfnum))
             return False
 
     def set_mrl_sf(self,sfnum,mrl):
@@ -115,10 +125,10 @@ class DvbSession(Session):
             cmd='setsfmrl dvb%d %s' % (sfnum,mrl)
         emsg,res=self.execute_command(cmd)
         if emsg == "OK":
-            logging.debug("set output for filter %d to %s" % (sfnum,mrl))
+            log.debug("set output for filter %d to %s" % (sfnum,mrl))
             return 1
         else:
-            logging.error("failed to set output for filter %d to %s" % (sfnum,mrl))
+            log.error("failed to set output for filter %d to %s" % (sfnum,mrl))
             return 0
 
     def clean_sf(self):
@@ -131,17 +141,17 @@ class DvbSession(Session):
             if nsfs > 1:
                 nsfs=nsfs-1
                 if sfs[nsfs].mrl == "null://":
-                    logging.debug("removing filter dvb%d" % nsfs)
+                    log.debug("removing filter dvb%d" % nsfs)
                     emsg,res=self.execute_command("rmsf dvb%d" % nsfs)
                     if emsg!="OK":
-                        logging.warning("Failed to remove filter dvb%d" % nsfs)
+                        log.warning("Failed to remove filter dvb%d" % nsfs)
                         # filter failed to remove, so stop
                         canclean=0
                 else:
                     # the last service filter in the list is still in use, so stop
                     canclean=0
             else:
-                logging.debug("Nothing left to clean")
+                log.debug("Nothing left to clean")
                 # there are no service filters other than <Primary>
                 canclean=0
 
@@ -157,14 +167,14 @@ class DvbSession(Session):
                 si=self.get_service_info(sfs[0].service)
                 nsi=self.get_service_info(channel)
                 if nsi.mux_uid != si.mux_uid:
-                    logging.warning("It is not safe to tune to %s at this time" % channel)
-                    logging.warning("Primary is tuned to %s and is in use" % sfs[0].service)
+                    log.warning("It is not safe to tune to %s at this time" % channel)
+                    log.warning("Primary is tuned to %s and is in use" % sfs[0].service)
                     freesf=-1
                 else:
-                    logging.debug("Safe to tune to %s on free filter %d" % (channel,freesf))
+                    log.debug("Safe to tune to %s on free filter %d" % (channel,freesf))
 
         else:
-            logging.error("Not safe as no free filter is available")
+            log.error("Not safe as no free filter is available")
         return freesf
 
     def get_service_info(self, service):
@@ -186,9 +196,9 @@ class DvbSession(Session):
             if test:
                 test=self.set_mrl_sf(freesf,"file://%s" % filename)
                 if test:
-                    logging.debug("Recording %s into %s" % (channel,filename))
+                    log.debug("Recording %s into %s" % (channel,filename))
                     return 1
-        logging.warning("Recording not starting for %s into %s" % (channel,filename))
+        log.warning("Recording not starting for %s into %s" % (channel,filename))
         return 0
 
     def stoprecording(self,sfnum=None,filename=None):
@@ -200,17 +210,17 @@ class DvbSession(Session):
         """
         if sfnum==None:
             if  filename==None:
-                logging.warning("Nothing to stop, no parameters supplied")
+                log.warning("Nothing to stop, no parameters supplied")
                 return 0
         sfs=self.get_service_filters()
         if sfnum > -1:
-            logging.debug("stopping by filter number: %d" % sfnum)
+            log.debug("stopping by filter number: %d" % sfnum)
             res=self.set_mrl_sf(sfnum,"null://")
             return res
         count=0
         for sf in sfs:
             if ("file://%s" % filename)==sf.mrl:
-                logging.debug("found filter for file: %s" % filename)
+                log.debug("found filter for file: %s" % filename)
                 res=self.set_mrl_sf(count,"null://")
                 return res
             count=count+1
@@ -238,8 +248,8 @@ class DvbSession(Session):
             status=self.getstatus()
         if len(status)>4:
             if status[4] == "Sync":
-                logging.debug("Status: Sync")
+                log.debug("Status: Sync")
                 return True
         else:
-            logging.error(status)
+            log.error(status)
             return False
