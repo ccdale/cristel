@@ -87,18 +87,21 @@ if __name__ == '__main__':
         stopdvbstreamer
     else:
         parser = OptionParser(
-                    'usage: %prog [-sSk] [-u username] [-p password]')
+                    'usage: %prog [-sSk] [-u username] [-p password] [-n num-adaptors]')
 
         parser.add_option('-s', '--start', action="store_true", dest='start', help='start dvbstreamer')
         parser.add_option('-S', '--stop', action="store_true", dest='stop', help='stop dvbstreamer')
         parser.add_option('-k', '--kill', action="store_true", dest='stop', help='stop dvbstreamer')
-        parser.add_option('-u', '--username', dest='username', metavar='USERNAME', help='connection username')
-        parser.add_option('-p', '--password', dest='password', metavar='PASSWORD', help='connection password')
+        parser.add_option('-u', '--username', dest='username', metavar='USERNAME', help='connection username (default: tvc)')
+        parser.add_option('-p', '--password', dest='password', metavar='PASSWORD', help='connection password (default: tvc)')
+        parser.add_option('-n', '--num-adaptors', dest='numadaptors', metavar='NUMADAPTORS', help='Number of adaptors to start/stop (default: 2)')
         (options, args) = parser.parse_args()
         if options.username:
             username=options.username
         if options.password:
             password=options.password
+        if options.numadaptors:
+            numadaptors=options.numadaptors
         if options.start:
             startdvbstreamer(numadaptors,username,password)
         if options.stop:
