@@ -1,4 +1,3 @@
-# 
 # Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
 # 
 # This file is part of cristel.
