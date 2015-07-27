@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 # Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
 # 
 # This file is part of cristel.
@@ -19,9 +20,16 @@
 
 import sys
 import os
+import os.path as path
 import logging
 import logging.handlers
 import sqlite3
+import xmltv
+
+# setup the cristel lib directory
+cristel_lib_dir = path.realpath(path.join(path.dirname(sys.argv[0]), '../lib/python'))
+sys.path.append(cristel_lib_dir)
+
 from scheduledb import ScheduleDB
 from eitdb import EITDatabase
 
@@ -37,3 +45,16 @@ xmltvfile=os.path.join(appdir,"database.xmltv")
 
 eit=EITDatabase(eitdb,log)
 sch=ScheduleDB(scheddb,log)
+
+sql=""
+
+for ch in xmltv.read_channels(open(xmltvfile,'r')):
+    name=ch["display-name"][0][0]
+    xid=ch["id"]
+    if len(sql):
+        sql=sql + ",('" + name + "','" + xid + "',100,1,0,0,0)"
+    else:
+        sql="('" + name + "','" + xid + "',100,1,0,0,0)"
+
+sql="insert into channels (name,source,priority,visible,favourite,logicalid,muxid) values " + sql
+print sql

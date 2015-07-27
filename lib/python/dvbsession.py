@@ -269,3 +269,33 @@ class DvbSession(Session):
         else:
             log.error(status)
             return False
+
+    def logicalchannels(self):
+        """returns the logical channel ids (freeview channel numbers) as a dict"""
+        emsg,res=self.execute_command("lslcn")
+        lcn={}
+        for line in res:
+            tmp=line.split(":")
+            cn=tmp[0].strip()
+            name=tmp[1].strip()
+            lcn[cn]=name
+
+        return lcn
+
+    def lsmuxes(self):
+        """returns a list of muxes"""
+        emsg,res=self.execute_command("lsmuxes")
+        muxes=[]
+        for line in res:
+            muxes.append(line.strip())
+
+        return muxes
+
+    def servicesformux(self,mux):
+        """returns a list of services for the supplied muxid"""
+        emsg,res=self.execute_command("lsservices %s" % mux)
+        svcs=[]
+        for line in res:
+            svcs.append(line.strip())
+
+        return svcs
