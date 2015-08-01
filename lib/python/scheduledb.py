@@ -91,3 +91,18 @@ class ScheduleDB(CristelDB):
         cursor = self.connection.cursor()
         cursor.execute(sql)
         self.connection.close()
+
+    def getsearches(self):
+        searches=()
+        sql="select * from rsearch"
+        self.get_connection()
+        with self.connection:
+            self.connection.row_factory = ScheduleDB.Row
+            cursor = self.connection.cursor()
+            cursor.execute(sql)
+            rows=cursor.fetchall()
+            for row in rows:
+                search={"type":row["type"],"search":row["search"]}
+                searches.append(search)
+
+        return searches

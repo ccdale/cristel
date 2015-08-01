@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with cristel.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Module for updating the cristel schedule database from the EIT database"""
+"""Module to operate the cristel schedule"""
 
 import sys
 import os
@@ -25,15 +25,24 @@ import sqlite3
 from scheduledb import ScheduleDB
 from eitdb import EITDatabase
 
-log=logging.getLogger("cristel")
-log.setLevel(logging.DEBUG)
-handler=logging.handlers.SysLogHandler(address = '/dev/log', facility=logging.handlers.SysLogHandler.LOG_DAEMON)
-log.addHandler(handler)
+class Schedule(CristelLog):
+    eit=None
+    sch=None
 
-appdir=os.path.expanduser("~/.epgdb")
-eitdb=os.path.join(appdir,"database.db")
-scheddb=os.path.join(appdir,"cristel.db")
-xmltvfile=os.path.join(appdir,"database.xmltv")
+    def __init__(self,log=None):
+        appdir=os.path.expanduser("~/.epgdb")
+        eitdb=os.path.join(appdir,"database.db")
+        scheddb=os.path.join(appdir,"cristel.db")
+        self.eit=EITDatabase(eitdb,log)
+        self.sch=ScheduleDB(scheddb,log)
 
-eit=EITDatabase(eitdb,log)
-sch=ScheduleDB(scheddb,log)
+    def doschedule(self):
+        searches=self.sch.getsearches()
+
+# log=logging.getLogger("cristel")
+# log.setLevel(logging.DEBUG)
+# handler=logging.handlers.SysLogHandler(address = '/dev/log', facility=logging.handlers.SysLogHandler.LOG_DAEMON)
+# log.addHandler(handler)
+# 
+# xmltvfile=os.path.join(appdir,"database.xmltv")
+# 
