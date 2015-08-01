@@ -32,6 +32,24 @@ class ScheduleDB(CristelDB):
     CHANNELS_COLUMN_MUXID = "muxid"
     CHANNELS_COLUMNS = [CHANNELS_COLUMN_SRC, CHANNELS_COLUMN_NAME, CHANNELS_COLUMN_PRIORITY, CHANNELS_COLOUMN_VISIBLE,CHANNELS_COLUMN_FAVOURITE,CHANNELS_COLUMN_LOGICALID,CHANNELS_COLUMN_MUXID]
 
+    RSEARCH_TABLE = "rsearch"
+    RSEARCH_COLUMN_TYPE = "type"
+    RSEARCH_COLUMN_SEARCH = "search"
+    RSEARCH_COLUMNS = [RSEARCH_COLUMN_TYPE,RSEARCH_COLUMN_SEARCH]
+
+    SCHEDULE_TABLE = "schedule"
+    SCHEDULE_COLUMN_ID = "id"
+    SCHEDULE_COLUMN_SRC = "source"
+    SCHEDULE_COLUMN_CNAME = "cname"
+    SCHEDULE_COLUMM_START = "start"
+    SCHEDULE_COLUMN_END = "end"
+    SCHEDULE_COLUMN_TITLE = "title"
+    SCHEDULE_COLUMN_DESC = "description"
+    SCHEDULE_COLUMN_PROGID = "progid"
+    SCHEDULE_COLUMN_SERIESID = "seriesid"
+    SCHEDULE_COLUMNS = [SCHEDULE_COLUMN_SRC,SCHEDULE_COLUMN_CNAME,SCHEDULE_COLUMM_START,SCHEDULE_COLUMN_END,SCHEDULE_COLUMN_TITLE,SCHEDULE_COLUMN_DESC,SCHEDULE_COLUMN_PROGID,SCHEDULE_COLUMN_SERIESID]
+
+
     def __init__(self,scheddbfile,log=None):
         """sets up the ScheduleDB class"""
         CristelDB.__init__(self,scheddbfile,log)
@@ -44,6 +62,8 @@ class ScheduleDB(CristelDB):
         cursor = self.connection.cursor()
         
         self.create_table(cursor, ScheduleDB.CHANNELS_TABLE, ScheduleDB.CHANNELS_COLUMNS,[ScheduleDB.CHANNELS_COLUMN_SRC,ScheduleDB.CHANNELS_COLUMN_NAME])
+        self.create_table(cursor, ScheduleDB.RSEARCH_TABLE, ScheduleDB.RSEARCH_COLUMNS,[ScheduleDB.RSEARCH_COLUMN_TYPE,ScheduleDB.RSEARCH_COLUMN_SEARCH])
+        self.create_autoincrement_table(cursor,ScheduleDB.SCHEDULE_TABLE,ScheduleDB.SCHEDULE_COLUMNS,SCHEDULE_COLUMN_ID)
         self.connection.close()
 
     def updatelogical(self,data):
@@ -55,3 +75,19 @@ class ScheduleDB(CristelDB):
         self.get_connection()
         with self.connection:
             self.connection.executemany("update channels set muxid=? where name=?",data)
+
+    def scheduleevent(self,event):
+        sql = "insert into schedule (source,cname,start,end,title,description,progid,seriesid) values ("
+        sql += "'" + event["source"] "',"
+        sql += "'" + event["cname"] "',"
+        sql += "'" + event["start"] "',"
+        sql += "'" + event["end"] "',"
+        sql += "'" + event["title"] "',"
+        sql += "'" + event["description"] "',"
+        sql += "'" + event["progid"] "',"
+        sql += "'" + event["seriesid"] "'"
+        sql += ")"
+        self.get_connection()
+        cursor = self.connection.cursor()
+        cursor.execute(sql)
+        self.connection.close()

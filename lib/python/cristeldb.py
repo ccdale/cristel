@@ -32,6 +32,10 @@ class CristelDB(CristelLog):
         # self.connection=sqlite3.Connection(self.dbpath)
     
     def create_autoincrement_table(self,cursor,table,fields,idfield):
+        """see https://www.sqlite.org/autoinc.html item 2 
+        for why this is not explicitly set to autoincrement.
+        sqlite uses an unused integer if none is provided upon inser"""
+
         sql = 'CREATE TABLE IF NOT EXISTS ' + table + '('
         sql += idfield + " INTEGER PRIMARY KEY,"
         for field in fields:
