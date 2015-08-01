@@ -25,6 +25,7 @@ import logging
 import logging.handlers
 import sqlite3
 import xmltv
+import time
 
 # setup the cristel lib directory
 cristel_lib_dir = path.realpath(path.join(path.dirname(sys.argv[0]), '../lib/python'))
@@ -76,11 +77,10 @@ if dvb.isdvbstreamerrunning():
     s.close()
     tlcn=()
     for cn,name in lcn.iteritems():
-        t=(cn,name)
+        t=(int(cn),name)
         tlcn+=t,
 
     sdb=ScheduleDB(scheddb,log)
-    log.debug(tlcn)
     log.debug("updating logical channel numbers")
     sdb.updatelogical(tlcn)
 

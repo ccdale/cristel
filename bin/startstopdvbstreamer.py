@@ -27,6 +27,9 @@ import os
 import psutil
 from optparse import OptionParser
 import logging
+import logging.handlers
+
+log=None
 
 def checkdvbstreamerrunning():
     """return a list of dvbstreamer pids."""
@@ -56,27 +59,33 @@ def startdvbstreamer(na,un,pw):
     param: un: connection username
     param: pw: connection password
     """
+    global log
     if not isdvbstreamerrunning():
         for a in range(na):
-            logging.info("Starting adadaptor: %d with username: %s, password: %s" % (a,un,pw))
+            log.info("Starting adadaptor: %d with username: %s, password: %s" % (a,un,pw))
             os.system("dvbstreamer -d -a %d -u %s -p %s" % (a,un,pw))
     else:
-        logging.warning("dvbstreamer is already running")
+        log.warning("dvbstreamer is already running")
 
 def stopdvbstreamer():
     """
     runrecorder: starts up the cristel recorder.
     """
+    global log
     pids=checkdvbstreamerrunning()
     l=len(pids)
     if l > 0:
         for pid in pids:
-            logging.info("killing Dvbstreamer at %d" % pid)
+            log.info("killing Dvbstreamer at %d" % pid)
             os.system("kill %d" % pid)
     else:
-        logging.warning("Dvbstreamer is not running.")
+        log.warning("Dvbstreamer is not running.")
 
 if __name__ == '__main__':
+    log=logging.getLogger("cristel")
+    log.setLevel(logging.DEBUG)
+    handler=logging.handlers.SysLogHandler(address = '/dev/log', facility=logging.handlers.SysLogHandler.LOG_DAEMON)
+    log.addHandler(handler)
     prog=os.path.basename(__file__)
     numadaptors=2
     username='tvc'
@@ -87,10 +96,9 @@ if __name__ == '__main__':
         stopdvbstreamer
     else:
         parser = OptionParser(
-                    'usage: %prog [-sSk] [-u username] [-p password] [-n num-adaptors]')
+                    'usage: %prog [-sk] [-u username] [-p password] [-n num-adaptors]')
 
         parser.add_option('-s', '--start', action="store_true", dest='start', help='start dvbstreamer')
-        parser.add_option('-S', '--stop', action="store_true", dest='stop', help='stop dvbstreamer')
         parser.add_option('-k', '--kill', action="store_true", dest='stop', help='stop dvbstreamer')
         parser.add_option('-u', '--username', dest='username', metavar='USERNAME', help='connection username (default: tvc)')
         parser.add_option('-p', '--password', dest='password', metavar='PASSWORD', help='connection password (default: tvc)')

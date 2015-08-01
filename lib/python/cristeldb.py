@@ -31,6 +31,17 @@ class CristelDB(CristelLog):
         self.debug("CristelDB started for file %s" % self.dbpath)
         # self.connection=sqlite3.Connection(self.dbpath)
     
+    def create_autoincrement_table(self,cursor,table,fields,idfield):
+        sql = 'CREATE TABLE IF NOT EXISTS ' + table + '('
+        sql += idfield + " INTEGER PRIMARY KEY,"
+        for field in fields:
+            sql += field + ','
+        sql =sql[:-1] + '));'
+
+        self.debug("Create Table SQL: %s" % sql)
+        
+        cursor.execute(sql)
+
     def create_table(self, cursor, table, fields, primary_key):
         sql = 'CREATE TABLE IF NOT EXISTS ' + table + '('
         for field in fields:
