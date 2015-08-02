@@ -75,7 +75,7 @@ class CristelDB(CristelLog):
                 rows=cursor.fetchall()
         return rows
 
-    def doinsertsql(self,sql)
+    def doinsertsql(self,sql):
         self.get_connection()
         with self.connection:
             cursor = self.connection.cursor()
