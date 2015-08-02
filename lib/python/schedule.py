@@ -17,11 +17,12 @@
 
 """Module to operate the cristel schedule"""
 
-import sys
+# import sys
 import os
-import logging
-import logging.handlers
-import sqlite3
+# import logging
+# import logging.handlers
+# import sqlite3
+from cristellog import CristelLog
 from scheduledb import ScheduleDB
 from eitdb import EITDatabase
 
@@ -51,7 +52,7 @@ class Schedule(CristelLog):
         for search in searches:
             tevents=self.eit.getsearch(search)
             for event in tevents:
-                event=completeevent(event)
+                event=self.completeevent(event)
                 events.append(event)
         for event in events:
             self.sch.updateschedule(event)
