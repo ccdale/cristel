@@ -36,13 +36,23 @@ class Schedule(CristelLog):
         self.eit=EITDatabase(eitdb,log)
         self.sch=ScheduleDB(scheddb,log)
 
-    def doschedule(self):
-        searches=self.sch.getsearches()
+    def completeevent(self,event):
+        chan=self.sch.getchannel(event["source"])
+        event["channel"]=chan["cname"]
+        event["muxid"]=chan["muxid"]
+        event["visible"]=chan["visible"]
+        event["favourite"]=chan["favourite"]
+        event["priority"]=chan["priority"]
+        return event
 
-# log=logging.getLogger("cristel")
-# log.setLevel(logging.DEBUG)
-# handler=logging.handlers.SysLogHandler(address = '/dev/log', facility=logging.handlers.SysLogHandler.LOG_DAEMON)
-# log.addHandler(handler)
-# 
-# xmltvfile=os.path.join(appdir,"database.xmltv")
-# 
+    def makeschedule(self):
+        events=[]
+        searches=self.sch.getsearches()
+        for search in searches:
+            tevents=self.eit.getsearch(search)
+            for event in tevents:
+                event=completeevent(event)
+                events.append(event)
+        for event in events:
+            self.sch.updateschedule(event)
+

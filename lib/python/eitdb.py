@@ -69,3 +69,61 @@ class EITDatabase(CristelDB):
                             [EITDatabase.DETAILS_COLUMN_SOURCE, EITDatabase.DETAILS_COLUMN_EVENT,
                                 EITDatabase.DETAILS_COLUMN_NAME, EITDatabase. DETAILS_COLUMN_LANG])
         connection.close()
+
+    def detailssearch(self,name,search,like=0):
+        if like==1:
+            sql="select * from details where name='" + name + "' and value like '%" + search + "'"
+        else:
+            sql="select * from details where name='" + name + "' and value='" + search + "'"
+        rows=self.dosql(sql)
+        return rows
+
+    def getevent(self,source,event):
+        event={}
+        sql="select * from events where source='" + source + "' and event=" + event
+        sql2="select * from details where source='" + source + "' and event=" + event
+        self.get_connection()
+        with self.connection:
+            self.connection.row_factory = EITDatabase.Row
+            cursor = self.connection.cursor()
+            cursor.execute(sql)
+            erow=cursor.fetchone()
+            cursor.execute(sql2)
+            rows=cursor.fetchall()
+        event["event"]=erow["event"]
+        event["source"]=erow["source"]
+        event["start"]=erow["start"]
+        event["end"]=erow["end"]
+        for row in rows:
+            event[row["name"]]=row["value"]
+        return event
+    
+    def getsearch(self,search):
+        events=[]
+        res=None
+        if search["type"]=='t':
+            res=self.titlesearch(search=search["search"])
+        elif search["type"]=='l':
+            res=self.titlesearch(search=search["search"],like=1)
+        elif search["type"]=='p':
+            res=self.progidsearch(search["search"])
+        elif search["type"]=='s':
+            res=self.seriesidsearch(search["search"])
+        elif search["type"]=='d':
+            res=self.descsearch(search["search"])
+        if res is not None:
+            for row in res:
+                events.append(self.getevent(row["source"],row["event"]))
+        return events
+
+    def titlesearch(self,search,like=0):
+        res=detailssearch('title',search,like)
+
+    def progidsearch(self,search):
+        res=detailssearch('content',search)
+
+    def seriesidsearch(self,search):
+        res=detailssearch('series',search)
+
+    def descsearch(self,search):
+        res=detailssearch('description',search,1)

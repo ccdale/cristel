@@ -61,3 +61,22 @@ class CristelDB(CristelLog):
 
     def get_connection(self):
         self.connection=sqlite3.connect(self.dbpath)
+
+    def dosql(self,sql,dictionary=1,one=0):
+        self.get_connection()
+        with self.connection:
+            if dictionary==1:
+                self.connection.row_factory = ScheduleDB.Row
+            cursor = self.connection.cursor()
+            cursor.execute(sql)
+            if one>0:
+                rows=cursor.fetchone()
+            else:
+                rows=cursor.fetchall()
+        return rows
+
+    def doinsertsql(self,sql)
+        self.get_connection()
+        with self.connection:
+            cursor = self.connection.cursor()
+            cursor.execute(sql)

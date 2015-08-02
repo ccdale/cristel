@@ -41,13 +41,16 @@ class ScheduleDB(CristelDB):
     SCHEDULE_COLUMN_ID = "id"
     SCHEDULE_COLUMN_SRC = "source"
     SCHEDULE_COLUMN_CNAME = "cname"
+    SCHEDULE_COLUMN_EVENT = "event"
+    SCHEDULE_COLUMN_MUXID = "muxid"
     SCHEDULE_COLUMM_START = "start"
     SCHEDULE_COLUMN_END = "end"
     SCHEDULE_COLUMN_TITLE = "title"
     SCHEDULE_COLUMN_DESC = "description"
     SCHEDULE_COLUMN_PROGID = "progid"
     SCHEDULE_COLUMN_SERIESID = "seriesid"
-    SCHEDULE_COLUMNS = [SCHEDULE_COLUMN_SRC,SCHEDULE_COLUMN_CNAME,SCHEDULE_COLUMM_START,SCHEDULE_COLUMN_END,SCHEDULE_COLUMN_TITLE,SCHEDULE_COLUMN_DESC,SCHEDULE_COLUMN_PROGID,SCHEDULE_COLUMN_SERIESID]
+    SCHEDULE_COLUMN_ADAPTOR = "adaptor"
+    SCHEDULE_COLUMNS = [SCHEDULE_COLUMN_SRC,SCHEDULE_COLUMN_CNAME,SCHEDULE_COLUMN_EVENT,SCHEDULE_COLUMN_MUXID,SCHEDULE_COLUMM_START,SCHEDULE_COLUMN_END,SCHEDULE_COLUMN_TITLE,SCHEDULE_COLUMN_DESC,SCHEDULE_COLUMN_PROGID,SCHEDULE_COLUMN_SERIESID,SCHEDULE_COLUMN_ADAPTOR]
 
 
     def __init__(self,scheddbfile,log=None):
@@ -87,22 +90,28 @@ class ScheduleDB(CristelDB):
         sql += "'" + event["progid"] "',"
         sql += "'" + event["seriesid"] "'"
         sql += ")"
-        self.get_connection()
-        cursor = self.connection.cursor()
-        cursor.execute(sql)
-        self.connection.close()
+        self.doinsertsql(sql)
 
     def getsearches(self):
         searches=()
         sql="select * from rsearch"
-        self.get_connection()
-        with self.connection:
-            self.connection.row_factory = ScheduleDB.Row
-            cursor = self.connection.cursor()
-            cursor.execute(sql)
-            rows=cursor.fetchall()
-            for row in rows:
-                search={"type":row["type"],"search":row["search"]}
-                searches.append(search)
-
+        rows=self.dosql(sql)
+        for row in rows:
+            search={"type":row["type"],"search":row["search"]}
+            searches.append(search)
         return searches
+
+    def getchannel(self,source):
+        sql="select * from channels where source='" + source + "'"
+        row=self.dosql(sql,one=1)
+        return row
+    
+    def updateschedule(self,event):
+        sql="insert or replace into schedule (id,"
+        for field in ScheduleDB.SCHEDULE_COLUMNS:
+            sql += field + ','
+        sql =sql[:-1] + ") values ((select id from schedule where source='" + event["source"] + "' and event=" + event["event"] + "),"
+        for field in ScheduleDB.SCHEDULE_COLUMNS:
+            sql += event[field] + ','
+        sql=sql[:-1] + ")"
+        self.doinsertsql(sql)
