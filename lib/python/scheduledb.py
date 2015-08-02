@@ -17,9 +17,9 @@
 
 """Schedule DB class"""
 
-import sqlite3
+# import sqlite3
 from cristeldb import CristelDB
-from cristellog import CristelLog
+# from cristellog import CristelLog
 
 class ScheduleDB(CristelDB):
     CHANNELS_TABLE = "Channels"
@@ -33,6 +33,7 @@ class ScheduleDB(CristelDB):
     CHANNELS_COLUMNS = [CHANNELS_COLUMN_SRC, CHANNELS_COLUMN_NAME, CHANNELS_COLUMN_PRIORITY, CHANNELS_COLOUMN_VISIBLE,CHANNELS_COLUMN_FAVOURITE,CHANNELS_COLUMN_LOGICALID,CHANNELS_COLUMN_MUXID]
 
     RSEARCH_TABLE = "rsearch"
+    RSEARCH_COLUMN_ID = "id"
     RSEARCH_COLUMN_TYPE = "type"
     RSEARCH_COLUMN_SEARCH = "search"
     RSEARCH_COLUMNS = [RSEARCH_COLUMN_TYPE,RSEARCH_COLUMN_SEARCH]
@@ -65,8 +66,8 @@ class ScheduleDB(CristelDB):
         cursor = self.connection.cursor()
         
         self.create_table(cursor, ScheduleDB.CHANNELS_TABLE, ScheduleDB.CHANNELS_COLUMNS,[ScheduleDB.CHANNELS_COLUMN_SRC,ScheduleDB.CHANNELS_COLUMN_NAME])
-        self.create_table(cursor, ScheduleDB.RSEARCH_TABLE, ScheduleDB.RSEARCH_COLUMNS,[ScheduleDB.RSEARCH_COLUMN_TYPE,ScheduleDB.RSEARCH_COLUMN_SEARCH])
-        self.create_autoincrement_table(cursor,ScheduleDB.SCHEDULE_TABLE,ScheduleDB.SCHEDULE_COLUMNS,SCHEDULE_COLUMN_ID)
+        self.create_autoincrement_table(cursor,ScheduleDB.RSEARCH_TABLE,ScheduleDB.RSEARCH_COLUMNS,ScheduleDB.RSEARCH_COLUMN_ID)
+        self.create_autoincrement_table(cursor,ScheduleDB.SCHEDULE_TABLE,ScheduleDB.SCHEDULE_COLUMNS,ScheduleDB.SCHEDULE_COLUMN_ID)
         self.connection.close()
 
     def updatelogical(self,data):
@@ -80,16 +81,14 @@ class ScheduleDB(CristelDB):
             self.connection.executemany("update channels set muxid=? where name=?",data)
 
     def scheduleevent(self,event):
-        sql = "insert into schedule (source,cname,start,end,title,description,progid,seriesid) values ("
-        sql += "'" + event["source"] "',"
-        sql += "'" + event["cname"] "',"
-        sql += "'" + event["start"] "',"
-        sql += "'" + event["end"] "',"
-        sql += "'" + event["title"] "',"
-        sql += "'" + event["description"] "',"
-        sql += "'" + event["progid"] "',"
-        sql += "'" + event["seriesid"] "'"
-        sql += ")"
+        fields=('source','cname','event','muxid','start','end','title','description','progid','seriesid')
+        sql="insert into schedule ("
+        for field in fields:
+            sql+=field + ","
+        sql=sql[:-1] + ") values ("
+        for field in fields:
+            sql+="'" + event[field] +"',"
+        sql=sql[:-1] + ")"
         self.doinsertsql(sql)
 
     def getsearches(self):
@@ -114,4 +113,11 @@ class ScheduleDB(CristelDB):
         for field in ScheduleDB.SCHEDULE_COLUMNS:
             sql += event[field] + ','
         sql=sql[:-1] + ")"
+        self.doinsertsql(sql)
+
+    def updatesearch(self,xtype,search):
+        sql="insert or replace into schedule (id,"
+        for field in ScheduleDB.RSEARCH_COLUMNS:
+            sql += field + ","
+        sql=sql[:-1] + ") values ((select id from schedule where type='" + xtype + "' and search='" + search + "'),'" + xtype + "','" + search + "')"
         self.doinsertsql(sql)

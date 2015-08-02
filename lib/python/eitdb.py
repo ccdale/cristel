@@ -18,8 +18,8 @@
 """eit db class"""
 
 from cristeldb import CristelDB
-from cristellog import CristelLog
-import sqlite3
+# from cristellog import CristelLog
+# import sqlite3
 
 class EITDatabase(CristelDB):
     EVENTS_TABLE = 'Events'
@@ -68,13 +68,15 @@ class EITDatabase(CristelDB):
         self.create_table(cursor, EITDatabase.DETAILS_TABLE, EITDatabase.DETAILS_COLUMNS, 
                             [EITDatabase.DETAILS_COLUMN_SOURCE, EITDatabase.DETAILS_COLUMN_EVENT,
                                 EITDatabase.DETAILS_COLUMN_NAME, EITDatabase. DETAILS_COLUMN_LANG])
-        connection.close()
+        self.connection.close()
 
     def detailssearch(self,name,search,like=0):
         if like==1:
-            sql="select * from details where name='" + name + "' and value like '%" + search + "'"
+            sql="select * from details where name='{}' and value like '%{}%'".format(name,search)
+            # sql="select * from details where name='" + name + "' and value like '%" + search + "%'"
         else:
-            sql="select * from details where name='" + name + "' and value='" + search + "'"
+            sql="selct * from details where name='{}' and value='{}'".format(name,search)
+            # sql="select * from details where name='" + name + "' and value='" + search + "'"
         rows=self.dosql(sql)
         return rows
 
@@ -117,13 +119,17 @@ class EITDatabase(CristelDB):
         return events
 
     def titlesearch(self,search,like=0):
-        res=detailssearch('title',search,like)
+        res=self.detailssearch('title',search,like)
+        return res
 
     def progidsearch(self,search):
-        res=detailssearch('content',search)
+        res=self.detailssearch('content',search)
+        return res
 
     def seriesidsearch(self,search):
-        res=detailssearch('series',search)
+        res=self.detailssearch('series',search)
+        return res
 
     def descsearch(self,search):
-        res=detailssearch('description',search,1)
+        res=self.detailssearch('description',search,1)
+        return res
