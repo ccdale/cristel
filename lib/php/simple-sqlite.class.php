@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /*
@@ -7,7 +6,7 @@
  * simple-sqlite.class.php
  *
  * Started: Sunday  2 August 2015, 12:29:49
- * Last Modified: Sunday  2 August 2015, 12:57:11
+ * Last Modified: Sunday  2 August 2015, 16:20:54
  */
 require_once "base.class.php"
 
