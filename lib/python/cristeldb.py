@@ -40,7 +40,7 @@ class CristelDB(CristelLog):
         sql += idfield + " INTEGER PRIMARY KEY,"
         for field in fields:
             sql += field + ','
-        sql =sql[:-1] + '));'
+        sql =sql[:-1] + ');'
 
         self.debug("Create Table SQL: %s" % sql)
         
@@ -66,8 +66,9 @@ class CristelDB(CristelLog):
         self.get_connection()
         with self.connection:
             if dictionary==1:
-                self.connection.row_factory = ScheduleDB.Row
+                self.connection.row_factory = sqlite3.Row
             cursor = self.connection.cursor()
+            self.debug("SQL: %s" % sql)
             cursor.execute(sql)
             if one>0:
                 rows=cursor.fetchone()
@@ -79,4 +80,5 @@ class CristelDB(CristelLog):
         self.get_connection()
         with self.connection:
             cursor = self.connection.cursor()
+            self.debug("SQL: %s" % sql)
             cursor.execute(sql)

@@ -54,6 +54,8 @@ class Schedule(CristelLog):
             for event in tevents:
                 event=self.completeevent(event)
                 events.append(event)
+        cn=len(events)
+        self.debug("Makeschedule: number of events to insert/update: %d" % cn)
         for event in events:
             self.sch.updateschedule(event)
 
