@@ -6,7 +6,7 @@
  * simple-sqlite.class.php
  *
  * Started: Sunday  2 August 2015, 12:29:49
- * Last Modified: Sunday  2 August 2015, 16:22:47
+ * Last Modified: Sunday  9 August 2015, 15:21:06
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -25,7 +25,7 @@
  * You should have received a copy of the GNU General Public License
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
-require_once "base.class.php"
+require_once "base.class.php";
 
 /** SSql Class
  * simple class to do db stuff with sqlite3 databases
@@ -109,15 +109,13 @@ class SSql extends Base
     {
         $ret=false;
         $this->query($sql);
-        if($this->rs){
-            $cn=$this->rs->numRows();
-            $this->debug("$cn rows returned");
-            if($cn>0){
-                $ret=array();
-                while(false!=($arr=$this->rs->fetchArray(SQLITE3_ASSOC))){
-                    $ret[]=$arr;
-                }
+        if(false!==$this->rs){
+            $ret=array();
+            while($arr=$this->rs->fetchArray(SQLITE3_ASSOC)){
+                $ret[]=$arr;
             }
+        }else{
+            $this->warning("arrayQuery: recordset is false");
         }
         return $ret;
     } // }}}
