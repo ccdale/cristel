@@ -3,10 +3,10 @@
 /*
  * vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4 foldmethod=marker:
  *
- * cristel.php
+ * index.php
  *
- * Started: Sunday  2 August 2015, 16:21:46
- * Last Modified: Sunday 16 August 2015, 02:27:33
+ * Started: Sunday 16 August 2015, 02:21:57
+ * Last Modified: Sunday 16 August 2015, 02:25:29
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -26,30 +26,12 @@
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once "logging.class.php";
-require_once "simple-sqlite.class.php";
-require_once "channel.class.php";
-require_once "www.php";
-require_once "grid.class.php";
+date_default_timezone_set("Europe/London");
+$mypath=dirname(__FILE__);
+/* this file should be in the /path/cristel/www directory, lets check */
+$cristeldir=dirname($mypath);
+$libpath=$cristeldir . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "php";
+set_include_path($libpath . PATH_SEPARATOR . get_include_path());
 
-$logg=new Logging(false,"CPHP",0,LOG_DEBUG);
-$b=new Base($logg);
-$homedir="/home/chris";
-$datadir=$b->unixpath($homedir) . ".epgdb";
-$cristeldbfn=$b->unixpath($datadir) . "cristel.db";
-$epgdbfn=$b->unixpath($datadir) . "database.db";
-
-$cdb=new SSql($cristeldbfn,$logg);
-$edb=new SSql($epgdbfn,$logg);
-$c=new Channel($logg,$cdb);
-$g=new Grid($cdb,$edb,$c->visiblechans(),$logg);
-$op=$g->build();
+require_once "cristel.php";
 ?>
-<html>
-<head>
-<link rel="stylesheet" type="text/css" href="cristel.css">
-</head>
-<body>
-<?php print $op; ?>
-</body>
-</html>
