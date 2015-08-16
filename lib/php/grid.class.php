@@ -6,7 +6,7 @@
  * grid.class.php
  *
  * Started: Saturday 15 August 2015, 08:47:21
- * Last Modified: Saturday 15 August 2015, 15:27:01
+ * Last Modified: Saturday 15 August 2015, 15:44:18
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -174,7 +174,7 @@ class Grid extends Base
         $sql.="' and end > ";
         $sql.=$this->start;
         $sql.=" and start < ";
-        $sql.=$this->end;
+        $sql.=$this->start + $this->width;
         $sql.=" order by start ASC";
         return $sql;
     }/*}}}*/
@@ -222,7 +222,8 @@ class Grid extends Base
         $op.=$this->makeChannelCell($this->chanlist[$progs[0]["logicalid"]]["name"]);
         foreach($progs as $prog){
             $start=$prog["start"]<$this->start?$this->start:$prog["start"];
-            $end=$prog["end"]<=$this->end?$prog["end"]:$this->end;
+            $xend=$this->start+$this->width;
+            $end=$prog["end"]<=$xend?$prog["end"]:$xend;
             $nslots=($end-$start)/$this->slotsize;
             $atts=array("title"=>$prog["description"]);
             $atts["colspan"]=$nslots;
@@ -288,6 +289,15 @@ class Grid extends Base
             $op=date("D d M",$ts);
         }else{
             $op=date("D d M");
+        }
+        return $op;
+    }/*}}}*/
+    private function displayTime($ts=0)/*{{{*/
+    {
+        if($ts){
+            $op=date("H:i",$ts);
+        }else{
+            $op=date("H:i");
         }
         return $op;
     }/*}}}*/

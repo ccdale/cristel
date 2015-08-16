@@ -6,7 +6,7 @@
  * cristel.php
  *
  * Started: Sunday  2 August 2015, 16:21:46
- * Last Modified: Sunday  9 August 2015, 15:20:26
+ * Last Modified: Sunday 16 August 2015, 01:48:01
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -37,6 +37,7 @@ require_once "logging.class.php";
 require_once "simple-sqlite.class.php";
 require_once "channel.class.php";
 require_once "www.php";
+require_once "grid.class.php";
 
 $logg=new Logging(false,"CPHP",0,LOG_DEBUG);
 $b=new Base($logg);
@@ -48,11 +49,7 @@ $epgdbfn=$b->unixpath($datadir) . "database.db";
 $cdb=new SSql($cristeldbfn,$logg);
 $edb=new SSql($epgdbfn,$logg);
 $c=new Channel($logg,$cdb);
-$chans=$c->visiblechans();
-if(false===($start=GP("gridstart"))){
-    $start=time();
-    /* fix to nearest half hour */
-    $rem=$start % 1800;
-    $start=$start-$rem;
-}
+$g=new Grid($cdb,$edb,$c->visiblechans(),$logg);
+$op=$g->build();
+print $op;
 ?>
