@@ -6,7 +6,7 @@
  * grid.class.php
  *
  * Started: Saturday 15 August 2015, 08:47:21
- * Last Modified: Saturday 15 August 2015, 15:44:18
+ * Last Modified: Sunday 16 August 2015, 02:20:04
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -37,8 +37,9 @@ class Grid extends Base
     private $slotsize=false;
     private $end=false;
     private $chanlist=false;
+    private $ntimerows=10;
 
-    public function __construct($cdb,$edb,$chanlist,$logg=false,$start=false,$width=false,$slotsize=false)/*{{{*/
+    public function __construct($cdb,$edb,$chanlist,$logg=false,$start=false,$width=false,$slotsize=false,$ntimerows=10)/*{{{*/
     {
         parent::__construct($logg);
         $this->cx=$cdb;
@@ -49,6 +50,7 @@ class Grid extends Base
         $this->start=$this->start - $rem; // to the nearest 30 minutes
         $this->width=$this->defaultInt($width,7200);
         $this->slotsize=$this->defaultInt($slotsize,60*5); // 5 minutes
+        $this->ntimerows=$this->defaultInt($ntimerows,10);
     }/*}}}*/
     public function __destruct()/*{{{*/
     {
@@ -72,8 +74,15 @@ class Grid extends Base
         $gprogs=$this->gridProgrammes();
         if(false!==($cn=$this->ValidArray($gprogs))){
             $this->debug("$cn channels to display in grid");
+            $op.=$this->timerow();
+            $rows=0;
             foreach($gprogs as $progs){
                 $op.=$this->grow($progs);
+                $rows++;
+                if($rows>=$this->ntimerows){
+                    $rows=0;
+                    $op.=$this->timerow();
+                }
             }
         }else{
             $this->warn("Cannot obtain a list of programmes for the grid");
@@ -299,6 +308,24 @@ class Grid extends Base
         }else{
             $op=date("H:i");
         }
+        return $op;
+    }/*}}}*/
+    private function timerow()/*{{{*/
+    {
+        $gridend=$this->start+$this->width;
+        $pos=$this->start;
+        $previous=$this->start-$this->width;
+        $next=$this->start+$this->width;
+        $leftlink=linkToSelf("<",array("gridstart"=>$previous),"griddir");
+        $rightlink=linkToSelf(">",array("gridstart"=>$next),"griddir");
+        $op="<tr class='timerow'>\n";
+        $op.=$this->gcell($leftlink,array("class"=>"arrowcell left"));
+        $op.=$this->gcell($rightlink,array("class"=>"arrowcell right"));
+        while($pos<$gridend){
+            $op.=gcell(displayTime($pos),array("class"=>"timecell"));
+            $pos+=1800;
+        }
+        $op.="</tr>\n";
         return $op;
     }/*}}}*/
 }
