@@ -6,7 +6,7 @@
  * channel.class.php
  *
  * Started: Tuesday  4 August 2015, 05:42:21
- * Last Modified: Sunday  9 August 2015, 15:21:24
+ * Last Modified: Sunday 16 August 2015, 04:22:38
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -32,7 +32,7 @@ class Channel extends Data
 {
     private $collist=array("source","name","priority","visible","favourite","logicalid","muxid");
 
-    public function __construct($logg=false,$cx=false,$source=false,$name=false)/*{{{*/
+    public function __construct($logg=false,$cx=false,$logicalid=false,$source=false,$name=false)/*{{{*/
     {
         $keyname=false;
         $keyvalue=0;
@@ -42,9 +42,12 @@ class Channel extends Data
         }elseif(false!==$name){
             $keyname="name";
             $keyvalue=$name;
+        }elseif(false!==$logicalid){
+            $keyname="logicalid";
+            $keyvalue=$logicalid;
         }
         parent::__construct($logg,$cx,"Channels",$this->collist,$keyname,$keyvalue);
-        $this->getrow();
+        // $this->getrow();
     }/*}}}*/
     public function __destruct()/*{{{*/
     {

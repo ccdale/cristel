@@ -5,7 +5,7 @@
  * data.class.php
  *
  * Started: Saturday  8 August 2015, 08:23:32
- * Last Modified: Sunday  9 August 2015, 15:21:33
+ * Last Modified: Sunday 16 August 2015, 13:44:54
  *
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -45,6 +45,7 @@ class Data extends Base
         $this->columns=$columns;
         $this->keyname=$keyname;
         $this->keyvalue=$keyvalue;
+        $this->debug("keyname: $keyname, keyvalue: $keyvalue");
         $this->getrow();
     }/*}}}*/
     public function __destruct()/*{{{*/
@@ -86,12 +87,20 @@ class Data extends Base
             $sql.=$this->table;
             $sql.=" where ";
             $sql.=$this->keyname;
-            $sql.="='";
-            $sql.=$this->keyvalue;
-            $sql.="'";
+            $sql.="=";
+            if($this->keyname=="logicalid"){
+                $sql.=$this->keyvalue;
+            }else{
+                $sql.="'" . $this->keyvalue . "'";
+            }
             $tmp=$this->cx->arrayQuery($sql);
             $this->arr=$tmp[0];
             $this->dirty=false;
+        }else{
+            $this->debug("one of these is false: keyname: " . $this->keyname . " keyvalue: " . $this->keyvalue);
+            if(false===$this->cx){
+                $this->debug("cx is false");
+            }
         }
     }/*}}}*/
     protected function setrow()/*{{{*/

@@ -6,7 +6,7 @@
  * grid.class.php
  *
  * Started: Saturday 15 August 2015, 08:47:21
- * Last Modified: Sunday 16 August 2015, 02:20:04
+ * Last Modified: Sunday 16 August 2015, 15:34:04
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -38,10 +38,12 @@ class Grid extends Base
     private $end=false;
     private $chanlist=false;
     private $ntimerows=10;
+    private $pt=false;
 
-    public function __construct($cdb,$edb,$chanlist,$logg=false,$start=false,$width=false,$slotsize=false,$ntimerows=10)/*{{{*/
+    public function __construct($cdb,$edb,$chanlist,$logg=false,$start=false,$width=false,$slotsize=false,$ntimerows=20)/*{{{*/
     {
         parent::__construct($logg);
+        $this->pt=new ProgrammeTable($logg);
         $this->cx=$cdb;
         $this->ex=$edb;
         $this->chanlist=$chanlist;
@@ -50,7 +52,7 @@ class Grid extends Base
         $this->start=$this->start - $rem; // to the nearest 30 minutes
         $this->width=$this->defaultInt($width,7200);
         $this->slotsize=$this->defaultInt($slotsize,60*5); // 5 minutes
-        $this->ntimerows=$this->defaultInt($ntimerows,10);
+        $this->ntimerows=$this->defaultInt($ntimerows,20);
     }/*}}}*/
     public function __destruct()/*{{{*/
     {
@@ -71,13 +73,14 @@ class Grid extends Base
     public function build()/*{{{*/
     {
         $op="<table border=1>\n";
+        $op.=$this->dayrow();
         $gprogs=$this->gridProgrammes();
         if(false!==($cn=$this->ValidArray($gprogs))){
             $this->debug("$cn channels to display in grid");
             $op.=$this->timerow();
             $rows=0;
-            foreach($gprogs as $progs){
-                $op.=$this->grow($progs);
+            foreach($gprogs as $logicalid=>$progs){
+                $op.=$this->grow($progs,$logicalid);
                 $rows++;
                 if($rows>=$this->ntimerows){
                     $rows=0;
@@ -90,20 +93,10 @@ class Grid extends Base
         $op.="</table>\n";
         return $op;
     }/*}}}*/
-    private function makeAttsString($atts=false)/*{{{*/
-    {
-        $op="";
-        if(false!==($cn=$this->ValidArray($atts)) && $cn>0){
-            foreach($atts as $key=>$val){
-                $op.=$key . "=\"" . $val . "\" ";
-            }
-            $op=substr($op,0,-1);
-        }
-        return $op;
-    }/*}}}*/
     private function defaultInt($xint,$default)/*{{{*/
     {
-        if(false!==$xint && is_integer($xint) && $xint>0){
+        $yint=intval($xint);
+        if(false!==$xint && $yint>0){
             return $xint;
         }else{
             return $default;
@@ -151,11 +144,21 @@ class Grid extends Base
     private function channelProgrammes($logicalid)/*{{{*/
     {
         $cprogs=false;
-        if($this->amOK($logicalid) && (false!==($events=$this->ex->arrayQuery($this->chanEventSql($logicalid))))){
-            $cprogs=array();
-            foreach($events as $event){
-                $cprogs[]=$this->progDetails($event,$logicalid);
+        $this->debug("logicalid: $logicalid, channel name: " . $this->chanlist[$logicalid]["name"]);
+        if($this->amOK($logicalid)){
+            $sql=$this->chanEventSql($logicalid);
+            if(false!==($events=$this->ex->arrayQuery($sql))){
+                $cn=count($events);
+                $this->debug("$cn events returned for logicalid: $logicalid");
+                $cprogs=array();
+                foreach($events as $event){
+                    $cprogs[]=$this->progDetails($event,$logicalid);
+                }
+            }else{
+                $this->warn("false returned for events sql for logicalid: $logicalid, " . $this->chanlist[$logicalid]["name"]);
             }
+        }else{
+            $this->warn("not ok for logicalid: $logicalid, " . $this->chanlist[$logicalid]["name"]);
         }
         return $cprogs;
     }/*}}}*/
@@ -187,73 +190,43 @@ class Grid extends Base
         $sql.=" order by start ASC";
         return $sql;
     }/*}}}*/
-    private function linkToSelf($name,$args=false,$class="",$title="")/*{{{*/
-    {
-        $op="<a ";
-        $options="";
-        if(false!==($cn=$this->ValidString($class)) && $cn>0){
-            $op.="class='$class' ";
-        }
-        if(false!==($cn=$this->ValidString($title)) && $cn>0){
-            $op.="title=\"$title\" ";
-        }
-        if(false!==($cn=$this->ValidArray($args)) && $cn>0){
-            $options="?";
-            foreach($args as $key=>$val){
-                $options.=urlencode($key) . "=" . urlencode($val) . "&";
-            }
-            $options=substr($options,0,-1);
-        }
-        $op.="href='";
-        $op.=$_SERVER["PHP_SELF"];
-        $op.=$options;
-        $op.="'>";
-        $op.=$name;
-        $op.="</a>\n";
-        return $op;
-    }/*}}}*/
     private function gcell($content,$attrs=false)/*{{{*/
     {
-        $op="<td";
-        if(false!==($cn=$this->ValidString($attrs)) && $cn>0){
-            $op.=" " . $attrs;
-        }elseif(false!==($cn=$this->ValidArray($attrs)) && $cn>0){
-            $op.=" " . $this->makeAttsString($attrs);
-        }
-        $op.=">";
-        $op.=$content;
-        $op.="</td>\n";
-        return $op;
+        return $this->pt->tableData($attrs,$content);
     }/*}}}*/
-    private function grow($progs)/*{{{*/
+    private function grow($progs,$logicalid)/*{{{*/
     {
-        $op="<tr class='gridrow'>\n";
-        $op.=$this->makeChannelCell($this->chanlist[$progs[0]["logicalid"]]["name"]);
+        $content=$this->makeChannelCell($this->chanlist[$logicalid]);
         foreach($progs as $prog){
             $start=$prog["start"]<$this->start?$this->start:$prog["start"];
             $xend=$this->start+$this->width;
             $end=$prog["end"]<=$xend?$prog["end"]:$xend;
             $nslots=($end-$start)/$this->slotsize;
-            $atts=array("title"=>$prog["description"]);
+            $atts=array("title"=>$this->titleattribute($prog,true));
             $atts["colspan"]=$nslots;
             $atts["class"]="programcell";
-            $op.=$this->gcell($this->makeProgContent($prog),$atts);
+            $content.=$this->gcell($this->makeProgContent($prog),$atts);
         }
-        $op.="</tr>\n";
+        $op=$this->pt->tableRow(array("class"=>"gridrow"),$content);
         return $op;
     }/*}}}*/
     private function makeProgContent($prog)/*{{{*/
     {
-        return $this->linkToSelf($prog["title"],$prog,"progcelllink",$this->titleattribute($prog,true));
+        $atts=$prog;
+        $atts["gridstart"]=$this->start;
+        return $this->pt->linkToSelf($prog["title"],$atts,"progcelllink");
     }/*}}}*/
-    private function makeChannelCell($cname)/*{{{*/
+    private function makeChannelCell($carr)/*{{{*/
     {
-        $atts=array("colspan"=>2,"align"=>"left","class"=>"channelcell");
-        $op="<td ";
-        $op.=$this->makeAttsString($atts);
-        $op.=">";
-        $op.=$cname;
-        $op.="</td>\n";
+        $cname=$carr["name"];
+        $logicalid=$carr["logicalid"];
+        $atts=array("colspan"=>2,"class"=>"channelcell left");
+        // $op="<td ";
+        // $op.=$this->pt->makeAttsString($atts);
+        // $op.=">";
+        $content=$this->pt->linkToSelf($cname,array("channel"=>$logicalid));
+        // $op.="</td>\n";
+        $op=$this->pt->tableData($atts,$content);
         return $op;
     }/*}}}*/
     private function titleattribute($prog,$withtime=false)/*{{{*/
@@ -275,40 +248,9 @@ class Grid extends Base
     }/*}}}*/
     private function displayDuration($prog)/*{{{*/
     {
-        $dt=$this->ddt($prog["start"]);
+        $dt=$this->pt->ddt($prog["start"]);
         $duration=$prog["duration"]/60;
         return $dt . " " . $duration . " mins.";
-    }/*}}}*/
-    private function ddt($ts)/*{{{*/
-    {
-        return $this->displayDay($ts) . " " . $this->displayTime($ts);
-    }/*}}}*/
-    private function displayDay($ts=0)/*{{{*/
-    {
-        if($ts){
-            $op=date("D d",$ts);
-        }else{
-            $op=date("D d");
-        }
-        return $op;
-    }/*}}}*/
-    private function displayDM($ts=0)/*{{{*/
-    {
-        if($ts>0){
-            $op=date("D d M",$ts);
-        }else{
-            $op=date("D d M");
-        }
-        return $op;
-    }/*}}}*/
-    private function displayTime($ts=0)/*{{{*/
-    {
-        if($ts){
-            $op=date("H:i",$ts);
-        }else{
-            $op=date("H:i");
-        }
-        return $op;
     }/*}}}*/
     private function timerow()/*{{{*/
     {
@@ -316,16 +258,37 @@ class Grid extends Base
         $pos=$this->start;
         $previous=$this->start-$this->width;
         $next=$this->start+$this->width;
-        $leftlink=linkToSelf("<",array("gridstart"=>$previous),"griddir");
-        $rightlink=linkToSelf(">",array("gridstart"=>$next),"griddir");
-        $op="<tr class='timerow'>\n";
-        $op.=$this->gcell($leftlink,array("class"=>"arrowcell left"));
-        $op.=$this->gcell($rightlink,array("class"=>"arrowcell right"));
+        $leftlink=$this->pt->linkToSelf("<",array("gridstart"=>$previous),"griddir");
+        $rightlink=$this->pt->linkToSelf(">",array("gridstart"=>$next),"griddir");
+        // $op="<tr class='timerow'>\n";
+        $content=$this->gcell($leftlink,array("class"=>"arrowcell left"));
+        $content.=$this->gcell($rightlink,array("class"=>"arrowcell right"));
+        $colspan=($this->width/1800)+2; // width of the table + the 2 'channel columns'
         while($pos<$gridend){
-            $op.=gcell(displayTime($pos),array("class"=>"timecell"));
+            $content.=$this->gcell($this->pt->displayTime($pos),array("class"=>"timecell","colspan"=>$colspan));
             $pos+=1800;
         }
-        $op.="</tr>\n";
+        // $op.="</tr>\n";
+        $op=$this->pt->tableRow(array("class"=>"timerow"),$content);
+        return $op;
+    }/*}}}*/
+    private function dayrow()/*{{{*/
+    {
+        $next=$this->start+(24*3600);
+        $previous=$this->start-(24*3600);
+        $now=time();
+        $leftlink=$this->pt->linkToSelf(date("D",$previous),array("gridstart"=>$previous),"griddir");
+        $rightlink=$this->pt->linkToSelf(date("D",$next),array("gridstart"=>$next),"griddir");
+        $nowlink=$this->pt->linkToSelf(date("D",$this->start),array("gridstart"=>$now),"griddir");
+        $fullwidth=intval($this->width/$this->slotsize)+2;
+        $eachthree=intval($fullwidth/3);
+        $rem=$fullwidth%3;
+        // $op="<tr class='timerow'>\n";
+        $content=$this->gcell($leftlink,array("class"=>"arrowcell left","colspan"=>$eachthree));
+        $content.=$this->gcell($nowlink,array("class"=>"arrowcell centre","colspan"=>$eachthree+$rem));
+        $content.=$this->gcell($rightlink,array("class"=>"arrowcell right","colspan"=>$eachthree));
+        // $op.="</tr>\n";
+        $op=$this->pt->tableRow(array("class"=>"timerow"),$content);
         return $op;
     }/*}}}*/
 }

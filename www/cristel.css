@@ -22,11 +22,25 @@
 .right {
     text-align: right;
 }
+.centre {
+    text-align: center;
+}
 a:link,a:visited,a:active {
     text-decoration: none;
+    color: #222;
 }
 a:hover {
     text-decoration: underline;
+}
+a.griddir:link,a.griddir:visited,a.griddir:active {
+    color: #075;
+    font-weight: bold;
+    padding: 10px;
+}
+a.griddir:hover {
+    color: #057;
+    font-weight: bold;
+    padding: 10px;
 }
 tr.timerow {
     background-color: #000;
