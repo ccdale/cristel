@@ -6,7 +6,7 @@
  * index.php
  *
  * Started: Sunday 16 August 2015, 02:21:57
- * Last Modified: Sunday 16 August 2015, 15:55:26
+ * Last Modified: Saturday 22 August 2015, 07:56:38
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -84,7 +84,7 @@ if(false!==($event=GP("event"))){
 
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="cristel.css" rel="stylesheet">
+    <link href="css/cristel.css" rel="stylesheet">
   </head>
   <body>
 
