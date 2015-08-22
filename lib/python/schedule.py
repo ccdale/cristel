@@ -27,8 +27,9 @@ from scheduledb import ScheduleDB
 from eitdb import EITDatabase
 
 class Schedule(CristelLog):
-    eit=None
-    sch=None
+    # should be instance vars, not class vars
+    # eit=None
+    # sch=None
 
     def __init__(self,log=None):
         appdir=os.path.expanduser("~/.epgdb")

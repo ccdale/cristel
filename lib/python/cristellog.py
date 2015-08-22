@@ -32,7 +32,9 @@ class CristelLog:
     logger=CristelLog(log)
     """
 
-    logg=None
+
+    # should be an instance var, not a class var
+    # logg=None
 
     def __init__(self,log=None):
         self.logg=log

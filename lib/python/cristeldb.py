@@ -17,18 +17,23 @@
 
 """base sqlite3 database class"""
 import sqlite3
+import os.path
 from cristellog import CristelLog
 
 class CristelDB(CristelLog):
 
-    dbpath=None
-    connection=None
+    # these should be instance vars, not class vars
+    # dbpath=None
+    # connection=None
 
     def __init__(self,dbfilename,log=None):
         """sets up the cristel db class"""
         CristelLog.__init__(self,log)
-        self.dbpath=dbfilename
-        self.debug("CristelDB started for file %s" % self.dbpath)
+        if os.path.isfile(dbfilename):
+            self.dbpath=dbfilename
+            self.debug("CristelDB started for file %s" % self.dbpath)
+        else:
+            self.error("DB file does not exist: %s" % dbfilename)
         # self.connection=sqlite3.Connection(self.dbpath)
     
     def create_autoincrement_table(self,cursor,table,fields,idfield):
