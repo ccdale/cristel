@@ -6,7 +6,7 @@
  * simple-sqlite.class.php
  *
  * Started: Sunday  2 August 2015, 12:29:49
- * Last Modified: Sunday  9 August 2015, 15:21:06
+ * Last Modified: Sunday 23 August 2015, 11:30:50
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -45,6 +45,7 @@ class SSql extends Base
                 try {
                     $this->db=new SQLite3($fqfn);
                     $this->connected=true;
+                    $this->debug("opened db file $fqfn");
                 }catch (Exception $e){
                     $this->error($e->getMessage());
                 }
@@ -88,9 +89,13 @@ class SSql extends Base
         /*
          * returns insert id or false for insert queries
          */
+        $this->debug("insert query: $sql");
         $ret=$this->query($sql);
         if($ret){
             $ret=$this->db->lastInsertRowID();
+            $this->debug("insert id: $ret");
+        }else{
+            $this->warning("insert query ($sql) failed.");
         }
         return $ret;
     } // }}}
@@ -122,6 +127,43 @@ class SSql extends Base
     public function escape($str="")/*{{{*/
     {
         return sqlite_escape_string($str);
+    }/*}}}*/
+    public function makeFieldString($val)/*{{{*/
+    {
+        if(false!==($cn=$this->ValidString($val))){
+            $op="'$val'";
+        }else{
+            $op=$val;
+        }
+        return $op;
+    }/*}}}*/
+    public function insertCheck($table,$fields)/*{{{*/
+    {
+        $ret=false;
+        $carr=$farr=$varr=array();
+        $sql=$sqli=$ssql=$fs=$vs="";
+        foreach($fields as $field=>$value){
+            $tmp=$this->makeFieldString($value);
+            $ssql.=$field . "=" . $tmp . " and ";
+            $fs.=$field . ",";
+            $vs.=$tmp . ",";
+        }
+        $ssql=substr($ssql,0,-5);
+        $fs=substr($fs,0,-1);
+        $vs=substr($vs,0,-1);
+        $sql="select * from $table where $ssql";
+        $sqli="insert into $table ($fs) values ($vs)";
+        $rarr=$this->arrayQuery($sql);
+        if(false!==($cn=$this->ValidArray($rarr)) && $cn>0){
+            // record already exists
+            $this->debug("record already exists ($sql)");
+            $ret=true;
+        }else{
+            $this->debug("record doesn't exist, inserting");
+            $iid=$this->insertQuery($sqli);
+            $ret=$iid;
+        }
+        return $ret;
     }/*}}}*/
 }
 

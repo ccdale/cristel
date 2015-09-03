@@ -50,3 +50,24 @@ td.arrowcell {
     background-color:#aaa;
     color:#222;
 }
+.formrowitem {
+    padding: 3px;
+}
+.formsubmit {
+    padding: 5px;
+}
+.programme {
+}
+.programmetitle {
+    font-weight: bold;
+    font-size: 110%;
+}
+.programmetime {
+    font-size: 90%;
+}
+.backblock {
+    padding: 10px;
+}
+a.backlink {
+    display: block;
+}

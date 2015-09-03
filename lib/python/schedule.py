@@ -27,8 +27,9 @@ from scheduledb import ScheduleDB
 from eitdb import EITDatabase
 
 class Schedule(CristelLog):
-    eit=None
-    sch=None
+    # should be instance vars, not class vars
+    # eit=None
+    # sch=None
 
     def __init__(self,log=None):
         appdir=os.path.expanduser("~/.epgdb")
@@ -54,8 +55,7 @@ class Schedule(CristelLog):
             for event in tevents:
                 event=self.completeevent(event)
                 events.append(event)
-        cn=len(events)
-        self.debug("Makeschedule: number of events to insert/update: %d" % cn)
+        self.debug("Makeschedule: number of events to insert/update: %d" % len(events))
         for event in events:
             self.sch.updateschedule(event)
 
