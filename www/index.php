@@ -6,7 +6,7 @@
  * index.php
  *
  * Started: Sunday 16 August 2015, 02:21:57
- * Last Modified: Saturday 22 August 2015, 07:56:38
+ * Last Modified: Sunday 23 August 2015, 11:44:42
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -43,7 +43,15 @@ require_once "channelprogrammes.class.php";
 require_once "programmetable.class.php";
 require_once "programme.class.php";
 
-$logg=new Logging(false,"CPHP",0,LOG_INFO);
+function doGrid()/*{{{*/
+{
+    global $cdb,$edb,$logg,$gridstart;
+    $c=new Channel($logg,$cdb);
+    $g=new Grid($cdb,$edb,$c->visiblechans(),$logg,$gridstart);
+    $op=$g->build();
+    return $op;
+}/*}}}*/
+$logg=new Logging(false,"CPHP",0,LOG_DEBUG);
 $b=new Base($logg);
 $homedir="/home/chris";
 $datadir=$b->unixpath($homedir) . ".epgdb";
@@ -55,22 +63,64 @@ $edb=new SSql($epgdbfn,$logg);
 
 $eventkeys=array("start","end","source","duration","logicalid","content","description","series","title");
 
-$gridstart=GP("gridstart");
+$gridstart=GP("gridstart",true);
 $logg->debug("GP gridstart: $gridstart");
-if(false!==($event=GP("event"))){
+if(false!==($event=GP("event",true))){
     $prog=array();
     foreach($eventkeys as $key){
-        $prog[$key]=GP($key);
+        $prog[$key]=GP($key,true);
     }
     $pp=new Programme($cdb,$edb,$prog,$logg,$gridstart);
     $op=$pp->build();
-}elseif(false!=($logicalid=GP("channel"))){
+}elseif(false!=($logicalid=GP("channel",true))){
     $cp=new ChannelProgrammes($cdb,$edb,$logicalid,$logg,$gridstart);
     $op=$cp->build();
+}elseif(false!=($partsearch=GP("partsearch",true))){
+    list($type,$value)=explode(":",$partsearch,2);
+    $fieldarr=array("search"=>$value);
+    switch($type){
+    case "prog":
+        $logg->debug("record request for programid $value");
+        $fieldarr["type"]="p";
+        break;
+    case "series":
+        $logg->debug("record request for seriesid $value");
+        $fieldarr["type"]="s";
+        break;
+    case "title":
+        $logg->debug("record request for title $value");
+        $fieldarr["type"]="t";
+        break;
+    }
+    $iid=$cdb->insertCheck("rsearch",$fieldarr);
+    if($iid){
+        $logg->debug("inserted record request ok type: $type, search: $value");
+    }else{
+        $logg->warning("failed to insert record request for type: $type, search: $value");
+    }
+    $op=doGrid();
+}elseif(false!=($likesearch=GP("liketitlesearch",true)) && strlen($likesearch)){
+    $logg->debug("request for like search: $likesearch");
+    $fieldarr=array("search"=>$likesearch,"type"=>"l");
+    $iid=$cdb->insertCheck("rsearch",$fieldarr);
+    if($iid){
+        $logg->debug("inserted record request ok type: $type, search: $value");
+    }else{
+        $logg->warning("failed to insert record request for type: $type, search: $value");
+    }
+    $op=doGrid();
+}elseif(false!=($likesearch=GP("likedescsearch",true)) && strlen($likesearch)){
+    $logg->debug("request for description like search: $likesearch");
+    $fieldarr=array("search"=>$likesearch,"type"=>"d");
+    $iid=$cdb->insertCheck("rsearch",$fieldarr);
+    if($iid){
+        $logg->debug("inserted record request ok type: $type, search: $value");
+    }else{
+        $logg->warning("failed to insert record request for type: $type, search: $value");
+    }
+    $op=doGrid();
 }else{
-    $c=new Channel($logg,$cdb);
-    $g=new Grid($cdb,$edb,$c->visiblechans(),$logg,$gridstart);
-    $op=$g->build();
+    $op=doGrid();
 }
 ?>
 <!DOCTYPE html>
