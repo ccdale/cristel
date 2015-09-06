@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Friday 17 July 2015, 16:58:36
+ * Last Modified: Sunday  6 September 2015, 09:25:27
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -28,25 +28,21 @@
 #include "defs.h"
 #include <locale.h>
 #include "macros.h"
-/* #include "globals.h" */
 #include "tools.h"
 #include "configfile.h"
 #include <argtable2.h>
-/* mysql connection */
-#include <my_global.h>
-#include <mysql.h>
 #include "dvbctrl.h"
 
 /* globals */
 struct ConfigItem *configuration;
-struct sigaction *siga;
+int llevel=5;
 int timetodie=0;
-MYSQL *myconn;
 
+char *argprocessing(int argc,char **argv);
 void catchsignal(int sig);
-int daemonize();
-int setDefaultConfig( void );
+void daemonize(char *conffile);
+void setDefaultConfig( void );
 void startDvbStreamer(int adaptor);
 void stopDvbStreamer(int adaptor);
-int mainLoop();
+void mainLoop();
 int main(int argc,char **argv);

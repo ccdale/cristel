@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Friday 17 July 2015, 16:57:21
+ * Last Modified: Sunday  6 September 2015, 09:30:29
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -26,164 +26,8 @@
 
 #include "cristel.h"
 
-void catchsignal(int sig)/* {{{1 */
+void mainLoop()/*{{{*/
 {
-    DBGL("Received signal: %d",sig);
-    timetodie=1;
-    /* signal(sig,catchsignal); */
-} /* }}} */
-int daemonize()/* {{{ */
-{
-    int i,lfp;
-    char str[MAX_MSG_LEN];
-    char *env;
-    int junk;
-    int ret=0;
-
-    if(getppid()==1) return 0; /* already a daemon */
-    DBG("Forking");
-    i=fork();
-    if (i<0) 
-    {
-        CCAE(1,"fork failed. Exiting");
-    }
-    if (i>0) 
-    {
-        DBG("parent returning 1");
-        /*
-        exit(0);
-        */
-        return 1;
-    } /* parent exits */
-    /* child (daemon) continues */
-    DBG("fork success. Child process continues.");
-    setsid(); /* obtain a new process group */
-    DBG("closing file descriptors");
-    /* Close out the standard file descriptors */
-    close(STDIN_FILENO);
-    close(STDOUT_FILENO);
-    close(STDERR_FILENO);
-    DBG("redirecting standard i/o to /dev/null");
-    i=open("/dev/null",O_RDWR); dup(i); dup(i); /* handle standard I/O */
-    DBG("setting umask to 027");
-    umask(027); /* set newly created file permissions */
-    DBGL("cd'ing to %s",CCA_HOME);
-    chdir(CCA_HOME); /* change running directory */
-    DBG("Creating lock file");
-    lfp=open(CCA_LOCK_FILE,O_RDWR|O_CREAT,0640);
-    if (lfp<0) {
-        CCAE(1,"Failed to create lock file, exiting.");
-    } /* can not open */
-    if (lockf(lfp,F_TLOCK,0)<0) {
-        CCAE(1,"Cannot lock, another instance running? qitting");
-    } /* can not lock */
-    DBG("File locked.");
-    /* first instance continues */
-    sprintf(str,"%d",getpid());
-    write(lfp,str,strlen(str)); /* record pid to lockfile */
-    DBG("pid written to lock file");
-
-    /* testing getting env strings */
-    if(env=getenv("HOME")){
-        DBG("HOME is");
-        DBG(env);
-    }
-    DBG("setting signal handlers");
-    /*
-    sigemptyset(siga->sa_mask);
-    sigaddset(siga->sa_mask,SIGCHLD);
-    sigaddset(siga->sa_mask,SIGTSTP);
-    sigaddset(siga->sa_mask,SIGTTOU);
-    sigaddset(siga->sa_mask,SIGTTIN);
-    */
-    DBG("sigchld");
-    siga->sa_handler=SIG_IGN;
-    if((junk=sigaction(SIGCHLD,siga,NULL))!=0){
-        CCAE(1,"cannot ignore signal SIGCHLD");
-    }
-    DBG("sigtstp");
-    siga->sa_handler=SIG_IGN;
-    if((junk=sigaction(SIGTSTP,siga,NULL))!=0){
-        CCAE(1,"cannot ignore signal SIGTSTP");
-    }
-    DBG("sigttou");
-    siga->sa_handler=SIG_IGN;
-    if((junk=sigaction(SIGTTOU,siga,NULL))!=0){
-        CCAE(1,"cannot ignore signal SIGTTOU");
-    }
-    DBG("sigttin");
-    siga->sa_handler=SIG_IGN;
-    if((junk=sigaction(SIGTTIN,siga,NULL))!=0){
-        CCAE(1,"cannot ignore signal SIGTTIN");
-    }
-    /*
-       siga->sa_handler=catchsignal;
-       if((junk=sigaction(SIGHUP,siga,NULL))!=0){
-       CCAE(1,"cannot set handler for SIGHUP");
-       }
-       siga->sa_handler=catchsignal;
-       if((junk=sigaction(SIGTERM,siga,NULL))!=0){
-       CCAE(1,"cannot set handler for SIGHUP");
-       }
-       */
-    DBG("sighup");
-    siga->sa_handler=catchsignal;
-    if((junk=sigaction(SIGHUP,siga,NULL))!=0){
-        CCAE(1,"cannot set handler for SIGHUP");
-    }
-    DBG("sigterm");
-    siga->sa_handler=catchsignal;
-    if((junk=sigaction(SIGTERM,siga,NULL))!=0){
-        CCAE(1,"cannot set handler for SIGTERM");
-    }
-    DBG("sigint");
-    siga->sa_handler=catchsignal;
-    if((junk=sigaction(SIGINT,siga,NULL))!=0){
-        CCAE(1,"cannot set handler for SIGINT");
-    }
-    DBG("sigusr1");
-    siga->sa_handler=catchsignal;
-    if((junk=sigaction(SIGUSR1,siga,NULL))!=0){
-        CCAE(1,"cannot set handler for SIGUSR1");
-    }
-    DBG(PROGNAME" daemonized");
-    DBG("Child returning 0");
-    return 0;
-}/* }}} */
-int setDefaultConfig( void )/* {{{ */
-{
-    char *tk;
-    char *tv;
-    int ret;
-
-    if((ret = initConfig()) == 0){
-        tk=strdup("dbname");
-        tv=strdup(CCA_DEFAULT_DBNAME);
-        updateConfig(tk,tv);
-        tk=strdup("dbhost");
-        tv=strdup(CCA_DEFAULT_DBHOST);
-        updateConfig(tk,tv);
-        tk=strdup("dbuser");
-        tv=strdup(CCA_DEFAULT_DBUSER);
-        updateConfig(tk,tv);
-        tk=strdup("dbpass");
-        tv=strdup(CCA_DEFAULT_DBPASS);
-        updateConfig(tk,tv);
-        tk=strdup("dvbhost");
-        tv=strdup(CCA_DEFAULT_DVBHOST);
-        updateConfig(tk,tv);
-        tk=strdup("dvbuser");
-        tv=strdup(CCA_DEFAULT_DVBUSER);
-        updateConfig(tk,tv);
-        tk=strdup("dvbpass");
-        tv=strdup(CCA_DEFAULT_DVBPASS);
-        updateConfig(tk,tv);
-    }
-    return ret;
-}/*}}}*/
-int mainLoop()/*{{{*/
-{
-    int ret=0;
     int cc=0;
     char *svc;
 
@@ -203,7 +47,6 @@ int mainLoop()/*{{{*/
         }
     }
     while(1);
-    return ret;
 }/*}}}*/
 void startDvbStreamer(int adaptor)/*{{{*/
 {
@@ -255,37 +98,58 @@ void stopDvbStreamer(int adaptor)/*{{{*/
     env=getenv("HOME");
     len=snprintf(pidfile,0,"%s/.dvbstreamer/dvbstreamer-%d.pid",env,adaptor);
     len++;
-    if(pidfile=malloc(len)){
-        len=snprintf(pidfile,len,"%s/.dvbstreamer/dvbstreamer-%d.pid",env,adaptor);
-        DBGL("reading %s for pid",pidfile);
-        pid=readPidFile(pidfile);
-        if(pid>0){
-            DBGL("Sending SIGTERM to dvbstreamer adaptor %d, pid: %d",adaptor,pid);
-            kill((pid_t)pid,SIGTERM);
-        }
-        free(pidfile);
-    }else{
-        CCAE(1,"Out of memory allocating strings for stop dvbstreamer");
+    pidfile=xmalloc(len);
+    len=snprintf(pidfile,len,"%s/.dvbstreamer/dvbstreamer-%d.pid",env,adaptor);
+    DBGL("reading %s for pid",pidfile);
+    pid=readPidFile(pidfile);
+    if(pid>0){
+        DBGL("Sending SIGTERM to dvbstreamer adaptor %d, pid: %d",adaptor,pid);
+        kill((pid_t)pid,SIGTERM);
     }
+    free(pidfile);
 }/*}}}*/
-int main(int argc,char **argv)/*{{{*/
+void catchsignal(int sig)/* {{{1 */
 {
-    char *conffile;
-    int ret=0;
-    int pid;
-
-    setlocale(LC_ALL, "");
-
+    DBG("in sig handler");
+    switch(sig){
+        case SIGCHLD:
+            DBG("SIGCHLD signal caught");
+            int childStatus;
+            pid_t returnValue = waitpid(-1, &childStatus, 0);
+            if (returnValue > 0)
+            {
+                if (WIFEXITED(childStatus)){
+                    WARN("Child Exit Code: %d\n", WEXITSTATUS(childStatus));
+                }else{
+                    INFO("Child exit Status: 0x%.4X\n", childStatus);
+                }
+            }else if (returnValue == 0){
+                INFO("Child process still running\n");
+            }else{
+                WARN("error: %d: %s",errno,strerror(errno));
+            }
+            break;
+        case SIGTERM:
+            DBG("SIGTERM signal caught");
+            timetodie=1;
+            break;
+    }
+} /* }}} */
+char *argprocessing(int argc,char **argv)/* {{{ */
+{
+    char *conffile=NULL;
     /* Define the allowable command line options, collecting them in argtable[] */
-    struct arg_file *conf = arg_file0("c",NULL,"/etc/cristel.conf","configuration file");
+    struct arg_file *conf = arg_file0("c","conf-file",PROGCONF,"configuration file");
     struct arg_lit *help = arg_lit0("h","help","print this help and exit");
+    struct arg_int *loglevel = arg_int0("l","log-level","<n>","7=LOG-DEBUG .. 0=LOG_EMERG - default: 5 (LOG_NOTICE)");
     struct arg_lit *vers = arg_lit0("v","version","print version information and exit");
     struct arg_end *end  = arg_end(20);
-    void *argtable[] = {conf,help,vers,end};
-    int exitcode=0;
+
+    void *argtable[] = {conf,help,loglevel,vers,end};
+
     int nerrors;
 
-    /* check the argtable[] entries where correctly allocated */
+    /* check the argtable[] entries were correctly allocated */
     if(arg_nullcheck(argtable) == 0){
         /* set default config filename */
         conf->filename[0]=PROGCONF;
@@ -297,7 +161,7 @@ int main(int argc,char **argv)/*{{{*/
             /* print the help/usage statement and exit */
             printf("Usage: %s",PROGNAME);
             arg_print_syntax(stdout,argtable,"\n");
-            printf("Start the %s tv recorder\n\n",PROGNAME);
+            printf("%s is a daemon to listen for requests to run puppet on this host.\n\n",PROGNAME);
             arg_print_glossary(stdout,argtable,"  %-20s %s\n");
             /* free up memory used for argument processing */
             arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
@@ -320,80 +184,194 @@ int main(int argc,char **argv)/*{{{*/
             printf("Try '%s --help' for more information.\n",PROGNAME);
             /* free up memory used for argument processing */
             arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
-            return 1;
+            CCAE(1,"Failed to process command line correctly");
         }
-
-        /* command line processing completed */
-
-        conffile=strdup(conf->filename[0]);
-        /* free up memory used for argument processing */
-        arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
-        
-        /* setup daemon */
-        if((siga=malloc(sizeof(struct sigaction)))==NULL){
-            CCAE(1,"out of memory setting up signal handler.");
+        if(conf->count > 0){
+            conffile=strdup(conf->filename[0]);
         }
-        siga->sa_handler=catchsignal;
-        sigemptyset(&siga->sa_mask);
-        siga->sa_flags=0;
-        ret=daemonize();
-        if(ret==1){
-            DBG("I am the parent, freeing memory and buggering off");
-            free(conffile);
-            free(siga);
-            exit(0);
+        if(loglevel->count > 0){
+            llevel=loglevel->ival[0];
         }
-        DBG("daemonize returned");
-
-        /* setup config */
-        if((exitcode=setDefaultConfig()) == 0){
-            /*
-             * config setup ok
-             * read in config settings from conf file
-             */
-
-            getConfigFromFile(conffile);
-
-            free(conffile);
-
-            /* mysql connection */
-            DBGL("Setting up mysql connect to %s",configValue("dbhost"));
-            if((myconn = mysql_init(NULL)) == NULL ){
-                CCAE(1,"cannot initialise connection to mysql libraries.");
-            }
-            DBGL("connecting to mysql: %s, db: %s, user: %s, pass: %s",configValue("dbhost"),configValue("dbdb"),configValue("dbuser"),configValue("dbpass"));
-            if(mysql_real_connect(myconn,configValue("dbhost"),configValue("dbuser"),configValue("dbpass"),configValue("dbdb"),0,NULL,0)==NULL){
-                CCAE(1,"cannot connect to mysql server.");
-            }
-
-            /* start dvbstreamer */
-            startDvbStreamer(0);
-            startDvbStreamer(1);
-
-            /* enter the main loop */
-            exitcode=mainLoop();
-
-            DBG("loop completed.  exiting");
-
-            /* stop dvbstreamer */
-            stopDvbStreamer(0);
-            stopDvbStreamer(1);
-
-            /* stop mysql */
-            DBG("freeing mysql library stuff");
-            mysql_close(myconn);
-
-            /* main loop completed, time to shut down */
-            deleteConfig();
-
-            DBG("Freeing signal handling struct.");
-            free(siga);
-        }else{
-            DBG("Failed to setup default config");
-        }
-    }else{
-        /* error allocating memory for argtable entries */
-        CCAE(1,"Command line processing: Out of memory");
     }
-    return exitcode;
+    /* free up memory used for argument processing */
+    arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
+    /* command line processing completed */
+    return conffile;
+}/* }}} */
+void setDefaultConfig(void)/*{{{*/
+{
+    char *tk;
+    char *tv;
+
+    tk=strdup("configfile");
+    tv=strdup(CCA_DEFAULT_CONFIGFILE);
+    updateConfig(tk,tv);
+    tk=strdup("dvbhost");
+    tv=strdup(CCA_DEFAULT_DVBHOST);
+    updateConfig(tk,tv);
+    tk=strdup("dvbuser");
+    tv=strdup(CCA_DEFAULT_DVBUSER);
+    updateConfig(tk,tv);
+    tk=strdup("dvbpass");
+    tv=strdup(CCA_DEFAULT_DVBPASS);
+    updateConfig(tk,tv);
+    tk=strdup("username");
+    tv=strdup(CCA_DEFAULT_USERNAME);
+    updateConfig(tk,tv);
+    tk=strdup("numadaptors");
+    tv=strdup(CCA_DEFAULT_NUMADAPTORS);
+    updateConfig(tk,tv);
+}/* }}} */
+void daemonize(char *conffile)/* {{{1 */
+{
+    int i,lfp;
+    char str[MAX_MSG_LEN];
+    int junk,ret;
+    struct passwd *pwd;
+    char *username;
+    struct sigaction siga;
+
+    if(getppid()==1) return; /* already a daemon */
+    DBG("Forking");
+    i=fork();
+    if (i<0) 
+    {
+        CCAE(1,"fork failed. Exiting");
+    }
+    if (i>0) 
+    {
+        DBG("parent exiting after fork");
+        exit(0);
+    } /* parent exits */
+    /* child (daemon) continues */
+    DBG("fork success. Child process continues.");
+    setsid(); /* obtain a new process group */
+    DBG("closing file descriptors");
+    /* Close out the standard file descriptors */
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+    DBG("redirecting standard i/o to /dev/null");
+    i=open("/dev/null",O_RDWR); dup(i); dup(i); /* handle standard I/O */
+    DBG("setting umask to 027");
+    umask(027); /* set newly created file permissions */
+
+    if((ret=initConfig())==0){
+        DBG("setting default config");
+        setDefaultConfig();
+        if(conffile){
+            updateConfig("configfile",conffile);
+        }
+        DBGL("Getting config from %s",configValue("configfile"));
+        getConfigFromFile( configValue("configfile") );
+    }else{
+        CCAE(1,"Cannot initialise configuration.");
+    }
+    DBG("Dropping privileges");
+    username=configValue("username");
+    if((pwd=getpwnam(username))==NULL || strlen(username)==0){
+        CCAE(1,"user %s not found, will not run as root, exiting",username);
+    }
+    errno=0;
+    junk=setgid(pwd->pw_gid);
+    if(errno){
+        CCAE(1,"failed to drop group privileges (grpid: %d), will not run as root, exiting",pwd->pw_gid);
+    }
+    errno=0;
+    junk=setuid(pwd->pw_uid);
+    if(errno){
+        CCAE(1,"failed to drop privileges, will not run as root, exiting");
+    }
+
+    DBGL("cd'ing to %s",pwd->pw_dir);
+    chdir(pwd->pw_dir); /* change running directory */
+    if ((junk=filesize(CCA_LOCK_FILE)!=-1)){
+        CCAE(1,"lock file %s exists, exiting",CCA_LOCK_FILE);
+    }
+    DBG("Creating lock file");
+    lfp=open(CCA_LOCK_FILE,O_RDWR|O_CREAT,0640);
+    if (lfp<0) {
+        CCAE(1,"Failed to create lock file, exiting.");
+    } /* can not open */
+    if (lockf(lfp,F_TLOCK,0)<0) {
+        CCAE(1,"Cannot lock, another instance running? qitting");
+    } /* can not lock */
+    DBG("File locked.");
+    /* first instance continues */
+    sprintf(str,"%d",getpid());
+    write(lfp,str,strlen(str)); /* record pid to lockfile */
+    DBG("pid written to lock file");
+
+    DBG("setting signal handlers");
+    siga.sa_flags=0;
+    /* block every signal during handler */
+    sigfillset(&siga.sa_mask);
+
+    /* ignored signals */
+    siga.sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGTSTP,&siga,NULL))!=0){
+        CCAE(1,"cannot ignore signal SIGTSTP");
+    }
+    siga.sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGTTOU,&siga,NULL))!=0){
+        CCAE(1,"cannot ignore signal SIGTTOU");
+    }
+    siga.sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGTTIN,&siga,NULL))!=0){
+        CCAE(1,"cannot ignore signal SIGTTIN");
+    }
+    siga.sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGHUP,&siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGHUP");
+    }
+    siga.sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGINT,&siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGINT");
+    }
+    siga.sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGUSR1,&siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGUSR1");
+    }
+    /* interesting (caught) signals */
+    siga.sa_handler=catchsignal;
+    if((junk=sigaction(SIGCHLD,&siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGCHLD");
+    }
+    siga.sa_handler=catchsignal;
+    if((junk=sigaction(SIGTERM,&siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGTERM");
+    }
+    DBG(PROGNAME" daemonized");
+}/* }}} */
+int main(int argc,char **argv)/* {{{ */
+{
+    int ret=0;
+    char *conffile=NULL;
+    int na=1;
+    int x;
+
+    conffile=argprocessing(argc,argv);
+
+    NOTICE(PROGNAME" starting");
+
+    daemonize(conffile);
+
+    na=atoi(configValue("numadaptors"));
+    for(x=0;x<na;x++){
+        startDvbStreamer(x);
+    }
+
+    mainLoop();
+
+    for(x=0;x<na;x++){
+        stopDvbStreamer(x);
+    }
+
+    INFO(PROGNAME" closing");
+    DBG("freeing config");
+    deleteConfig();
+    DBG("deleting lock file");
+    unlink(CCA_LOCK_FILE);
+    NOTICE(PROGNAME" stopped");
+    return ret;
 }/*}}}*/

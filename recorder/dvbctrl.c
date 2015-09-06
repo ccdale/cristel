@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:07:48
- * Last Modified: Friday 17 July 2015, 16:41:14
+ * Last Modified: Sunday  6 September 2015, 09:29:02
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -94,12 +94,12 @@ static int dvbc_connect(int adaptornum)/*{{{*/
     hints.ai_flags = AI_ADDRCONFIG;
     if ((getaddrinfo(host, portnumber, &hints, &addrinfo) != 0) || (addrinfo == NULL))
     {
-        CCAC("Failed to get address");
+        WARN("Failed to get address");
         return 1;
     }
     if (addrinfo->ai_addrlen > sizeof(struct sockaddr_storage))
     {
-        CCAC("Failed to parse address");
+        WARN("Failed to parse address");
         freeaddrinfo(addrinfo);
         return 1;
     }
@@ -109,19 +109,19 @@ static int dvbc_connect(int adaptornum)/*{{{*/
     socketfd = socket(address.ss_family, SOCK_STREAM, IPPROTO_TCP);
     if (socketfd < 0)
     {
-        CCAC("Failed to create socket.");
+        WARN("Failed to create socket.");
         return 1;
     }
     if (connect(socketfd, (const struct sockaddr *) &address, address_len))
     {
-        CCAC("Failed to connect to host %s port %d", host, REMOTEINTERFACE_PORT + adaptornum);
+        WARN("Failed to connect to host %s port %d", host, REMOTEINTERFACE_PORT + adaptornum);
         return 1;
     }
-    CCAL("Socket connected to host %s port %d", host, REMOTEINTERFACE_PORT + adaptornum);
+    INFO("Socket connected to host %s port %d", host, REMOTEINTERFACE_PORT + adaptornum);
     SD.socketfp = fdopen(socketfd, "r+");
     rcvData();
     if(SD.errornumber != 0){
-        CCAC("%s",SD.errmsg);
+        WARN("%s",SD.errmsg);
         return SD.errornumber;
     }
     SD.connected=1;
@@ -213,7 +213,7 @@ static void addLineToBuffer()/*{{{*/
     if(cn<RCV_BUFFER_LENGTH){
         sprintf(SD.data+bufflen,"%s\n",SD.line);
     }else{
-        CCAC("buffer is undersized");
+        WARN("buffer is undersized");
         DBG(SD.line);
     }
 }/*}}}*/
