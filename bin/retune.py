@@ -10,7 +10,7 @@ import sys
 cristel_lib_dir = path.realpath(path.join(path.dirname(sys.argv[0]), '../lib/python'))
 sys.path.append(cristel_lib_dir)
 
-import startstopdvbstreamer as dvb
+from startstopdvbstreamer import *
 from dvbsession import DvbSession
 from scheduledb import ScheduleDB
 
@@ -43,13 +43,13 @@ sourcemove=0
 newchan=0
 unchanged=0
 
-if not dvb.isdvbstreamerrunning():
-    log.debug("starting dvbstreamer")
-    dvb.startdvbstreamer(1,"tvc","tvc")
+if not isdvbstreamerrunning():
+    log.info("starting dvbstreamer")
+    startdvbstreamer(1,"tvc","tvc")
     log.debug("giving dvbstreamer 5 seconds to start")
     time.sleep(5)
 
-if dvb.isdvbstreamerrunning():
+if isdvbstreamerrunning():
     sch=ScheduleDB(sfn,log)
     s=DvbSession("127.0.0.1",0,"tvc","tvc",log)
     for freq in freqs:

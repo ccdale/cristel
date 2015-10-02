@@ -332,6 +332,7 @@ class DvbSession(Session):
     def scannet(self,net):
         """scans a net for services"""
         self.canscan()
-        log.debug("scanning: %s" % net)
+        log.info("scanning: %s" % net)
         emsg,res=self.execute_command("scan net '"+net+"'")
         self.canscan()
+        log.info("Completed scan of %s" % net)

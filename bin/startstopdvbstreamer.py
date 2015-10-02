@@ -29,7 +29,7 @@ from optparse import OptionParser
 import logging
 import logging.handlers
 
-log=None
+log=logging.getLogger("cristel")
 
 def checkdvbstreamerrunning():
     """return a list of dvbstreamer pids."""
@@ -59,7 +59,6 @@ def startdvbstreamer(na,un,pw):
     param: un: connection username
     param: pw: connection password
     """
-    global log
     if not isdvbstreamerrunning():
         for a in range(na):
             log.info("Starting adadaptor: %d with username: %s, password: %s" % (a,un,pw))
@@ -71,7 +70,6 @@ def stopdvbstreamer():
     """
     stops any dvbstreamer instances
     """
-    global log
     pids=checkdvbstreamerrunning()
     l=len(pids)
     if l > 0:
@@ -82,7 +80,6 @@ def stopdvbstreamer():
         log.warning("Dvbstreamer is not running.")
 
 if __name__ == '__main__':
-    log=logging.getLogger("cristel")
     log.setLevel(logging.DEBUG)
     handler=logging.handlers.SysLogHandler(address = '/dev/log', facility=logging.handlers.SysLogHandler.LOG_DAEMON)
     log.addHandler(handler)
