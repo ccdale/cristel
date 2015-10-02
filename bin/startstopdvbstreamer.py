@@ -69,7 +69,7 @@ def startdvbstreamer(na,un,pw):
 
 def stopdvbstreamer():
     """
-    runrecorder: starts up the cristel recorder.
+    stops any dvbstreamer instances
     """
     global log
     pids=checkdvbstreamerrunning()

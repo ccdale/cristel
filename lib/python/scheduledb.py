@@ -153,7 +153,20 @@ class ScheduleDB(CristelDB):
         sql="select * from channels where source='" + source + "'"
         row=self.dosql(sql,one=1)
         return row
+
+    def getname(self,name):
+        sql="select * from channels where name='" + name + "'"
+        row=self.dosql(sql,one=1)
+        return row
     
+    def newchan(self,source,name,mux):
+        sql="insert into channels (source,name,priority,visible,favourite,logicalid,muxid) values ('" + source + "','" + name + "',0,0,0,0," + mux + ")"
+        self.doinsertsql(sql)
+
+    def updatechannel(self,source,name,mux):
+        sql="update channels set source='" + source + "', muxid=" + mux + " where name='" + name + "'"
+        self.doinsertsql(sql)
+
     def updateschedule(self,event):
         sql="insert or replace into schedule (id,"
         for field in ScheduleDB.SCHEDULE_COLUMNS:
