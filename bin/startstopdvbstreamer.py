@@ -88,7 +88,7 @@ if __name__ == '__main__':
     username='tvc'
     password='tvc'
     if (prog == "startdvbstreamer"):
-        startdvbstreamer
+        startdvbstreamer(numadaptors,username,password)
     elif (prog == "stopdvbstreamer"):
         stopdvbstreamer
     else:
