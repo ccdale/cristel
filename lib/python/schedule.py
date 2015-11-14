@@ -32,20 +32,32 @@ class Schedule(CristelLog):
     # sch=None
 
     def __init__(self,log=None):
+        # super(Schedule,self).__init__()
+        self.logg=log
         appdir=os.path.expanduser("~/.epgdb")
         eitdb=os.path.join(appdir,"database.db")
         scheddb=os.path.join(appdir,"cristel.db")
+        self.debug("starting eit db at %s" % eitdb)
         self.eit=EITDatabase(eitdb,log)
+        self.debug("starting scheddb at %s" % scheddb)
         self.sch=ScheduleDB(scheddb,log)
+        self.debug("scheduler class started")
 
     def completeevent(self,event):
+        self.debug("completing event: %s" % str(event))
         chan=self.sch.getchannel(event["source"])
-        event["channel"]=chan["cname"]
-        event["muxid"]=chan["muxid"]
-        event["visible"]=chan["visible"]
-        event["favourite"]=chan["favourite"]
-        event["priority"]=chan["priority"]
-        return event
+        self.debug("channel: %s" str(chan))
+        try:
+            event["channel"]=chan["cname"]
+            event["muxid"]=chan["muxid"]
+            event["visible"]=chan["visible"]
+            event["favourite"]=chan["favourite"]
+            event["priority"]=chan["priority"]
+            self.debug("event completed %s" % str(event))
+            return event
+        except (IndexError,TypeError):
+            self.warn("No channel for source %s" % event["source"])
+            return False
 
     def makeschedule(self):
         events=[]
@@ -53,9 +65,20 @@ class Schedule(CristelLog):
         for search in searches:
             tevents=self.eit.getsearch(search)
             for event in tevents:
-                event=self.completeevent(event)
-                events.append(event)
+                testevent=self.completeevent(event)
+                # self.debug(str(testevent))
+                if testevent != False:
+                    events.append(event)
         self.debug("Makeschedule: number of events to insert/update: %d" % len(events))
         for event in events:
             self.sch.updateschedule(event)
+        return len(events)
 
+    def getschedule(self):
+        return self.sch.getschedule()
+    
+    def getnextschedule(self):
+        return self.sch.getnextschedule()
+
+    def getcurrentrecordings(self):
+        return self.sch.getcurrentrecordings()

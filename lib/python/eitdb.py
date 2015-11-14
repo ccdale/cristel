@@ -19,7 +19,7 @@
 
 from cristeldb import CristelDB
 # from cristellog import CristelLog
-# import sqlite3
+import sqlite3
 
 class EITDatabase(CristelDB):
     EVENTS_TABLE = 'Events'
@@ -75,18 +75,20 @@ class EITDatabase(CristelDB):
             sql="select * from details where name='{}' and value like '%{}%'".format(name,search)
             # sql="select * from details where name='" + name + "' and value like '%" + search + "%'"
         else:
-            sql="selct * from details where name='{}' and value='{}'".format(name,search)
+            sql="select * from details where name='{}' and value='{}'".format(name,search)
             # sql="select * from details where name='" + name + "' and value='" + search + "'"
         rows=self.dosql(sql)
         return rows
 
-    def getevent(self,source,event):
+    def getevent(self,source,eventn):
         event={}
-        sql="select * from events where source='" + source + "' and event=" + event
-        sql2="select * from details where source='" + source + "' and event=" + event
+        sql="select * from events where source='" + source + "' and event=" + str(eventn)
+        # self.debug(sql)
+        sql2="select * from details where source='" + source + "' and event=" + str(eventn)
+        # self.debug(sql2)
         self.get_connection()
         with self.connection:
-            self.connection.row_factory = EITDatabase.Row
+            self.connection.row_factory = sqlite3.Row
             cursor = self.connection.cursor()
             cursor.execute(sql)
             erow=cursor.fetchone()
@@ -98,6 +100,7 @@ class EITDatabase(CristelDB):
         event["end"]=erow["end"]
         for row in rows:
             event[row["name"]]=row["value"]
+        # self.debug(str(event))
         return event
     
     def getsearch(self,search):

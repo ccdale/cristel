@@ -51,18 +51,27 @@ def isdvbstreamerrunning():
     else:
         return 1
 
-def startdvbstreamer(na,un,pw):
+def startindividualdvbs(host,an,un,pw):
     """
-    starts dvbstreamer if it isn't already running.
-    
-    param: na: number of adaptors to start
+    starts dvbstreamer on adapater an
+
+    param: host: the host to start it on (always 127.0.0.1, so ignored)
+    param: an: adapter number to start
     param: un: connection username
     param: pw: connection password
     """
+    log.info("Starting adadaptor: %d with username: %s, password: %s" % (an,un,pw))
+    os.system("dvbstreamer -d -a %d -u %s -p %s" % (an,un,pw))
+
+def startdvbstreamer(adapters):
+    """
+    starts dvbstreamer if it isn't already running.
+    
+    param: adapters: hash of adapter info [host,num,username,password]
+    """
     if not isdvbstreamerrunning():
-        for a in range(na):
-            log.info("Starting adadaptor: %d with username: %s, password: %s" % (a,un,pw))
-            os.system("dvbstreamer -d -a %d -u %s -p %s" % (a,un,pw))
+        for adapter in adapters:
+            startindividualdvbs(*adapter)
     else:
         log.warning("dvbstreamer is already running")
 
@@ -79,16 +88,37 @@ def stopdvbstreamer():
     else:
         log.warning("Dvbstreamer is not running.")
 
+def adapterline(line):
+    host='127.0.0.0'
+    adapter=0
+    username='tvc'
+    password='tvc'
+    tmp=line.split(':')
+    if len(tmp)==4:
+        host=tmp[0]
+        adapter=int(tmp[1])
+        username=tmp[2]
+        password=tmp[3]
+    return (host,adapter,username,password)
+
+def readadapters(appdir):
+    adapters=[]
+    adaptersfile = open(os.path.join(appdir, 'adapters'), 'r')
+    for line in adaptersfile:
+        line=line.strip()
+        if line:
+            adap=adapters.append(adapterline(line))
+    return adapters
+
 if __name__ == '__main__':
     log.setLevel(logging.DEBUG)
     handler=logging.handlers.SysLogHandler(address = '/dev/log', facility=logging.handlers.SysLogHandler.LOG_DAEMON)
     log.addHandler(handler)
     prog=os.path.basename(__file__)
-    numadaptors=2
-    username='tvc'
-    password='tvc'
+    appdir=os.path.expanduser("~/.epgdb")
+    adapters=readadapters(appdir)
     if (prog == "startdvbstreamer"):
-        startdvbstreamer(numadaptors,username,password)
+        startdvbstreamer(adapters)
     elif (prog == "stopdvbstreamer"):
         stopdvbstreamer
     else:
@@ -108,6 +138,6 @@ if __name__ == '__main__':
         if options.numadaptors:
             numadaptors=options.numadaptors
         if options.start:
-            startdvbstreamer(numadaptors,username,password)
+            startdvbstreamer(adapters)
         if options.stop:
             stopdvbstreamer()

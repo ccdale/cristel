@@ -6,7 +6,7 @@
  * index.php
  *
  * Started: Sunday 16 August 2015, 02:21:57
- * Last Modified: Sunday 23 August 2015, 11:44:42
+ * Last Modified: Saturday 14 November 2015, 08:42:23
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -51,7 +51,7 @@ function doGrid()/*{{{*/
     $op=$g->build();
     return $op;
 }/*}}}*/
-$logg=new Logging(false,"CPHP",0,LOG_DEBUG);
+$logg=new Logging(false,"CPHP",0,LOG_INFO);
 $b=new Base($logg);
 $homedir="/home/chris";
 $datadir=$b->unixpath($homedir) . ".epgdb";

@@ -17,6 +17,7 @@
 
 """Schedule DB class"""
 
+import time
 # import sqlite3
 from cristeldb import CristelDB
 # from cristellog import CristelLog
@@ -51,7 +52,8 @@ class ScheduleDB(CristelDB):
     SCHEDULE_COLUMN_PROGID = "progid"
     SCHEDULE_COLUMN_SERIESID = "seriesid"
     SCHEDULE_COLUMN_ADAPTOR = "adaptor"
-    SCHEDULE_COLUMNS = [SCHEDULE_COLUMN_SRC,SCHEDULE_COLUMN_CNAME,SCHEDULE_COLUMN_EVENT,SCHEDULE_COLUMN_MUXID,SCHEDULE_COLUMM_START,SCHEDULE_COLUMN_END,SCHEDULE_COLUMN_TITLE,SCHEDULE_COLUMN_DESC,SCHEDULE_COLUMN_PROGID,SCHEDULE_COLUMN_SERIESID,SCHEDULE_COLUMN_ADAPTOR]
+    SCHEDULE_COLUMN_RECORD = "record"
+    SCHEDULE_COLUMNS = [SCHEDULE_COLUMN_SRC,SCHEDULE_COLUMN_CNAME,SCHEDULE_COLUMN_EVENT,SCHEDULE_COLUMN_MUXID,SCHEDULE_COLUMM_START,SCHEDULE_COLUMN_END,SCHEDULE_COLUMN_TITLE,SCHEDULE_COLUMN_DESC,SCHEDULE_COLUMN_PROGID,SCHEDULE_COLUMN_SERIESID,SCHEDULE_COLUMN_ADAPTOR,SCHEDULE_COLUMN_RECORD]
 
     PREVIOUS_TABLE = "previous"
     PREVIOUS_COLUMN_ID = "id"
@@ -141,7 +143,7 @@ class ScheduleDB(CristelDB):
         self.doinsertsql(sql)
 
     def getsearches(self):
-        searches=()
+        searches=[]
         sql="select * from rsearch"
         rows=self.dosql(sql)
         for row in rows:
@@ -163,8 +165,17 @@ class ScheduleDB(CristelDB):
         sql="insert into channels (source,name,priority,visible,favourite,logicalid,muxid) values ('" + source + "','" + name + "',0,0,0,0," + mux + ")"
         self.doinsertsql(sql)
 
+    def newlchan(self,source,name,mux,lcn):
+        sql="insert into channels (source,name,priority,visible,favourite,logicalid,muxid) values ('" + source + "','" + name + "',0,0,0," + lcn + "," + mux + ")"
+        log.debug(sql)
+        self.doinsertsql(sql)
+
     def updatechannel(self,source,name,mux):
         sql="update channels set source='" + source + "', muxid=" + mux + " where name='" + name + "'"
+        self.doinsertsql(sql)
+
+    def updatelchannel(self,source,name,mux,lcn):
+        sql="update channels set source='%s',muxid=%d,logicalid=%d where name='%s'" % (source,int(mux),int(lcn),name)
         self.doinsertsql(sql)
 
     def updateschedule(self,event):
@@ -183,3 +194,18 @@ class ScheduleDB(CristelDB):
             sql += field + ","
         sql=sql[:-1] + ") values ((select id from schedule where type='" + xtype + "' and search='" + search + "'),'" + xtype + "','" + search + "')"
         self.doinsertsql(sql)
+
+    def getschedule(self):
+        now=int(time.time())
+        # sql="select * from schedule where start>%d and start<%d order by start" % (now,now+3600)
+        sql="select * from schedule where start>%d order by start asc" % now
+        return self.dosql(sql)
+
+    def getnextschedule(self):
+        now=int(time.time())
+        sql="select * from schedule where start>%d order by start asc limit 1" % now
+        return self.dosql(sql,one=1)
+
+    def getcurrentrecordings(self):
+        sql="select * from recording order by end asc"
+        return self.dosql(sql)

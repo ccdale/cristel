@@ -74,11 +74,14 @@ class CristelDB(CristelLog):
                 self.connection.row_factory = sqlite3.Row
             cursor = self.connection.cursor()
             self.debug("SQL: %s" % sql)
-            cursor.execute(sql)
-            if one>0:
-                rows=cursor.fetchone()
-            else:
-                rows=cursor.fetchall()
+            try:
+                cursor.execute(sql)
+                if one>0:
+                    rows=cursor.fetchone()
+                else:
+                    rows=cursor.fetchall()
+            except:
+                rows={}
         return rows
 
     def doinsertsql(self,sql):

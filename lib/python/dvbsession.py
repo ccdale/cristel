@@ -282,6 +282,17 @@ class DvbSession(Session):
 
         return lcn
 
+    def logicalnames(self):
+        """returns the logical channel ids (freeview channel numbers) as a dict keyed by name"""
+        emsg,res=self.execute_command("lslcn")
+        lcnames={}
+        for line in res:
+            tmp=line.split(":")
+            cn=tmp[0].strip()
+            name=tmp[1].strip()
+            lcnames[name]=cn
+        return lcnames
+
     def lsmuxes(self):
         """returns a list of muxes"""
         emsg,res=self.execute_command("lsmuxes")
@@ -298,6 +309,14 @@ class DvbSession(Session):
         for line in res:
             svcs.append(line.strip())
 
+        return svcs
+
+    def lsservices(self):
+        """returns the complete list of services available"""
+        emsg,res=self.execute_command("lsservices")
+        svcs=[]
+        for line in res:
+            svcs.append(line.strip())
         return svcs
     
     def serviceinfo(self,service):
