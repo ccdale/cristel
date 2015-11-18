@@ -19,6 +19,7 @@
 
 # import sys
 import os
+import time
 # import logging
 # import logging.handlers
 # import sqlite3
@@ -46,13 +47,14 @@ class Schedule(CristelLog):
     def completeevent(self,event):
         self.debug("completing event: %s" % str(event))
         chan=self.sch.getchannel(event["source"])
-        self.debug("channel: %s" str(chan))
+        self.debug("channel: %s" % str(chan))
         try:
-            event["channel"]=chan["cname"]
+            event["cname"]=chan["name"]
             event["muxid"]=chan["muxid"]
             event["visible"]=chan["visible"]
             event["favourite"]=chan["favourite"]
             event["priority"]=chan["priority"]
+            event["logicalid"]=chan["logicalid"]
             self.debug("event completed %s" % str(event))
             return event
         except (IndexError,TypeError):
@@ -82,3 +84,26 @@ class Schedule(CristelLog):
 
     def getcurrentrecordings(self):
         return self.sch.getcurrentrecordings()
+
+    def filldatabase(self):
+        now=int(time.time())
+        chans=self.sch.getvisiblechannels()
+        cn=len(chans)
+        self.debug("%d visible channels" % cn)
+        for chan in chans:
+            name=chan["name"]
+            self.debug("getting programmes for channel %s" % name)
+            source=chan["source"]
+            progs=self.eit.getchannelevents(source,now)
+            cn=len(progs)
+            self.debug("%d programmes for channel %s" % (cn,name))
+            for prog in progs:
+                prog["cname"]=chan["name"]
+                prog["muxid"]=chan["muxid"]
+                prog["visible"]=chan["visible"]
+                prog["favourite"]=chan["favourite"]
+                prog["priority"]=chan["priority"]
+                prog["logicalid"]=chan["logicalid"]
+                self.sch.updateschedule(prog)
+        n24=now-(24*60*60)
+        self.sch.reapschedule(n24)

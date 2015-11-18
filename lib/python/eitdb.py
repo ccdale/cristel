@@ -136,3 +136,20 @@ class EITDatabase(CristelDB):
     def descsearch(self,search):
         res=self.detailssearch('description',search,1)
         return res
+
+    def getchannelevents(self,source,now):
+        events=[]
+        sql="select * from events where source='" + source + "' and end>" + str(now)
+        rows=self.dosql(sql)
+        for row in rows:
+            event=self.getevent(source,row["event"])
+            if "content" not in event:
+                event["progid"]=""
+            else:
+                event["progid"]=event["content"]
+            if "series" not in event:
+                event["seriesid"]=""
+            else:
+                event["seriesid"]=event["series"]
+            events.append(event)
+        return events

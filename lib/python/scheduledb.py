@@ -54,6 +54,8 @@ class ScheduleDB(CristelDB):
     SCHEDULE_COLUMN_ADAPTOR = "adaptor"
     SCHEDULE_COLUMN_RECORD = "record"
     SCHEDULE_COLUMNS = [SCHEDULE_COLUMN_SRC,SCHEDULE_COLUMN_CNAME,SCHEDULE_COLUMN_EVENT,SCHEDULE_COLUMN_MUXID,SCHEDULE_COLUMM_START,SCHEDULE_COLUMN_END,SCHEDULE_COLUMN_TITLE,SCHEDULE_COLUMN_DESC,SCHEDULE_COLUMN_PROGID,SCHEDULE_COLUMN_SERIESID,SCHEDULE_COLUMN_ADAPTOR,SCHEDULE_COLUMN_RECORD]
+    SCHEDULE_INSERT_COLUMNS = [SCHEDULE_COLUMN_SRC,SCHEDULE_COLUMN_CNAME,SCHEDULE_COLUMN_EVENT,SCHEDULE_COLUMN_MUXID,SCHEDULE_COLUMM_START,SCHEDULE_COLUMN_END,SCHEDULE_COLUMN_TITLE,SCHEDULE_COLUMN_DESC,SCHEDULE_COLUMN_PROGID,SCHEDULE_COLUMN_SERIESID]
+    SCHEDULE_INSERT_QUOTE = {"source":1,"cname":1,"event":0,"muxid":0,"start":0,"end":0,"title":1,"description":1,"progid":1,"seriesid":1}
 
     PREVIOUS_TABLE = "previous"
     PREVIOUS_COLUMN_ID = "id"
@@ -179,14 +181,38 @@ class ScheduleDB(CristelDB):
         self.doinsertsql(sql)
 
     def updateschedule(self,event):
-        sql="insert or replace into schedule (id,"
-        for field in ScheduleDB.SCHEDULE_COLUMNS:
+        sql=u'insert or replace into schedule (id,'
+        for field in ScheduleDB.SCHEDULE_INSERT_COLUMNS:
             sql += field + ','
-        sql =sql[:-1] + ") values ((select id from schedule where source='" + event["source"] + "' and event=" + event["event"] + "),"
-        for field in ScheduleDB.SCHEDULE_COLUMNS:
-            sql += event[field] + ','
-        sql=sql[:-1] + ")"
-        self.doinsertsql(sql)
+        sql =sql[:-1] + ') values ((select id from schedule where source="' + event["source"] + '" and event=' + str(event["event"]) + '),'
+        uerrors=0
+        for field in ScheduleDB.SCHEDULE_INSERT_COLUMNS:
+            tmp = self.formatfield(event[field],ScheduleDB.SCHEDULE_INSERT_QUOTE,field)
+            try:
+                sql += tmp + ','
+            except (UnicodeDecodeError,UnicodeEncodeError):
+                self.error("unicode decode error? field: %s, tmp: %s, sql: %s" % (field,tmp,sql))
+                print "unicode decode error: field: %s, tmp: %s, sql: %s" % (field,tmp,sql)
+                uerrors=uerrors+1
+        if uerrors == 0:
+            sql=sql[:-1] + ')'
+            try:
+                self.doinsertsql(sql)
+            except:
+                self.error("error inserting the following sql: %s" % sql)
+                print "error inserting the following sql: %s" % sql
+        else:
+            self.warn("There were errors in inserting this event: %s" % str(event))
+
+    def formatfield(self,data,xdict,field):
+        if xdict[field] == 1:
+            x=u'"' + data.replace('"',"'") + '"'
+        else:
+            x=str(data)
+        return x
+
+    def escapestring(self,data):
+       return data.replace("'","\\'")
 
     def updatesearch(self,xtype,search):
         sql="insert or replace into schedule (id,"
@@ -209,3 +235,12 @@ class ScheduleDB(CristelDB):
     def getcurrentrecordings(self):
         sql="select * from recording order by end asc"
         return self.dosql(sql)
+
+    def getvisiblechannels(self):
+        sql="select * from Channels where visible=1"
+        rows=self.dosql(sql)
+        return rows
+
+    def reapschedule(self,before):
+        sql="delete from schedule where end<" + str(before)
+        self.dosql(sql)
