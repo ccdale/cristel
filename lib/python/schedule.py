@@ -62,19 +62,7 @@ class Schedule(CristelLog):
             return False
 
     def makeschedule(self):
-        events=[]
-        searches=self.sch.getsearches()
-        for search in searches:
-            tevents=self.eit.getsearch(search)
-            for event in tevents:
-                testevent=self.completeevent(event)
-                # self.debug(str(testevent))
-                if testevent != False:
-                    events.append(event)
-        self.debug("Makeschedule: number of events to insert/update: %d" % len(events))
-        for event in events:
-            self.sch.updateschedule(event)
-        return len(events)
+        self.sch.dosearches()
 
     def getschedule(self):
         return self.sch.getschedule()
@@ -92,11 +80,13 @@ class Schedule(CristelLog):
         self.debug("%d visible channels" % cn)
         for chan in chans:
             name=chan["name"]
-            self.debug("getting programmes for channel %s" % name)
+            self.info("getting programmes for channel %s" % name)
             source=chan["source"]
             progs=self.eit.getchannelevents(source,now)
             cn=len(progs)
-            self.debug("%d programmes for channel %s" % (cn,name))
+            self.info("%d programmes for channel %s" % (cn,name))
+            inserted=0
+            unchanged=0
             for prog in progs:
                 prog["cname"]=chan["name"]
                 prog["muxid"]=chan["muxid"]
@@ -104,6 +94,11 @@ class Schedule(CristelLog):
                 prog["favourite"]=chan["favourite"]
                 prog["priority"]=chan["priority"]
                 prog["logicalid"]=chan["logicalid"]
-                self.sch.updateschedule(prog)
+                if self.sch.updateschedule(prog):
+                    inserted=inserted+1
+                else:
+                    unchanged=unchanged+1
+            self.info("{} new programmes inserted, {} unchanged for {}".format(inserted,unchanged,chan["name"]))
         n24=now-(24*60*60)
         self.sch.reapschedule(n24)
+        self.makeschedule()

@@ -6,7 +6,7 @@
  * programme.class.php
  *
  * Started: Sunday 16 August 2015, 12:26:32
- * Last Modified: Saturday 22 August 2015, 17:33:35
+ * Last Modified: Wednesday 18 November 2015, 09:07:49
  *
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -114,21 +114,21 @@ class Programme extends Base
             );
             $fields[]=$arr;
         }
-        if(isset($this->parr["content"]) && strlen($this->parr["content"])){
+        if(isset($this->parr["progid"]) && strlen($this->parr["progid"])){
             $arr=array(
                 "label"=>"This Episode",
                 "itype"=>"Radio",
                 "name"=>"partsearch",
-                "val"=>urlencode("prog:" . $this->parr["content"])
+                "val"=>urlencode("prog:" . $this->parr["progid"])
             );
             $fields[]=$arr;
         }
-        if(isset($this->parr["series"]) && strlen($this->parr["series"])){
+        if(isset($this->parr["seriesid"]) && strlen($this->parr["seriesid"])){
             $arr=array(
                 "label"=>"This Series",
                 "itype"=>"Radio",
                 "name"=>"partsearch",
-                "val"=>urlencode("series:" . $this->parr["series"])
+                "val"=>urlencode("seriesid:" . $this->parr["seriesid"])
             );
             $fields[]=$arr;
         }

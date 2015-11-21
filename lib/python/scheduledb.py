@@ -109,6 +109,10 @@ class ScheduleDB(CristelDB):
         CristelDB.__init__(self,scheddbfile,log)
         self.debug("ScheduleDB: creating tables (if not exist)")
         self.create_tables()
+        self.later=0
+        self.record=0
+        self.conflict=0
+        self.previous=0
 
     def create_tables(self):
         # connection = sqlite3.Connection(self.dbpath)
@@ -144,14 +148,108 @@ class ScheduleDB(CristelDB):
         sql=sql[:-1] + ")"
         self.doinsertsql(sql)
 
-    def getsearches(self):
-        searches=[]
+    def dosearches(self):
+        self.info("updating schedule")
+        self.later=0
+        self.record=0
+        self.conflict=0
+        self.previous=0
         sql="select * from rsearch"
         rows=self.dosql(sql)
+        cn=len(rows)
+        self.debug("{} searches to find".format(cn))
         for row in rows:
             search={"type":row["type"],"search":row["search"]}
-            searches.append(search)
-        return searches
+            self.debug("search type:{}, search for: {}".format(search["type"],search["search"]))
+            self.schedulesearch(search)
+        self.info("updated schedule: record:{} later:{} previous:{} conflict:{}".format(self.record,self.later,self.previous,self.conflict))
+
+    def schedulesearch(self,search):
+        res=None
+        if search["type"]=='t':
+            res=self.findprograms(field='title',search=search["search"])
+            cn=len(res)
+            self.debug("found {} programmes for {}".format(cn,search["search"]))
+        elif search["type"]=='l':
+            res=self.findprograms(field='title',search=search["search"],like=1)
+            cn=len(res)
+            self.debug("found {} programmes for {}".format(cn,search["search"]))
+        elif search["type"]=='p':
+            res=self.findprograms(field='progid',search=search["search"])
+            cn=len(res)
+            self.debug("found {} programmes for {}".format(cn,search["search"]))
+        elif search["type"]=='s':
+            res=self.findprograms(field='seriesid',search=search["search"])
+            cn=len(res)
+            self.debug("found {} programmes for {}".format(cn,search["search"]))
+        elif search["type"]=='d':
+            res=self.findprograms(field='description',search=search["search"],like=1)
+            cn=len(res)
+            self.debug("found {} programmes for {}".format(cn,search["search"]))
+        if res is not None:
+            for row in res:
+                self.scheduleprogram(row)
+
+    def findprograms(self,field,search,like=0):
+        sql=u"select * from schedule where "
+        sql+=field
+        if like==0:
+            sql+="='{}'".format(search)
+        else:
+            sql+=" like '%{}%'".format(search)
+        sql+=" and record='n'"
+        return self.dosql(sql)
+
+    def scheduleprogram(self,prog):
+        overlaps=self.hasoverlaps(prog)
+        self.dorecord(prog,overlaps)
+
+    def hasoverlaps(self,prog):
+        sql=u"select * from schedule where start<{} and end>{} and id != {} and record='y'".format(prog["end"],prog["start"],prog["id"])
+        return self.dosql(sql)
+
+    def dorecord(self,prog,overlaps):
+        diffmux=0
+        mymux=prog["muxid"]
+        if self.checkprevious(prog):
+            record='p'
+            self.previous=self.previous+1
+            self.debug("marking programme {} ({}) as previously recorded".format(prog["title"],prog["progid"]))
+        else:
+            for overlap in overlaps:
+                if (mymux is not overlap["muxid"]):
+                    diffmux=diffmux+1
+            if diffmux<=1:
+                record='y'
+                self.debug("marking programme {} ({}) to be recorded".format(prog["title"],prog["progid"]))
+                self.record=self.record+1
+            else:
+                if self.checklater(prog):
+                    record='l'
+                    self.debug("marking programme {} ({}) to be recorded at a later time".format(prog["title"],prog["progid"]))
+                    self.later=self.later+1
+                else:
+                    record='c'
+                    self.debug("marking programme {} ({}) to be in conflict".format(prog["title"],prog["progid"]))
+                    self.conflict=self.conflict+1
+        sql=u"update schedule set record='{}' where id={}".format(record,prog["id"])
+        self.doinsertsql(sql)
+
+    def checkprevious(self,prog):
+        sql=u"select * from previous where progid='{}'".format(prog["progid"])
+        rows=self.dosql(sql)
+        if (len(rows) > 0 ):
+            return True
+        else:
+            return False
+    
+    def checklater(self,prog):
+        sql=u"select * from schedule where progid='{}' and id != {}".format(prog["progid"],prog["id"])
+        rows=self.dosql(sql)
+        if (len(rows) > 0 ):
+            return True
+        else:
+            return False
 
     def getchannel(self,source):
         sql="select * from channels where source='" + source + "'"
@@ -181,28 +279,36 @@ class ScheduleDB(CristelDB):
         self.doinsertsql(sql)
 
     def updateschedule(self,event):
-        sql=u'insert or replace into schedule (id,'
-        for field in ScheduleDB.SCHEDULE_INSERT_COLUMNS:
-            sql += field + ','
-        sql =sql[:-1] + ') values ((select id from schedule where source="' + event["source"] + '" and event=' + str(event["event"]) + '),'
-        uerrors=0
-        for field in ScheduleDB.SCHEDULE_INSERT_COLUMNS:
-            tmp = self.formatfield(event[field],ScheduleDB.SCHEDULE_INSERT_QUOTE,field)
-            try:
-                sql += tmp + ','
-            except (UnicodeDecodeError,UnicodeEncodeError):
-                self.error("unicode decode error? field: %s, tmp: %s, sql: %s" % (field,tmp,sql))
-                print "unicode decode error: field: %s, tmp: %s, sql: %s" % (field,tmp,sql)
-                uerrors=uerrors+1
-        if uerrors == 0:
-            sql=sql[:-1] + ')'
-            try:
-                self.doinsertsql(sql)
-            except:
-                self.error("error inserting the following sql: %s" % sql)
-                print "error inserting the following sql: %s" % sql
+        sql=u"select * from schedule where source='{}' and event={} and start={} and end={}".format(event["source"],event["event"],event["start"],event["end"])
+        rows=self.dosql(sql)
+        cn=len(rows)
+        if cn==0:
+            sql=u"insert into schedule ("
+            for field in ScheduleDB.SCHEDULE_INSERT_COLUMNS:
+                sql += field + ','
+            sql+=ScheduleDB.SCHEDULE_COLUMN_RECORD
+            sql += ") values ("
+            uerrors=0
+            for field in ScheduleDB.SCHEDULE_INSERT_COLUMNS:
+                tmp = self.formatfield(event[field],ScheduleDB.SCHEDULE_INSERT_QUOTE,field)
+                try:
+                    sql += tmp + ','
+                except (UnicodeDecodeError,UnicodeEncodeError):
+                    self.error("unicode decode error? field: %s, tmp: %s, sql: %s" % (field,tmp,sql))
+                    print "unicode decode error: field: %s, tmp: %s, sql: %s" % (field,tmp,sql)
+                    uerrors=uerrors+1
+            if uerrors == 0:
+                sql+= '"n")'
+                try:
+                    self.doinsertsql(sql)
+                except:
+                    self.error("error inserting the following sql: %s" % sql)
+                    print "error inserting the following sql: %s" % sql
+            else:
+                self.warn("There were errors in inserting this event: %s" % str(event))
+            return True
         else:
-            self.warn("There were errors in inserting this event: %s" % str(event))
+            return False
 
     def formatfield(self,data,xdict,field):
         if xdict[field] == 1:
@@ -224,12 +330,12 @@ class ScheduleDB(CristelDB):
     def getschedule(self):
         now=int(time.time())
         # sql="select * from schedule where start>%d and start<%d order by start" % (now,now+3600)
-        sql="select * from schedule where start>%d order by start asc" % now
+        sql="select * from schedule where start>%d and record='y' order by start asc" % now
         return self.dosql(sql)
 
     def getnextschedule(self):
         now=int(time.time())
-        sql="select * from schedule where start>%d order by start asc limit 1" % now
+        sql="select * from schedule where start>%d and record='y' order by start asc limit 1" % now
         return self.dosql(sql,one=1)
 
     def getcurrentrecordings(self):

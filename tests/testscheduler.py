@@ -28,8 +28,7 @@ if __name__ == '__main__':
     sch=Schedule(log)
     log.debug("updating schedule")
 
-    numscheduled=sch.makeschedule()
-    log.info("scheduled %d events" % numscheduled)
+    sch.makeschedule()
     row=sch.getnextschedule()
     if row != None:
         now=int(time.time())
