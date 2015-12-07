@@ -55,6 +55,7 @@ if isdvbstreamerrunning():
     for freq in freqs:
         s.scannet("T " + freq + " " + freqs[freq])
 
+    lcns=s.logicalnames()
     log.info("updating channels")
     muxes=s.lsmuxes()
     for mux in muxes:
@@ -71,21 +72,27 @@ if isdvbstreamerrunning():
             except:
                 pass
 
+            if si["Name"] in lcns:
+                lcn=si["Name"]
+            else:
+                lcn=0
+
             if cn > 0:
                 log.debug("Channel " + si["Name"] + " already exists")
                 if si["ID"] != row[0]:
                     log.info("channel " + si["Name"] + " has moved source, updating db")
-                    sch.updatechannel(si["ID"],si["Name"],si["Multiplex UID"])
+                    sch.updatelchannel(si["ID"],si["Name"],si["Multiplex UID"],lcn)
                     sourcemove+=1
                 elif si["Multiplex UID"] != row[6]:
                     log.info("channel " + si["Name"] + " has moved mux, updating db")
-                    sch.updatechannel(si["ID"],si["Name"],si["Multiplex UID"])
+                    sch.updatelchannel(si["ID"],si["Name"],si["Multiplex UID"],lcn)
                     muxmove+=1
                 else:
                     unchanged+=1
             else:
                 log.info("inserting new Channel: " + si["Name"])
                 sch.newchan(si["ID"],si["Name"],si["Multiplex UID"])
+                sch.updatelchannel(si["ID"],si["Name"],si["Multiplex UID"],lcn)
                 newchan+=1
 
     log.info("%s new channels" % newchan)

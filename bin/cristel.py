@@ -23,6 +23,40 @@ from schedule import Schedule
 
 log=logging.getLogger("cristel")
 
+def nformat(num,width=2,padleft=True,padchar="0"):
+    s=str(num)
+    cn=len(s)
+    while cn<width:
+        if padleft:
+            s="%s%s" % (padchar,s)
+        else:
+            s="%s%s" % (s,padchar)
+        cn=len(s)
+    return s
+
+def timeformat(secs):
+    days=0
+    hours=0
+    mins=0
+    if secs>=60:
+        mins=int(secs / 60)
+        secs=secs % 60
+    if mins>=60:
+        hours=int(mins / 60)
+        mins=mins % 60
+    if hours>=24:
+        days=int(hours / 24)
+        hours=hours % 24
+    if days>0:
+        op="%d:%d:%d:%d" % (days,nformat(hours),nformat(mins),nformat(secs))
+    elif hours>0:
+        op="%d:%d:%d" % (hours,nformat(mins),nformat(secs))
+    elif mins>0:
+        op="%d:%d" % (mins,nformat(secs))
+    else:
+        op="%d seconds" % secs
+    return op
+
 def theLoop(adapters,log):
     log.debug("starting scheduler class")
     sch=Schedule(log)
@@ -36,7 +70,7 @@ def theLoop(adapters,log):
         togo=3600
         if len(row):
             togo=row["start"] - now
-            log.debug("next recording: %s in %d seconds" % (row["title"],togo))
+            log.debug("next recording: %s in %s" % (row["title"],timeformat(togo)))
         else:
             log.debug("no recordings scheduled")
 
@@ -46,14 +80,14 @@ def theLoop(adapters,log):
             log.debug("%d programmes currently being recorded" % cn)
             nextend=rrows[0]["end"]
             left=nextend - now
-            log.debug("%s finishes in %d seconds" % (rrows[0]["title"],left))
+            log.debug("%s finishes in %s" % (rrows[0]["title"],timeformat(left)))
         else:
             log.debug("nothing currently recording")
         if togo<left:
             timeleft=togo
         else:
             timeleft=left
-        log.debug("sleeping for %d seconds" % timeleft)
+        log.debug("sleeping for %s" % timeformat(timeleft))
         signal.alarm(left)
         signal.pause()
         log.debug("ending loop")

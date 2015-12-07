@@ -275,7 +275,8 @@ class ScheduleDB(CristelDB):
         self.doinsertsql(sql)
 
     def updatelchannel(self,source,name,mux,lcn):
-        sql="update channels set source='%s',muxid=%d,logicalid=%d where name='%s'" % (source,int(mux),int(lcn),name)
+        sql="update channels set source='" + source + "', muxid=" + mux + ", logicalid=" + lcn + " where name='" + name + "'"
+        # sql="update channels set source='%s',muxid=%d,logicalid=%d where name='%s'" % (source,int(mux),int(lcn),name)
         self.doinsertsql(sql)
 
     def updateschedule(self,event):
