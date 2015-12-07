@@ -6,7 +6,7 @@
  * grid.class.php
  *
  * Started: Saturday 15 August 2015, 08:47:21
- * Last Modified: Sunday 16 August 2015, 15:34:04
+ * Last Modified: Wednesday 18 November 2015, 09:55:16
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -135,11 +135,38 @@ class Grid extends Base
         if($this->amOK()){
             $gprogs=array();
             foreach($this->chanlist as $logicalid=>$channel){
-                $gprogs[$logicalid]=$this->channelProgrammes($logicalid);
+                // $gprogs[$logicalid]=$this->channelProgrammes($logicalid);
+                $gprogs[$logicalid]=$this->chanProgs($logicalid);
             }
             $ret=$gprogs;
         }
         return $ret;
+    }/*}}}*/
+    private function chanProgs($logicalid)/*{{{*/
+    {
+        $cprogs=false;
+        if($this->amOK($logicalid)){
+            $this->debug("logicalid: $logicalid, channel name: " . $this->chanlist[$logicalid]["name"]);
+            $sql="select * from schedule where cname='" . $this->chanlist[$logicalid]["name"] . "' ";
+            $sql.="and end > ";
+            $sql.=$this->start;
+            $sql.=" and start < ";
+            $sql.=$this->start + $this->width;
+            $sql.=" order by start ASC";
+            if(false!==($rows=$this->cx->arrayQuery($sql))){
+                foreach($rows as $row){
+                    $arrtmp=$row;
+                    $arrtmp["duration"]=$row["end"]-$row["start"];
+                    $arrtmp["logicalid"]=$logicalid;
+                    $cprogs[]=$arrtmp;
+                }
+            }else{
+                $this->warn("no data returned for channel " . $this->chanlist[$logicalid]["name"]);
+            }
+        }else{
+            $this->warn("not ok for logicalid: $logicalid, " . $this->chanlist[$logicalid]["name"]);
+        }
+        return $cprogs;
     }/*}}}*/
     private function channelProgrammes($logicalid)/*{{{*/
     {
@@ -204,11 +231,34 @@ class Grid extends Base
             $nslots=($end-$start)/$this->slotsize;
             $atts=array("title"=>$this->titleattribute($prog,true));
             $atts["colspan"]=$nslots;
-            $atts["class"]="programcell";
+            $atts["class"]="programcell" . $this->recordClass($prog["record"]);
             $content.=$this->gcell($this->makeProgContent($prog),$atts);
         }
         $op=$this->pt->tableRow(array("class"=>"gridrow"),$content);
         return $op;
+    }/*}}}*/
+    private function recordClass($record='n')/*{{{*/
+    {
+        switch($record){
+        case 'l':
+            $ret=" later";
+            break;
+        case 'p':
+            $ret=" previous";
+            break;
+        case 'c':
+            $ret=" conflict";
+            break;
+        case 'y':
+            $ret=" record";
+            break;
+        case 'r':
+            $ret=" recording";
+            break;
+        default:
+            $ret="";
+        }
+        return $ret;
     }/*}}}*/
     private function makeProgContent($prog)/*{{{*/
     {

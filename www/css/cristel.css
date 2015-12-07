@@ -71,3 +71,18 @@ td.arrowcell {
 a.backlink {
     display: block;
 }
+.conflict {
+    background-color: #ffcccc;
+}
+.previous {
+    background-color: #e0e0eb;
+}
+.later {
+    background-color: #ffffb3;
+}
+.record {
+    background-color: #c2f0c2;
+}
+.recording {
+    background-color: #f2ccff;
+}

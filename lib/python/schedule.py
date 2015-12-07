@@ -19,6 +19,7 @@
 
 # import sys
 import os
+import time
 # import logging
 # import logging.handlers
 # import sqlite3
@@ -32,30 +33,72 @@ class Schedule(CristelLog):
     # sch=None
 
     def __init__(self,log=None):
+        # super(Schedule,self).__init__()
+        self.logg=log
         appdir=os.path.expanduser("~/.epgdb")
         eitdb=os.path.join(appdir,"database.db")
         scheddb=os.path.join(appdir,"cristel.db")
+        self.debug("starting eit db at %s" % eitdb)
         self.eit=EITDatabase(eitdb,log)
+        self.debug("starting scheddb at %s" % scheddb)
         self.sch=ScheduleDB(scheddb,log)
+        self.debug("scheduler class started")
 
     def completeevent(self,event):
+        self.debug("completing event: %s" % str(event))
         chan=self.sch.getchannel(event["source"])
-        event["channel"]=chan["cname"]
-        event["muxid"]=chan["muxid"]
-        event["visible"]=chan["visible"]
-        event["favourite"]=chan["favourite"]
-        event["priority"]=chan["priority"]
-        return event
+        self.debug("channel: %s" % str(chan))
+        try:
+            event["cname"]=chan["name"]
+            event["muxid"]=chan["muxid"]
+            event["visible"]=chan["visible"]
+            event["favourite"]=chan["favourite"]
+            event["priority"]=chan["priority"]
+            event["logicalid"]=chan["logicalid"]
+            self.debug("event completed %s" % str(event))
+            return event
+        except (IndexError,TypeError):
+            self.warn("No channel for source %s" % event["source"])
+            return False
 
     def makeschedule(self):
-        events=[]
-        searches=self.sch.getsearches()
-        for search in searches:
-            tevents=self.eit.getsearch(search)
-            for event in tevents:
-                event=self.completeevent(event)
-                events.append(event)
-        self.debug("Makeschedule: number of events to insert/update: %d" % len(events))
-        for event in events:
-            self.sch.updateschedule(event)
+        self.sch.dosearches()
 
+    def getschedule(self):
+        return self.sch.getschedule()
+    
+    def getnextschedule(self):
+        return self.sch.getnextschedule()
+
+    def getcurrentrecordings(self):
+        return self.sch.getcurrentrecordings()
+
+    def filldatabase(self):
+        now=int(time.time())
+        chans=self.sch.getvisiblechannels()
+        cn=len(chans)
+        self.debug("%d visible channels" % cn)
+        for chan in chans:
+            name=chan["name"]
+            self.info("getting programmes for channel %s" % name)
+            source=chan["source"]
+            progs=self.eit.getchannelevents(source,now)
+            cn=len(progs)
+            self.info("%d programmes for channel %s" % (cn,name))
+            inserted=0
+            unchanged=0
+            for prog in progs:
+                prog["cname"]=chan["name"]
+                prog["muxid"]=chan["muxid"]
+                prog["visible"]=chan["visible"]
+                prog["favourite"]=chan["favourite"]
+                prog["priority"]=chan["priority"]
+                prog["logicalid"]=chan["logicalid"]
+                if self.sch.updateschedule(prog):
+                    inserted=inserted+1
+                else:
+                    unchanged=unchanged+1
+            self.info("{} new programmes inserted, {} unchanged for {}".format(inserted,unchanged,chan["name"]))
+        n24=now-(24*60*60)
+        self.sch.reapschedule(n24)
+        self.makeschedule()

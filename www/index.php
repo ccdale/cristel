@@ -6,7 +6,7 @@
  * index.php
  *
  * Started: Sunday 16 August 2015, 02:21:57
- * Last Modified: Sunday 23 August 2015, 11:44:42
+ * Last Modified: Wednesday 18 November 2015, 09:43:05
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -51,7 +51,8 @@ function doGrid()/*{{{*/
     $op=$g->build();
     return $op;
 }/*}}}*/
-$logg=new Logging(false,"CPHP",0,LOG_DEBUG);
+// $logg=new Logging(false,"CPHP",0,LOG_DEBUG);
+$logg=new Logging(false,"CPHP",0,LOG_INFO);
 $b=new Base($logg);
 $homedir="/home/chris";
 $datadir=$b->unixpath($homedir) . ".epgdb";
@@ -61,7 +62,7 @@ $epgdbfn=$b->unixpath($datadir) . "database.db";
 $cdb=new SSql($cristeldbfn,$logg);
 $edb=new SSql($epgdbfn,$logg);
 
-$eventkeys=array("start","end","source","duration","logicalid","content","description","series","title");
+$eventkeys=array("start","end","source","duration","logicalid","progid","description","seriesid","title");
 
 $gridstart=GP("gridstart",true);
 $logg->debug("GP gridstart: $gridstart");

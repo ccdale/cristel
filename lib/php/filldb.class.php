@@ -6,7 +6,7 @@
  * filldb.class.php
  *
  * Started: Saturday 31 May 2014, 07:15:52
- * Last Modified: Thursday 24 July 2014, 20:44:49
+ * Last Modified: Thursday  1 January 2015, 10:11:52
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -141,6 +141,7 @@ class FillDB extends Base
     public function cleanDB()/*{{{*/
     {
         $yesterday=time()-86400;
+        $sql="delete from schedule where endtime<$yesterday";
         if(false!==($arr=$this->mx->arrayQuery("select id from schedule where endtime<$yesterday"))){
             foreach($arr as $sched){
                 $this->deleteScheduleProgram($sched["id"]);

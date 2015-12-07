@@ -1,4 +1,4 @@
 cristel
 =======
 
-A DVB recorder written in php.
+A DVB recorder written in c and php.

@@ -282,6 +282,17 @@ class DvbSession(Session):
 
         return lcn
 
+    def logicalnames(self):
+        """returns the logical channel ids (freeview channel numbers) as a dict keyed by name"""
+        emsg,res=self.execute_command("lslcn")
+        lcnames={}
+        for line in res:
+            tmp=line.split(":")
+            cn=tmp[0].strip()
+            name=tmp[1].strip()
+            lcnames[name]=cn
+        return lcnames
+
     def lsmuxes(self):
         """returns a list of muxes"""
         emsg,res=self.execute_command("lsmuxes")
@@ -299,3 +310,48 @@ class DvbSession(Session):
             svcs.append(line.strip())
 
         return svcs
+
+    def lsservices(self):
+        """returns the complete list of services available"""
+        emsg,res=self.execute_command("lsservices")
+        svcs=[]
+        for line in res:
+            svcs.append(line.strip())
+        return svcs
+    
+    def serviceinfo(self,service):
+        """returns a hash of the service info for a service"""
+        emsg,res=self.execute_command("serviceinfo '%s'" % service)
+        si={}
+        # for line in res.splitlines():
+        for line in res:
+            x=line.partition(':')
+            n=x[0].strip(" \"\t\r\n")
+            v=x[2].strip(" \"\t\r\n")
+            si[n]=v
+        return si
+
+    def canscan(self):
+        """waits until no scan is running
+
+        scanning a non-existent mux will cause a generic command error
+        the error message tells you whether a scan is currently running
+        """
+        while 1:
+            try:
+                emsg,res=self.execute_command("scan junk")
+            except GenericCommandError as e:
+                log.debug(e.msg)
+                if e.msg.strip() == "Scan in progress!":
+                    time.sleep(10)
+                else:
+                    log.debug("Scanning completed")
+                    break
+
+    def scannet(self,net):
+        """scans a net for services"""
+        self.canscan()
+        log.info("scanning: %s" % net)
+        emsg,res=self.execute_command("scan net '"+net+"'")
+        self.canscan()
+        log.info("Completed scan of %s" % net)
