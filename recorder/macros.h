@@ -4,7 +4,7 @@
  * macros.h
  *
  * Started: Sunday 23 December 2012, 19:43:14
- * Last Modified: Saturday  5 September 2015, 09:07:45
+ * Last Modified: Monday 28 December 2015, 08:19:07
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -36,9 +36,9 @@ extern int llevel;
 #define WARN(...) if(llevel>=4){ syslog(LOG_WARNING,__VA_ARGS__);}
 #define ERROR(...) if(llevel>=3){ syslog(LOG_ERR,__VA_ARGS__);}
 
-#define NDEBUG
+#define XDEBUG
 
-#ifndef NDEBUG
+#ifndef XDEBUG
 #define WHERESTR  "[file %s, line %d]: "
 #define WHEREARG  __FILE__, __LINE__
 #define DEBUGPRINT2(...)       fprintf(stderr, __VA_ARGS__);syslog(LOG_DEBUG,__VA_ARGS__)
@@ -51,4 +51,4 @@ extern int llevel;
 #define DEBUGPRINT(_fmt, ...) {}
 #define DBG(_fmt, ...) {}
 #define DBGL(_fmt,...) {}
-#endif /* !NDEBUG */
+#endif /* !XDEBUG */
