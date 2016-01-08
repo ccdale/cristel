@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:07:48
- * Last Modified: Sunday  6 September 2015, 09:29:02
+ * Last Modified: Friday  8 January 2016, 04:37:01
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -29,49 +29,51 @@
 
 #include "dvbctrl.h"
 
-static struct StreamerData SD;
+static struct StreamerData SD[2];
 
 static void setupConnect(int adaptornum)/*{{{*/
 {
-    prepare_streamer_data();
+    prepare_streamer_data(adaptornum);
     dvbc_connect(adaptornum);
 }/*}}}*/
-static void closeConnect()/*{{{*/
+static void closeConnect(int adaptornum)/*{{{*/
 {
-    free_streamer_data();
+    free_streamer_data(adaptornum);
+    SD[adaptornum].connected=0;
+    SD[adaptornum].authenticated=0;
 }/*}}}*/
-static void prepare_streamer_data(void)/*{{{*/
+static void prepare_streamer_data(int adaptornum)/*{{{*/
 {
-    SD.socketfp=NULL;
-    SD.connected=0;
-    SD.authenticated=0;
-    SD.errornumber=0;
-    SD.ver=xmalloc(10);
-    SD.errmsg=xmalloc(MAX_LINE_LENGTH);
-    SD.line=xmalloc(MAX_LINE_LENGTH);
-    SD.data=xmalloc(RCV_BUFFER_LENGTH);
+    SD[adaptornum].socketfp=NULL;
+    SD[adaptornum].connected=0;
+    SD[adaptornum].authenticated=0;
+    SD[adaptornum].errornumber=0;
+    SD[adaptornum].ver=xmalloc(10);
+    SD[adaptornum].errmsg=xmalloc(MAX_LINE_LENGTH);
+    SD[adaptornum].line=xmalloc(MAX_LINE_LENGTH);
+    SD[adaptornum].data=xmalloc(RCV_BUFFER_LENGTH);
 }/*}}}*/
-static void free_streamer_data(void)/*{{{*/
+static void free_streamer_data(int adaptornum)/*{{{*/
 {
-    if(SD.socketfp){
+    if(SD[adaptornum].socketfp){
         DBG("Closing socket");
-        fclose(SD.socketfp);
+        fclose(SD[adaptornum].socketfp);
     }
-    if(SD.ver){
-        DBGL("free SD.ver: %s",SD.ver);
-        free(SD.ver);
+    if(SD[adaptornum].ver){
+        DBGL("free SD[adaptornum].ver: %s",SD[adaptornum].ver);
+        free(SD[adaptornum].ver);
     }
-    if(SD.errmsg){
-        DBGL("free SD.errmsg: %s",SD.errmsg);
-        free(SD.errmsg);
+    if(SD[adaptornum].errmsg){
+        DBGL("free SD[adaptornum].errmsg: %s",SD[adaptornum].errmsg);
+        free(SD[adaptornum].errmsg);
     }
-    if(SD.line){
-        DBGL("free SD.line: %s",SD.line);
-        free(SD.line);
+    if(SD[adaptornum].line){
+        DBGL("free SD[adaptornum].line: %s",SD[adaptornum].line);
+        free(SD[adaptornum].line);
     }
-    if(SD.data){
-        DBGL("free SD.data: %s",SD.data);
-        free(SD.data);
+    if(SD[adaptornum].data){
+        DBGL("free SD[adaptornum].data: %s",SD[adaptornum].data);
+        free(SD[adaptornum].data);
     }
 }/*}}}*/
 static int dvbc_connect(int adaptornum)/*{{{*/
@@ -118,50 +120,50 @@ static int dvbc_connect(int adaptornum)/*{{{*/
         return 1;
     }
     INFO("Socket connected to host %s port %d", host, REMOTEINTERFACE_PORT + adaptornum);
-    SD.socketfp = fdopen(socketfd, "r+");
-    rcvData();
-    if(SD.errornumber != 0){
-        WARN("%s",SD.errmsg);
-        return SD.errornumber;
+    SD[adaptornum].socketfp = fdopen(socketfd, "r+");
+    rcvData(adaptornum);
+    if(SD[adaptornum].errornumber != 0){
+        WARN("%s",SD[adaptornum].errmsg);
+        return SD[adaptornum].errornumber;
     }
-    SD.connected=1;
-    SD.authenticated=Authenticate(username,password);
+    SD[adaptornum].connected=1;
+    SD[adaptornum].authenticated=Authenticate(adaptornum,username,password);
     return 0;
 }/*}}}*/
-static int Authenticate(char *username, char *password)/*{{{*/
+static int Authenticate(int adaptornum, char *username, char *password)/*{{{*/
 {
-    sprintf(SD.line, "auth %s %s", username, password);
-    request(SD.line);
-    return (SD.errornumber==0);
+    sprintf(SD[adaptornum].line, "auth %s %s", username, password);
+    request(adaptornum,SD[adaptornum].line);
+    return (SD[adaptornum].errornumber==0);
 }/*}}}*/
-static int sendData(char *data)/*{{{*/
+static int sendData(int adaptornum,char *data)/*{{{*/
 {
     int len=strlen(data);
 
-    if(SD.connected){
+    if(SD[adaptornum].connected){
         if(len){
             DBGL("Sending data '%s'",data);
             if(data[len-1]=='\n'){
-                fprintf(SD.socketfp,"%s",data);
+                fprintf(SD[adaptornum].socketfp,"%s",data);
             }else{
-                fprintf(SD.socketfp,"%s\n",data);
+                fprintf(SD[adaptornum].socketfp,"%s\n",data);
             }
         }
     }
     return len;
 }/*}}}*/
-static int request(char *cmd)/*{{{*/
+static int request(int adaptornum,char *cmd)/*{{{*/
 {
     int numlines=0;
     size_t len=0;
 
-    len=sendData(cmd);
+    len=sendData(adaptornum,cmd);
     if(len==strlen(cmd)){
-        numlines=rcvData();
+        numlines=rcvData(adaptornum);
     }
     return numlines;
 }/*}}}*/
-static int rcvData(void)/*{{{*/
+static int rcvData(int adaptornum)/*{{{*/
 {
     char *seperator;
     char *start;
@@ -171,31 +173,31 @@ static int rcvData(void)/*{{{*/
 
     responselineStart=configValue("dvbbanner");
     rls=strlen(responselineStart);
-    if(SD.connected){
-        while(!feof(SD.socketfp)){
-            if(fgets(SD.line,MAX_LINE_LENGTH,SD.socketfp)){
-                if(strncmp(SD.line,responselineStart,rls-1)==0){
+    if(SD[adaptornum].connected){
+        while(!feof(SD[adaptornum].socketfp)){
+            if(fgets(SD[adaptornum].line,MAX_LINE_LENGTH,SD[adaptornum].socketfp)){
+                if(strncmp(SD[adaptornum].line,responselineStart,rls-1)==0){
                     /* last line */
-                    chomp(SD.line);
-                    seperator=strchr(SD.line+rls,'/');
+                    chomp(SD[adaptornum].line);
+                    seperator=strchr(SD[adaptornum].line+rls,'/');
                     if(seperator){
                         *seperator=0;
-                        start=SD.line+rls;
-                        SD.ver=strdup(start);
+                        start=SD[adaptornum].line+rls;
+                        SD[adaptornum].ver=strdup(start);
                         start=seperator+1;
                         seperator=strchr(seperator+1,' ');
                         if(seperator)
                         {
                             *seperator=0;
-                            SD.errmsg=strdup(seperator+1);
+                            SD[adaptornum].errmsg=strdup(seperator+1);
                         }
-                        SD.errornumber=atoi(start);
+                        SD[adaptornum].errornumber=atoi(start);
                         numlines++;
                     }
                     break;
                 }else{
                     /* data lines */
-                    addLineToBuffer();
+                    addLineToBuffer(adaptornum);
                     numlines++;
                 }
             }
@@ -203,33 +205,38 @@ static int rcvData(void)/*{{{*/
     }
     return numlines;
 }/*}}}*/
-static void addLineToBuffer()/*{{{*/
+static void addLineToBuffer(int adaptornum)/*{{{*/
 {
     int cn;
     int bufflen;
 
-    bufflen=strlen(SD.data);
-    cn=bufflen+strlen(SD.line);
+    bufflen=strlen(SD[adaptornum].data);
+    cn=bufflen+strlen(SD[adaptornum].line);
     if(cn<RCV_BUFFER_LENGTH){
-        sprintf(SD.data+bufflen,"%s\n",SD.line);
+        sprintf(SD[adaptornum].data+bufflen,"%s\n",SD[adaptornum].line);
     }else{
         WARN("buffer is undersized");
-        DBG(SD.line);
+        DBG(SD[adaptornum].line);
     }
 }/*}}}*/
-char * lsservices(int adaptornum)/*{{{*/
+char * dvbcmd(int adaptornum, char *cmd)/*{{{*/
 {
-    char *services=NULL;
+    char *response=NULL;
     int nl;
 
     setupConnect(adaptornum);
-    if(SD.authenticated){
-        sprintf(SD.line,"%s","lsservices");
-        nl=request(SD.line);
+    if(SD[adaptornum].authenticated){
+        sprintf(SD[adaptornum].line,"%s",cmd);
+        nl=request(adaptornum,SD[adaptornum].line);
         if(nl>0){
-            services=strdup(SD.data);
+            response=strdup(SD[adaptornum].data);
         }
     }
-    closeConnect();
-    return services;
+    closeConnect(adaptornum);
+    return response;
+}/*}}}*/
+char * lsservices(int adaptornum)/*{{{*/
+{
+    char* cmd="lsservices";
+    return dvbcmd(adaptornum,cmd);
 }/*}}}*/

@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:09:19
- * Last Modified: Friday 17 July 2015, 08:11:28
+ * Last Modified: Friday  8 January 2016, 04:35:49
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -49,13 +49,14 @@ struct StreamerData {
 };
 
 static void setupConnect(int adapternum);
-static void closeConnect();
-static void prepare_streamer_data(void);
-static void free_streamer_data(void);
+static void closeConnect(int adapternum);
+static void prepare_streamer_data(int adapternum);
+static void free_streamer_data(int adapternum);
 static int dvbc_connect(int adapternum);
-static int Authenticate(char *username, char *password);
-static int sendData(char *cmd);
-static int request(char *cmd);
-static int rcvData(void);
-static void addLineToBuffer();
+static int Authenticate(int adaptornum, char *username, char *password);
+static int sendData(int adaptornum, char *cmd);
+static int request(int adaptornum, char *cmd);
+static int rcvData(int adaptornum);
+static void addLineToBuffer(int adaptornum);
+char * dvbcmd(int adaptornum, char *cmd);
 char * lsservices(int adaptornum);
