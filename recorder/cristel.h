@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Sunday  6 September 2015, 09:25:27
+ * Last Modified: Saturday  9 January 2016, 06:13:16
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -37,6 +37,7 @@
 struct ConfigItem *configuration;
 int llevel=5;
 int timetodie=0;
+int nodaemon=0;
 
 char *argprocessing(int argc,char **argv);
 void catchsignal(int sig);

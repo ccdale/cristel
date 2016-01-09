@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Sunday  6 September 2015, 09:30:29
+ * Last Modified: Saturday  9 January 2016, 06:30:56
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -140,12 +140,13 @@ char *argprocessing(int argc,char **argv)/* {{{ */
     char *conffile=NULL;
     /* Define the allowable command line options, collecting them in argtable[] */
     struct arg_file *conf = arg_file0("c","conf-file",PROGCONF,"configuration file");
+    struct arg_lit *nxdaemon = arg_lit0("D","nodaemon","do not become a daemon, stay in foreground");
     struct arg_lit *help = arg_lit0("h","help","print this help and exit");
     struct arg_int *loglevel = arg_int0("l","log-level","<n>","7=LOG-DEBUG .. 0=LOG_EMERG - default: 5 (LOG_NOTICE)");
     struct arg_lit *vers = arg_lit0("v","version","print version information and exit");
     struct arg_end *end  = arg_end(20);
 
-    void *argtable[] = {conf,help,loglevel,vers,end};
+    void *argtable[] = {conf,nxdaemon,help,loglevel,vers,end};
 
     int nerrors;
 
@@ -161,7 +162,7 @@ char *argprocessing(int argc,char **argv)/* {{{ */
             /* print the help/usage statement and exit */
             printf("Usage: %s",PROGNAME);
             arg_print_syntax(stdout,argtable,"\n");
-            printf("%s is a daemon to listen for requests to run puppet on this host.\n\n",PROGNAME);
+            printf("%s is a daemon to manage tv recordings on this host.\n\n",PROGNAME);
             arg_print_glossary(stdout,argtable,"  %-20s %s\n");
             /* free up memory used for argument processing */
             arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
@@ -191,6 +192,9 @@ char *argprocessing(int argc,char **argv)/* {{{ */
         }
         if(loglevel->count > 0){
             llevel=loglevel->ival[0];
+        }
+        if(nxdaemon->count>0){
+            nodaemon=1;
         }
     }
     /* free up memory used for argument processing */
@@ -352,26 +356,36 @@ int main(int argc,char **argv)/* {{{ */
 
     conffile=argprocessing(argc,argv);
 
-    NOTICE(PROGNAME" starting");
+    if(conffile){
+        NOTICE(PROGNAME" starting");
 
-    daemonize(conffile);
+        if(!nodaemon){
+            daemonize(conffile);
+        }
 
-    na=atoi(configValue("numadaptors"));
-    for(x=0;x<na;x++){
-        startDvbStreamer(x);
+        na=atoi(configValue("numadaptors"));
+        for(x=0;x<na;x++){
+            startDvbStreamer(x);
+        }
+
+        mainLoop();
+
+        for(x=0;x<na;x++){
+            stopDvbStreamer(x);
+        }
+
+        INFO(PROGNAME" closing");
+        DBG("freeing config");
+        deleteConfig();
+        if(conffile){
+            DBG("freeing configuration file name string");
+            free(conffile);
+        }
+        if(!nodaemon){
+            DBG("deleting lock file");
+            unlink(CCA_LOCK_FILE);
+        }
+        NOTICE(PROGNAME" stopped");
     }
-
-    mainLoop();
-
-    for(x=0;x<na;x++){
-        stopDvbStreamer(x);
-    }
-
-    INFO(PROGNAME" closing");
-    DBG("freeing config");
-    deleteConfig();
-    DBG("deleting lock file");
-    unlink(CCA_LOCK_FILE);
-    NOTICE(PROGNAME" stopped");
     return ret;
 }/*}}}*/

@@ -4,7 +4,7 @@
  * globals.h
  *
  * Started: Friday 28 December 2012, 22:09:57
- * Last Modified: Wednesday 31 December 2014, 10:09:03
+ * Last Modified: Saturday  9 January 2016, 06:12:57
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -25,3 +25,4 @@
  */
 
 extern struct ConfigItem *configuration;
+extern int nodaemon;

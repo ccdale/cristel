@@ -4,7 +4,7 @@
  * macros.h
  *
  * Started: Sunday 23 December 2012, 19:43:14
- * Last Modified: Monday 28 December 2015, 08:19:07
+ * Last Modified: Saturday  9 January 2016, 06:20:53
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -30,11 +30,11 @@ extern int llevel;
 #define CCA_ERR_EXIT(ccaex,...) if(errno){ CCA_ERR_CONT("error: %d: %s",errno,strerror(errno));} CCA_ERR_CONT(__VA_ARGS__);exit(ccaex);
 #define CCAC(...) CCA_ERR_CONT(__VA_ARGS__)
 #define CCAE(ccaex,...) CCA_ERR_EXIT(ccaex,__VA_ARGS__)
-#define DEBUG(...) if(llevel>=7){ syslog(LOG_DEBUG,__VA_ARGS__);}
-#define INFO(...) if(llevel>=6){ syslog(LOG_INFO,__VA_ARGS__);}
-#define NOTICE(...) if(llevel>=5){ syslog(LOG_NOTICE,__VA_ARGS__);}
-#define WARN(...) if(llevel>=4){ syslog(LOG_WARNING,__VA_ARGS__);}
-#define ERROR(...) if(llevel>=3){ syslog(LOG_ERR,__VA_ARGS__);}
+#define DEBUG(...) if(llevel>=7){ syslog(LOG_DEBUG,__VA_ARGS__);if(!nodaemon){printf(__VA_ARGS__);}}
+#define INFO(...) if(llevel>=6){ syslog(LOG_INFO,__VA_ARGS__);if(!nodaemon){printf(__VA_ARGS__);}}
+#define NOTICE(...) if(llevel>=5){ syslog(LOG_NOTICE,__VA_ARGS__);if(!nodaemon){printf(__VA_ARGS__);}}
+#define WARN(...) if(llevel>=4){ syslog(LOG_WARNING,__VA_ARGS__);if(!nodaemon){printf(__VA_ARGS__);}}
+#define ERROR(...) if(llevel>=3){ syslog(LOG_ERR,__VA_ARGS__);if(!nodaemon){printf(__VA_ARGS__);}}
 
 #define XDEBUG
 
