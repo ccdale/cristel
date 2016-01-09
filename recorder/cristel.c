@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Saturday  9 January 2016, 06:30:56
+ * Last Modified: Saturday  9 January 2016, 06:46:20
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -187,9 +187,10 @@ char *argprocessing(int argc,char **argv)/* {{{ */
             arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
             CCAE(1,"Failed to process command line correctly");
         }
-        if(conf->count > 0){
-            conffile=strdup(conf->filename[0]);
-        }
+        /* this needs to return a conf file string, even if not
+         * set on the command line
+         */
+        conffile=strdup(conf->filename[0]);
         if(loglevel->count > 0){
             llevel=loglevel->ival[0];
         }
