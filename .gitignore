@@ -1,6 +1,9 @@
 # compiled daemon
 cristel
 
+# tags file
+tags
+
 # dependancy files
 *.d
 

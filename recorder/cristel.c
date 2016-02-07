@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Sunday  6 September 2015, 09:30:29
+ * Last Modified: Sunday  7 February 2016, 09:08:33
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -41,7 +41,7 @@ void mainLoop()/*{{{*/
         sleep(1);
         if((++cc)>30){
             svc=lsservices(0);
-            DBGL("%s",svc);
+            INFO("%s",svc);
             free(svc);
             break;
         }

@@ -1,9 +1,13 @@
+# CC = gcc `mysql_config --cflags`
 CC = gcc
+# CFLAGS = -ggdb -I/usr/local/include -W -Wall -ansi `mysql_config --cflags`
 CFLAGS = -ggdb -I/usr/local/include -W -Wall -ansi
 # CFLAGS = -ggdb -I/usr/local/include -W -Wall
 LD = $(CC)
-LDFLAGS = -L/usr/local/lib `mysql_config --libs`
-LIBS = -largtable2 `mysql_config --libs`
+# LDFLAGS = -L/usr/local/lib `mysql_config --libs`
+LDFLAGS = -L/usr/local/lib
+# LIBS = -largtable2 `mysql_config --libs`
+LIBS = -largtable2
 LDLIBS = -largtable2
 
 SRC := $(wildcard *.c)
@@ -21,10 +25,10 @@ include $(OBJ:.o=.d)
 	        ./depend.sh $(CFLAGS) $*.c > $@
 
 cristel.d: cristel.c
-	        ./depend.sh `mysql_config --cflags` $(CFLAGS) cristel.c >cristel.d
+	        ./depend.sh $(CFLAGS) cristel.c >cristel.d
 
 cristel.o: cristel.c defs.h macros.h
-	        $(CC) `mysql_config --cflags` -o cristel.o -c cristel.c
+	        $(CC) -o cristel.o -c cristel.c
 
 clean:
 	        -rm -f $(DOBJ) $(OBJ) $(BINNAME)

@@ -6,7 +6,7 @@
  * dvbctrl.class.php
  *
  * Started: Tuesday  3 June 2014, 06:13:35
- * Last Modified: Thursday 24 July 2014, 20:44:46
+ * Last Modified: Sunday  7 February 2016, 09:01:48
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -27,6 +27,7 @@
  */
 
 require_once "base.class.php";
+require_once "dvbstreamer.class.php";
 
 class DVBCtrl extends Base
 {
