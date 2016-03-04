@@ -291,7 +291,11 @@ class ScheduleDB(CristelDB):
             sql += ") values ("
             uerrors=0
             for field in ScheduleDB.SCHEDULE_INSERT_COLUMNS:
-                tmp = self.formatfield(event[field],ScheduleDB.SCHEDULE_INSERT_QUOTE,field)
+                try:
+                    tmp = self.formatfield(event[field],ScheduleDB.SCHEDULE_INSERT_QUOTE,field)
+                except KeyError:
+                    self.error("KeyError: %s" % field)
+                    tmp="No Data"
                 try:
                     sql += tmp + ','
                 except (UnicodeDecodeError,UnicodeEncodeError):
