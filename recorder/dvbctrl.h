@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:09:19
- * Last Modified: Friday 17 July 2015, 08:11:28
+ * Last Modified: Sunday  6 March 2016, 07:27:22
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -47,6 +47,15 @@ struct StreamerData {
     char *line;
     char *data;
 };
+struct ServiceInfo {
+    int type;
+    int ca;
+    int mux;
+    int pmtpid;
+    char *name;
+    char *source;
+    char *ID;
+};
 
 static void setupConnect(int adapternum);
 static void closeConnect();
@@ -58,4 +67,12 @@ static int sendData(char *cmd);
 static int request(char *cmd);
 static int rcvData(void);
 static void addLineToBuffer();
+struct ServiceInfo *newServiceInfo(void);
+void freeServiceInfo(struct ServiceInfo *SI);
+struct ServiceInfo *serviceInfoParse(char *si);
+void updateServiceInfo(struct ServiceInfo *SI,char *key,char *val);
+struct ServiceInfo *getServiceInfo(char *service);
+char * dvbcommand(char *cmd,int adaptornum);
 char * lsservices(int adaptornum);
+char * lsmuxes(int adaptornum);
+char * lssfs(int adaptornum);

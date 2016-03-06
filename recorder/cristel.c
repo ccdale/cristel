@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Sunday  7 February 2016, 09:08:33
+ * Last Modified: Saturday  5 March 2016, 16:50:31
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -30,6 +30,7 @@ void mainLoop()/*{{{*/
 {
     int cc=0;
     char *svc;
+    struct ServiceInfo *SI;
 
     /*
     dvbc_connect(0);
@@ -39,10 +40,23 @@ void mainLoop()/*{{{*/
             break;
         }
         sleep(1);
-        if((++cc)>30){
-            svc=lsservices(0);
+        if((++cc)>10){
+            SI=getServiceInfo("BBC TWO");
+            DEBUG("SI: Name: %s",SI->name);
+            DEBUG("SI: Type: %d",SI->type);
+            DEBUG("SI: ca: %d",SI->ca);
+            DEBUG("SI: ID: %s",SI->ID);
+            DEBUG("SI: mux: %d",SI->mux);
+            DEBUG("SI: Source: %s",SI->source);
+            freeServiceInfo(SI);
+            /*
+            svc=dvbcommand("serviceinfo 'BBC TWO'",0);
             INFO("%s",svc);
             free(svc);
+            svc=lsmuxes(0);
+            INFO("%s",svc);
+            free(svc);
+            */
             break;
         }
     }
@@ -141,7 +155,7 @@ char *argprocessing(int argc,char **argv)/* {{{ */
     /* Define the allowable command line options, collecting them in argtable[] */
     struct arg_file *conf = arg_file0("c","conf-file",PROGCONF,"configuration file");
     struct arg_lit *help = arg_lit0("h","help","print this help and exit");
-    struct arg_int *loglevel = arg_int0("l","log-level","<n>","7=LOG-DEBUG .. 0=LOG_EMERG - default: 5 (LOG_NOTICE)");
+    struct arg_int *loglevel = arg_int0("l","log-level","<n>","7=LOG-DEBUG .. 0=LOG_EMERG - default: 6 (LOG_INFO)");
     struct arg_lit *vers = arg_lit0("v","version","print version information and exit");
     struct arg_end *end  = arg_end(20);
 

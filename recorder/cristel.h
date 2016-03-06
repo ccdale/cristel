@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Sunday  7 February 2016, 09:03:29
+ * Last Modified: Saturday  5 March 2016, 07:33:43
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -35,7 +35,7 @@
 
 /* globals */
 struct ConfigItem *configuration;
-int llevel=7;
+int llevel=6;
 int timetodie=0;
 
 char *argprocessing(int argc,char **argv);

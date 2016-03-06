@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:07:48
- * Last Modified: Sunday  6 September 2015, 09:29:02
+ * Last Modified: Sunday  6 March 2016, 07:28:24
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -46,31 +46,38 @@ static void prepare_streamer_data(void)/*{{{*/
     SD.connected=0;
     SD.authenticated=0;
     SD.errornumber=0;
+    /*
     SD.ver=xmalloc(10);
     SD.errmsg=xmalloc(MAX_LINE_LENGTH);
+    SD.errmsg[0]='\0';
+    */
     SD.line=xmalloc(MAX_LINE_LENGTH);
+    SD.line[0]='\0';
     SD.data=xmalloc(RCV_BUFFER_LENGTH);
+    SD.data[0]='\0';
 }/*}}}*/
 static void free_streamer_data(void)/*{{{*/
 {
     if(SD.socketfp){
-        DBG("Closing socket");
+        DEBUG("Closing socket");
         fclose(SD.socketfp);
     }
+    /*
     if(SD.ver){
-        DBGL("free SD.ver: %s",SD.ver);
+        DEBUG("free SD.ver: %s",SD.ver);
         free(SD.ver);
     }
     if(SD.errmsg){
-        DBGL("free SD.errmsg: %s",SD.errmsg);
+        DEBUG("free SD.errmsg: %s",SD.errmsg);
         free(SD.errmsg);
     }
+    */
     if(SD.line){
-        DBGL("free SD.line: %s",SD.line);
+        DEBUG("free SD.line: %s",SD.line);
         free(SD.line);
     }
     if(SD.data){
-        DBGL("free SD.data: %s",SD.data);
+        DEBUG("free SD.data: %s",SD.data);
         free(SD.data);
     }
 }/*}}}*/
@@ -119,12 +126,12 @@ static int dvbc_connect(int adaptornum)/*{{{*/
     }
     INFO("Socket connected to host %s port %d", host, REMOTEINTERFACE_PORT + adaptornum);
     SD.socketfp = fdopen(socketfd, "r+");
+    SD.connected=1;
     rcvData();
     if(SD.errornumber != 0){
         WARN("%s",SD.errmsg);
         return SD.errornumber;
     }
-    SD.connected=1;
     SD.authenticated=Authenticate(username,password);
     return 0;
 }/*}}}*/
@@ -140,7 +147,7 @@ static int sendData(char *data)/*{{{*/
 
     if(SD.connected){
         if(len){
-            DBGL("Sending data '%s'",data);
+            DEBUG("Sending data '%s'",data);
             if(data[len-1]=='\n'){
                 fprintf(SD.socketfp,"%s",data);
             }else{
@@ -155,6 +162,7 @@ static int request(char *cmd)/*{{{*/
     int numlines=0;
     size_t len=0;
 
+    DEBUG("in request: cmd %s",cmd)
     len=sendData(cmd);
     if(len==strlen(cmd)){
         numlines=rcvData();
@@ -172,8 +180,10 @@ static int rcvData(void)/*{{{*/
     responselineStart=configValue("dvbbanner");
     rls=strlen(responselineStart);
     if(SD.connected){
+        DEBUG("rcvData: socket is connected");
         while(!feof(SD.socketfp)){
             if(fgets(SD.line,MAX_LINE_LENGTH,SD.socketfp)){
+                DEBUG("rcvd: %s",SD.line);
                 if(strncmp(SD.line,responselineStart,rls-1)==0){
                     /* last line */
                     chomp(SD.line);
@@ -181,13 +191,15 @@ static int rcvData(void)/*{{{*/
                     if(seperator){
                         *seperator=0;
                         start=SD.line+rls;
-                        SD.ver=strdup(start);
+                        /* SD.ver=strdup(start); */
+                        SD.ver=start;
                         start=seperator+1;
                         seperator=strchr(seperator+1,' ');
                         if(seperator)
                         {
                             *seperator=0;
-                            SD.errmsg=strdup(seperator+1);
+                            /* SD.errmsg=strdup(seperator+1); */
+                            SD.errmsg=seperator+1;
                         }
                         SD.errornumber=atoi(start);
                         numlines++;
@@ -200,7 +212,13 @@ static int rcvData(void)/*{{{*/
                 }
             }
         }
+        if(feof(SD.socketfp)){
+            DEBUG("rcvData: socket feof");
+        }
+    }else{
+        WARN("rcvData: SD is not connected");
     }
+    DEBUG("received %d lines",numlines);
     return numlines;
 }/*}}}*/
 static void addLineToBuffer()/*{{{*/
@@ -211,25 +229,169 @@ static void addLineToBuffer()/*{{{*/
     bufflen=strlen(SD.data);
     cn=bufflen+strlen(SD.line);
     if(cn<RCV_BUFFER_LENGTH){
-        sprintf(SD.data+bufflen,"%s\n",SD.line);
+        sprintf(SD.data+bufflen,"%s",SD.line);
     }else{
         WARN("buffer is undersized");
-        DBG(SD.line);
+        DEBUG("%s",SD.line);
     }
 }/*}}}*/
-char * lsservices(int adaptornum)/*{{{*/
+struct ServiceInfo *newServiceInfo(void)/*{{{*/
 {
-    char *services=NULL;
+    struct ServiceInfo *SI;
+
+    SI=xmalloc(sizeof(struct ServiceInfo));
+    SI->type=0;
+    SI->mux=0;
+    SI->pmtpid=0;
+    SI->name=NULL;
+    SI->source=NULL;
+    SI->ID=NULL;
+    return SI;
+}/*}}}*/
+void freeServiceInfo(struct ServiceInfo *SI)/*{{{*/
+{
+    if(SI){
+        if(SI->name){
+            free(SI->name);
+        }
+        if(SI->source){
+            free(SI->source);
+        }
+        if(SI->ID){
+            free(SI->ID);
+        }
+        free(SI);
+    }
+}/*}}}*/
+struct ServiceInfo *serviceInfoParse(char *si)/*{{{*/
+{
+    /*
+     * Name                : "BBC TWO"
+     * Provider            : "(null)"
+     * Type                : Digital TV
+     * Conditional Access? : Free to Air
+     * ID                  : 233a.104d.10bf
+     * Multiplex UID       : 1454726187
+     * Source              : 0x10bf
+     * Default Authority   : "fp.bbc.co.uk"
+     * PMT PID             : 0x00c8
+     */
+    struct ServiceInfo *SI;
+    char *line;
+    char *linetok="\n";
+    char *linesave;
+    char *word;
+    char *wordtok=":";
+    char *wordsave;
+    char *key;
+    char *val;
+    char *tmp;
+
+    SI=newServiceInfo();
+
+    /* split it up into lines */
+    line=strtok_r(si,linetok,&linesave);
+    while(line){
+        /* split each line at the colon */
+        word=strtok_r(line,wordtok,&wordsave);
+        tmp=strdup(word);
+        key=trim(tmp);
+        word=strtok_r(NULL,wordtok,&wordsave);
+        val=trim(word);
+        updateServiceInfo(SI,key,val);
+        free(tmp);
+        /* next line */
+        line=strtok_r(NULL,linetok,&linesave);
+    }
+    return SI;
+}/*}}}*/
+void updateServiceInfo(struct ServiceInfo *SI,char *key,char *val)/*{{{*/
+{
+    DEBUG("Parse: key: %s, val: %s",key,val);
+    if(strcmp(key,"Name")==0){
+        SI->name=strdup(val);
+        DEBUG("Service Name: %s",SI->name);
+    }else if(strcmp(key,"Type")==0){
+        if(strcmp(val,"Digital TV")==0){
+            SI->type=1;
+            DEBUG("Type: Digital TV");
+        }else if(strcmp(val,"Digital Radio")==0){
+            SI->type=2;
+            DEBUG("Type: Digital Radio");
+        }else if(strcmp(val,"Data")==0){
+            SI->type=3;
+            DEBUG("Type: Data");
+        }else{
+            SI->type=255;
+            WARN("Type: Unknown type: key: %s, val: %s",key,val);
+        }
+    }else if(strcmp(key,"Conditional Access?")==0){
+        if(strcmp(val,"Free to Air")==0){
+            SI->ca=1;
+            DEBUG("CA: Free to Air");
+        }else{
+            SI->ca=255;
+            DEBUG("CA: Encrypted");
+        }
+    }else if(strcmp(key,"ID")==0){
+        SI->ID=strdup(val);
+        DEBUG("ID: %s",SI->ID);
+    }else if(strcmp(key,"Multiplex UID")==0){
+        SI->mux=atoi(val);
+        DEBUG("Mux: %d",SI->mux);
+    }else if(strcmp(key,"Source")==0){
+        SI->source=strdup(val);
+        DEBUG("Source: %s",SI->source);
+    }else if(strcmp(key,"PMT PID")==0){
+        SI->pmtpid=atoi(val);
+        DEBUG("PMT PID %d",SI->pmtpid);
+    }
+}/*}}}*/
+struct ServiceInfo *getServiceInfo(char *service)/*{{{*/
+{
+    struct ServiceInfo *SI;
+    char *si;
+    char *cmd;
+
+    cmd=xmalloc(MAX_LINE_LENGTH);
+    sprintf(cmd,"serviceinfo '%s'",service);
+    si=dvbcommand(cmd,0);
+    SI=serviceInfoParse(si);
+    free(si);
+    free(cmd);
+    return SI;
+}/*}}}*/
+char * dvbcommand(char *cmd,int adaptornum)/*{{{*/
+{
+    char *output=NULL;
     int nl;
 
     setupConnect(adaptornum);
     if(SD.authenticated){
-        sprintf(SD.line,"%s","lsservices");
+        sprintf(SD.line,"%s",cmd);
         nl=request(SD.line);
         if(nl>0){
-            services=strdup(SD.data);
+            output=strdup(SD.data);
         }
     }
     closeConnect();
+    return output;
+}/*}}}*/
+char * lsservices(int adaptornum)/*{{{*/
+{
+    char *services=NULL;
+    services=dvbcommand("lsservices",adaptornum);
     return services;
+}/*}}}*/
+char * lsmuxes(int adaptornum)/*{{{*/
+{
+    char *muxes=NULL;
+    muxes=dvbcommand("lsmuxes",adaptornum);
+    return muxes;
+}/*}}}*/
+char * lssfs(int adaptornum)/*{{{*/
+{
+    char *filters=NULL;
+    filters=dvbcommand("lssfs",adaptornum);
+    return filters;
 }/*}}}*/
