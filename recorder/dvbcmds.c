@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Sunday 18 September 2016, 11:42:09
+ * Last Modified: Sunday 18 September 2016, 21:27:43
  */
 
 #include "dvbcmds.h"
@@ -188,6 +188,7 @@ struct AdaptorStatus *adaptorStatus(int adaptornum)/*{{{*/
     DEBUG("lssfs: %s",lines);
     AI->numfilters=numLines(lines);
     DEBUG("num filters (lines): %d",AI->numfilters);
+    free(lines);
     AI->recording=0;
     AI->FS=newFilterStatusArray(AI->numfilters);
     AI->mux=0;
