@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:07:48
- * Last Modified: Sunday 18 September 2016, 11:08:22
+ * Last Modified: Sunday 18 September 2016, 11:11:00
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -202,6 +202,7 @@ int rcvData(void)/*{{{*/
                             SD.errmsg=seperator+1;
                         }
                         SD.errornumber=atoi(start);
+                        numlines++;
                     }
                     break;
                 }else{
