@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 12:44:26
  * Version: 0.00
  * Revision: $Id: tools.h 46 2013-02-15 07:08:18Z chris.charles.allison@gmail.com $
- * Last Modified: Friday 17 July 2015, 08:07:18
+ * Last Modified: Monday  7 March 2016, 12:31:10
  */
 
 #include "defs.h"
@@ -36,3 +36,4 @@ char *rtrimt(char *str);
 char* lefttrim(char *string, char junk);
 char *righttrim(char *string, char junk);
 int readPidFile(char *fn);
+int numLines(char *lines);

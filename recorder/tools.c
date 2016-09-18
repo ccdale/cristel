@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Friday 17 July 2015, 08:40:07
+ * Last Modified: Sunday 18 September 2016, 11:28:50
  */
 
 #include "tools.h"
@@ -154,7 +154,11 @@ long filesize(char *filename)/* {{{1 */
         fsize=statbuf->st_size;
         /* syslog(LOG_DEBUG,"file size: %ld",fsize); */
     }else{
-        syslog(LOG_ERR,"Cannot read file %s",filename);
+        /* it is not an error if the file cannot be
+         * read, if this function is used as a 
+         * file_exists function
+         */
+        DEBUG("Cannot read file %s",filename);
     }
     /* syslog(LOG_DEBUG,"freeing stat buffer"); */
     free(statbuf);
@@ -296,4 +300,25 @@ int readPidFile(char *fn)/*{{{*/
     }
     free(buf);
     return pid;
+}/*}}}*/
+int numLines(char *lines)/*{{{*/
+{
+    char *tok="\n";
+    char *tlines;
+    char *hlines;
+    char *token;
+    int nlines=0;
+
+    tlines=strdup(lines);
+    hlines=tlines;
+    token=strchr(tlines,'\n');
+    if(token){
+        token=strtok(tlines,tok);
+        while(token){
+            nlines++;
+            token=strtok(NULL,tok);
+        }
+    }
+    free(hlines);
+    return nlines;
 }/*}}}*/

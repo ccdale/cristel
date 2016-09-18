@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Sunday  7 February 2016, 09:03:29
+ * Last Modified: Monday  7 March 2016, 04:38:07
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -32,10 +32,11 @@
 #include "configfile.h"
 #include <argtable2.h>
 #include "dvbctrl.h"
+#include "dvbcmds.h"
 
 /* globals */
 struct ConfigItem *configuration;
-int llevel=7;
+int llevel=6;
 int timetodie=0;
 
 char *argprocessing(int argc,char **argv);

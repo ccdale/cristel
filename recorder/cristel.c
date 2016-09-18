@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Sunday  7 February 2016, 09:08:33
+ * Last Modified: Sunday 18 September 2016, 09:36:07
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -30,6 +30,7 @@ void mainLoop()/*{{{*/
 {
     int cc=0;
     char *svc;
+    struct ServiceInfo *SI;
 
     /*
     dvbc_connect(0);
@@ -39,10 +40,29 @@ void mainLoop()/*{{{*/
             break;
         }
         sleep(1);
-        if((++cc)>30){
-            svc=lsservices(0);
+        if((++cc)>10){
+            cc=selectlcn(0,1);
+            cc=selectlcn(1,3);
+            SI=getServiceInfo("BBC TWO");
+            DEBUG("SI: Name: %s",SI->name);
+            DEBUG("SI: Type: %d",SI->type);
+            DEBUG("SI: ca: %d",SI->ca);
+            DEBUG("SI: ID: %s",SI->ID);
+            DEBUG("SI: mux: %d",SI->mux);
+            DEBUG("SI: Source: %s",SI->source);
+            freeServiceInfo(SI);
+            int ff=safeToRecord(0,"ITV");
+            DEBUG("safe to record free filter on adaptor 0: %d",ff);
+            ff=safeToRecord(1,"ITV");
+            DEBUG("safe to record free filter on adaptor 1: %d",ff);
+            /*
+            svc=dvbcommand("serviceinfo 'BBC TWO'",0);
             INFO("%s",svc);
             free(svc);
+            svc=lsmuxes(0);
+            INFO("%s",svc);
+            free(svc);
+            */
             break;
         }
     }
@@ -141,7 +161,7 @@ char *argprocessing(int argc,char **argv)/* {{{ */
     /* Define the allowable command line options, collecting them in argtable[] */
     struct arg_file *conf = arg_file0("c","conf-file",PROGCONF,"configuration file");
     struct arg_lit *help = arg_lit0("h","help","print this help and exit");
-    struct arg_int *loglevel = arg_int0("l","log-level","<n>","7=LOG-DEBUG .. 0=LOG_EMERG - default: 5 (LOG_NOTICE)");
+    struct arg_int *loglevel = arg_int0("l","log-level","<n>","7=LOG-DEBUG .. 0=LOG_EMERG - default: 6 (LOG_INFO)");
     struct arg_lit *vers = arg_lit0("v","version","print version information and exit");
     struct arg_end *end  = arg_end(20);
 
@@ -161,7 +181,7 @@ char *argprocessing(int argc,char **argv)/* {{{ */
             /* print the help/usage statement and exit */
             printf("Usage: %s",PROGNAME);
             arg_print_syntax(stdout,argtable,"\n");
-            printf("%s is a daemon to listen for requests to run puppet on this host.\n\n",PROGNAME);
+            printf("%s is a daemon to manage tv recordings from the dvb adaptor(s).\n\n",PROGNAME);
             arg_print_glossary(stdout,argtable,"  %-20s %s\n");
             /* free up memory used for argument processing */
             arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
