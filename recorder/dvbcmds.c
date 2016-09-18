@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Sunday 18 September 2016, 09:18:19
+ * Last Modified: Sunday 18 September 2016, 09:18:45
  */
 
 #include "dvbcmds.h"
@@ -256,7 +256,7 @@ void freeFilterStatus(struct FilterStatus *FI)/*{{{*/
         free(FI->name);
     }
     if(FI->mrl){
-        free(FI-mrl);
+        free(FI->mrl);
     }
     if(FI->channel){
         free(FI->channel);
