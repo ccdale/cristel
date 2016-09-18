@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Sunday 18 September 2016, 09:11:05
+ * Last Modified: Sunday 18 September 2016, 09:12:47
  */
 
 #include "dvbcmds.h"
@@ -205,7 +205,7 @@ struct AdaptorStatus *adaptorStatus(int adaptornum)/*{{{*/
 }/*}}}*/
 struct FilterStatus **newFilterStatusArray(int numfilters)/*{{{*/
 {
-    void *FI;
+    struct FilterStatus **FI;
     int cn;
 
     FI=xmalloc(sizeof(struct FilterStatus *) * numfilters);
