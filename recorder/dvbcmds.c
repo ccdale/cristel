@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Monday  7 March 2016, 14:16:27
+ * Last Modified: Sunday 18 September 2016, 09:06:21
  */
 
 #include "dvbcmds.h"
@@ -178,7 +178,6 @@ int safeToRecord(int adaptornum,char *channel)/*{{{*/
 struct AdaptorStatus *adaptorStatus(int adaptornum)/*{{{*/
 {
     struct AdaptorStatus *AI;
-    struct FilterStatus **FS;
     char *lines;
     int cn;
 
@@ -189,21 +188,34 @@ struct AdaptorStatus *adaptorStatus(int adaptornum)/*{{{*/
     AI->numfilters=numLines(lines);
     DEBUG("num filters (lines): %d",AI->numfilters);
     AI->recording=0;
-    AI->FS[0]=newFilterStatusArray(AI->numfilters);
-    FS=AI->FS;
+    AI->FS=newFilterStatusArray(AI->numfilters);
+    AI->mux=0;
     for(cn=0; cn<AI->numfilters; cn++){
-        fillFilterStatus(adaptornum,FS[cn],cn);
-        if(strcmp("null://",FS[cn]->mrl)!=0){
+        fillFilterStatus(adaptornum,AI->FS[cn],cn);
+        if(strcmp("null://",AI->FS[cn]->mrl)!=0){
             AI->recording++;
         }
+        if(AI->mux==0){
+            if(AI->FS[cn]->channel){
+                AI->mux=muxforchannel(AI->FS[cn]->channel);
+            }
+        }
     }
-    AI->mux=muxforchannel(AI->FS[0]->channel);
     return AI;
 }/*}}}*/
-void freeAdaptorStatus(struct AdaptorStatus *AS)/*{{{*/
+struct FilterStatus **newFilterStatusArray(int numfilters)/*{{{*/
 {
-    freeFilterStatusArray(AS->FS,AS->numfilters);
-    free(AS);
+    void *FI;
+    int cn;
+
+    FI=xmalloc(sizeof(struct *FilterStatus) * numfilters);
+    for(cn=0; cn<numfilters; cn++){
+        FI[cn]->num=cn;
+        FI[cn]->name=NULL;
+        FI[cn]->channel=NULL;
+        FI[cn]->mrl=NULL;
+    }
+    return FI;
 }/*}}}*/
 void fillFilterStatus(int adaptornum,struct FilterStatus *FS,int num)/*{{{*/
 {
@@ -226,31 +238,27 @@ void fillFilterStatus(int adaptornum,struct FilterStatus *FS,int num)/*{{{*/
     FS->channel=getsf(adaptornum,FS->num);
     FS->mrl=getsfmrl(adaptornum,FS->name);
 }/*}}}*/
-struct FilterStatus *newFilterStatusArray(int numfilters)/*{{{*/
+void freeAdaptorStatus(struct AdaptorStatus *AS)/*{{{*/
 {
-    void *FI;
+    struct FilterStatus **FI;
+    int cn;
 
-    FI=xmalloc(sizeof(struct FilterStatus) * numfilters);
-    return FI;
+    FI=AS->FS;
+    for(cn=0; cn<AS->numfilters; cn++){
+        freeFilterStatus(AS->FS[cn]);
+    }
+    free(AS->FS);
+    free(AS);
 }/*}}}*/
-void freeFilterStatusArray(struct FilterStatus *FI,int numfilters)/*{{{*/
+void freeFilterStatus(struct FilterStatus *FI)/*{{{*/
 {
-    struct FilterStatus *HFI;
-    int filternum=0;
-
-    HFI=FI;
-    do{
-        if(FI->name){
-            free(FI->name);
-        }
-        if(FI->mrl){
-            free(FI->mrl);
-        }
-        if(FI->mrl){
-            free(FI->mrl);
-        }
-        filternum++;
-        FI++;
-    }while(filternum<numfilters);
-    free(HFI);
+    if(FI->name){
+        free(FI->name);
+    }
+    if(FI->mrl){
+        free(FI-mrl);
+    }
+    if(FI->channel){
+        free(FI->channel);
+    }
 }/*}}}*/

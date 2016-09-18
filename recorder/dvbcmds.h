@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:38:36
- * Last Modified: Monday  7 March 2016, 13:28:55
+ * Last Modified: Sunday 18 September 2016, 09:05:43
  */
 
 #include "dvbctrl.h"
@@ -32,7 +32,7 @@ int selectlcn(int adaptornum,int channelnum);
 int findfreefilter(struct AdaptorStatus *AS);
 int safeToRecord(int adaptornum,char *channel);
 struct AdaptorStatus *adaptorStatus(int adaptornum);
-void freeAdaptorStatus(struct AdaptorStatus *AS);
+struct FilterStatus **newFilterStatusArray(int numfilters);
 void fillFilterStatus(int adaptornum,struct FilterStatus *FS,int num);
-struct FilterStatus *newFilterStatusArray(int numfilters);
-void freeFilterStatusArray(struct FilterStatus *FI,int numfilters);
+void freeAdaptorStatus(struct AdaptorStatus *AS);
+void freeFilterStatus(struct FilterStatus *FI);
