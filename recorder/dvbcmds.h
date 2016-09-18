@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:38:36
- * Last Modified: Sunday 18 September 2016, 09:05:43
+ * Last Modified: Sunday 18 September 2016, 09:50:20
  */
 
 #include "dvbctrl.h"
@@ -36,3 +36,5 @@ struct FilterStatus **newFilterStatusArray(int numfilters);
 void fillFilterStatus(int adaptornum,struct FilterStatus *FS,int num);
 void freeAdaptorStatus(struct AdaptorStatus *AS);
 void freeFilterStatus(struct FilterStatus *FI);
+void logAdaptorStatus(struct AdaptorStatus *AS);
+void logFilterStatus(struct FilterStatus *FS);

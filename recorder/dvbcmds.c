@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Sunday 18 September 2016, 09:18:45
+ * Last Modified: Sunday 18 September 2016, 09:53:58
  */
 
 #include "dvbcmds.h"
@@ -262,3 +262,35 @@ void freeFilterStatus(struct FilterStatus *FI)/*{{{*/
         free(FI->channel);
     }
 }/*}}}*/
+void logAdaptorStatus(struct AdaptorStatus *AS)/*{{{*/
+{
+    int cn;
+
+    INFO("Adaptor Status: Adaptor: %d",AS->adaptornum);
+    INFO("Numfilters: %d",AS->numfilters);
+    INFO("recording: %d",AS->recording);
+    INFO("mux: %d",AS->mux);
+
+    for(cn=0; cn<AS->numfilters; cn++){
+        logFilterStatus(AS->FS[cn]);
+    }
+}/*}}}*/
+void logFilterStatus(struct FilterStatus *FS)/*{{{*/
+{
+    INFO("  FS: filter num: %d",FS->num);
+    if(FS->name){
+        INFO("  FS: name: %s",FS->name);
+    }else{
+        INFO("  FS: name not set");
+    }
+    if(FS->channel){
+        INFO("  FS: channel: %s",FS->channel);
+    }else{
+        INFO("  FS: channel not set");
+    }
+    if(FS->mrl){
+        INFO("  FS: mrl: %s",FS->mrl);
+    }else{
+        INFO("  FS: mrl not set");
+    }
+}
