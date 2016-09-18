@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Saturday  5 March 2016, 07:33:43
+ * Last Modified: Monday  7 March 2016, 04:38:07
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -32,6 +32,7 @@
 #include "configfile.h"
 #include <argtable2.h>
 #include "dvbctrl.h"
+#include "dvbcmds.h"
 
 /* globals */
 struct ConfigItem *configuration;

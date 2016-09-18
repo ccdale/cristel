@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Saturday  5 March 2016, 16:50:31
+ * Last Modified: Monday  7 March 2016, 13:45:21
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -41,6 +41,8 @@ void mainLoop()/*{{{*/
         }
         sleep(1);
         if((++cc)>10){
+            cc=selectlcn(0,1);
+            cc=selectlcn(1,3);
             SI=getServiceInfo("BBC TWO");
             DEBUG("SI: Name: %s",SI->name);
             DEBUG("SI: Type: %d",SI->type);
@@ -49,6 +51,8 @@ void mainLoop()/*{{{*/
             DEBUG("SI: mux: %d",SI->mux);
             DEBUG("SI: Source: %s",SI->source);
             freeServiceInfo(SI);
+            int ff=safeToRecord(0,"ITV");
+            DEBUG("safe to record free filter: %d",ff);
             /*
             svc=dvbcommand("serviceinfo 'BBC TWO'",0);
             INFO("%s",svc);

@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:07:48
- * Last Modified: Sunday  6 March 2016, 07:28:24
+ * Last Modified: Monday  7 March 2016, 12:08:28
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -31,16 +31,16 @@
 
 static struct StreamerData SD;
 
-static void setupConnect(int adaptornum)/*{{{*/
+void setupConnect(int adaptornum)/*{{{*/
 {
     prepare_streamer_data();
     dvbc_connect(adaptornum);
 }/*}}}*/
-static void closeConnect()/*{{{*/
+void closeConnect()/*{{{*/
 {
     free_streamer_data();
 }/*}}}*/
-static void prepare_streamer_data(void)/*{{{*/
+void prepare_streamer_data(void)/*{{{*/
 {
     SD.socketfp=NULL;
     SD.connected=0;
@@ -56,7 +56,7 @@ static void prepare_streamer_data(void)/*{{{*/
     SD.data=xmalloc(RCV_BUFFER_LENGTH);
     SD.data[0]='\0';
 }/*}}}*/
-static void free_streamer_data(void)/*{{{*/
+void free_streamer_data(void)/*{{{*/
 {
     if(SD.socketfp){
         DEBUG("Closing socket");
@@ -81,7 +81,7 @@ static void free_streamer_data(void)/*{{{*/
         free(SD.data);
     }
 }/*}}}*/
-static int dvbc_connect(int adaptornum)/*{{{*/
+int dvbc_connect(int adaptornum)/*{{{*/
 {
     socklen_t address_len;
     struct sockaddr_storage address;
@@ -135,13 +135,13 @@ static int dvbc_connect(int adaptornum)/*{{{*/
     SD.authenticated=Authenticate(username,password);
     return 0;
 }/*}}}*/
-static int Authenticate(char *username, char *password)/*{{{*/
+int Authenticate(char *username, char *password)/*{{{*/
 {
     sprintf(SD.line, "auth %s %s", username, password);
     request(SD.line);
     return (SD.errornumber==0);
 }/*}}}*/
-static int sendData(char *data)/*{{{*/
+int sendData(char *data)/*{{{*/
 {
     int len=strlen(data);
 
@@ -157,7 +157,7 @@ static int sendData(char *data)/*{{{*/
     }
     return len;
 }/*}}}*/
-static int request(char *cmd)/*{{{*/
+int request(char *cmd)/*{{{*/
 {
     int numlines=0;
     size_t len=0;
@@ -169,7 +169,7 @@ static int request(char *cmd)/*{{{*/
     }
     return numlines;
 }/*}}}*/
-static int rcvData(void)/*{{{*/
+int rcvData(void)/*{{{*/
 {
     char *seperator;
     char *start;
@@ -221,7 +221,7 @@ static int rcvData(void)/*{{{*/
     DEBUG("received %d lines",numlines);
     return numlines;
 }/*}}}*/
-static void addLineToBuffer()/*{{{*/
+void addLineToBuffer()/*{{{*/
 {
     int cn;
     int bufflen;
@@ -277,15 +277,10 @@ struct ServiceInfo *serviceInfoParse(char *si)/*{{{*/
      * PMT PID             : 0x00c8
      */
     struct ServiceInfo *SI;
+    struct ColonParse *CP;
     char *line;
     char *linetok="\n";
     char *linesave;
-    char *word;
-    char *wordtok=":";
-    char *wordsave;
-    char *key;
-    char *val;
-    char *tmp;
 
     SI=newServiceInfo();
 
@@ -293,17 +288,33 @@ struct ServiceInfo *serviceInfoParse(char *si)/*{{{*/
     line=strtok_r(si,linetok,&linesave);
     while(line){
         /* split each line at the colon */
-        word=strtok_r(line,wordtok,&wordsave);
-        tmp=strdup(word);
-        key=trim(tmp);
-        word=strtok_r(NULL,wordtok,&wordsave);
-        val=trim(word);
-        updateServiceInfo(SI,key,val);
-        free(tmp);
+        CP=parseColon(line);
+        updateServiceInfo(SI,CP->key,CP->val);
+        if(CP->tmp){
+            free(CP->tmp);
+        }
+        free(CP);
         /* next line */
         line=strtok_r(NULL,linetok,&linesave);
     }
     return SI;
+}/*}}}*/
+struct ColonParse *parseColon(char *line)/*{{{*/
+{
+    char *word;
+    char *wordtok=":";
+    char *wordsave;
+
+    struct ColonParse *CP;
+
+    CP=xmalloc(sizeof(struct ColonParse));
+
+    word=strtok_r(line,wordtok,&wordsave);
+    CP->tmp=strdup(word);
+    CP->key=trim(CP->tmp);
+    word=strtok_r(NULL,wordtok,&wordsave);
+    CP->val=lefttrim(righttrim(trim(word),'"'),'"');
+    return CP;
 }/*}}}*/
 void updateServiceInfo(struct ServiceInfo *SI,char *key,char *val)/*{{{*/
 {
@@ -376,22 +387,4 @@ char * dvbcommand(char *cmd,int adaptornum)/*{{{*/
     }
     closeConnect();
     return output;
-}/*}}}*/
-char * lsservices(int adaptornum)/*{{{*/
-{
-    char *services=NULL;
-    services=dvbcommand("lsservices",adaptornum);
-    return services;
-}/*}}}*/
-char * lsmuxes(int adaptornum)/*{{{*/
-{
-    char *muxes=NULL;
-    muxes=dvbcommand("lsmuxes",adaptornum);
-    return muxes;
-}/*}}}*/
-char * lssfs(int adaptornum)/*{{{*/
-{
-    char *filters=NULL;
-    filters=dvbcommand("lssfs",adaptornum);
-    return filters;
 }/*}}}*/

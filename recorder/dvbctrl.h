@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:09:19
- * Last Modified: Sunday  6 March 2016, 07:27:22
+ * Last Modified: Monday  7 March 2016, 14:11:03
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -26,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef DVBCTRL_H
+#define DVBCTRL_H
 
 #include "defs.h"
 #include "macros.h"
@@ -56,23 +58,40 @@ struct ServiceInfo {
     char *source;
     char *ID;
 };
+struct ColonParse {
+    char *key;
+    char *val;
+    char *tmp;
+};
+struct FilterStatus {
+    int num;
+    char *name;
+    char *channel;
+    char *mrl;
+};
+struct AdaptorStatus {
+    int adaptornum;
+    int numfilters;
+    int recording;
+    int mux;
+    struct FilterStatus **FS;
+};
+#endif
 
-static void setupConnect(int adapternum);
-static void closeConnect();
-static void prepare_streamer_data(void);
-static void free_streamer_data(void);
-static int dvbc_connect(int adapternum);
-static int Authenticate(char *username, char *password);
-static int sendData(char *cmd);
-static int request(char *cmd);
-static int rcvData(void);
-static void addLineToBuffer();
+void setupConnect(int adapternum);
+void closeConnect();
+void prepare_streamer_data(void);
+void free_streamer_data(void);
+int dvbc_connect(int adapternum);
+int Authenticate(char *username, char *password);
+int sendData(char *cmd);
+int request(char *cmd);
+int rcvData(void);
+void addLineToBuffer();
 struct ServiceInfo *newServiceInfo(void);
 void freeServiceInfo(struct ServiceInfo *SI);
 struct ServiceInfo *serviceInfoParse(char *si);
+struct ColonParse *parseColon(char *line);
 void updateServiceInfo(struct ServiceInfo *SI,char *key,char *val);
 struct ServiceInfo *getServiceInfo(char *service);
 char * dvbcommand(char *cmd,int adaptornum);
-char * lsservices(int adaptornum);
-char * lsmuxes(int adaptornum);
-char * lssfs(int adaptornum);
