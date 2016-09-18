@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Sunday 18 September 2016, 09:06:21
+ * Last Modified: Sunday 18 September 2016, 09:11:05
  */
 
 #include "dvbcmds.h"
@@ -208,8 +208,9 @@ struct FilterStatus **newFilterStatusArray(int numfilters)/*{{{*/
     void *FI;
     int cn;
 
-    FI=xmalloc(sizeof(struct *FilterStatus) * numfilters);
+    FI=xmalloc(sizeof(struct FilterStatus *) * numfilters);
     for(cn=0; cn<numfilters; cn++){
+        FI[cn]=xmalloc(sizeof(struct FilterStatus));
         FI[cn]->num=cn;
         FI[cn]->name=NULL;
         FI[cn]->channel=NULL;
@@ -246,6 +247,7 @@ void freeAdaptorStatus(struct AdaptorStatus *AS)/*{{{*/
     FI=AS->FS;
     for(cn=0; cn<AS->numfilters; cn++){
         freeFilterStatus(AS->FS[cn]);
+        free(AS->FS[cn])
     }
     free(AS->FS);
     free(AS);
