@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:07:48
- * Last Modified: Monday  7 March 2016, 12:08:28
+ * Last Modified: Sunday 18 September 2016, 09:57:58
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -124,7 +124,7 @@ int dvbc_connect(int adaptornum)/*{{{*/
         WARN("Failed to connect to host %s port %d", host, REMOTEINTERFACE_PORT + adaptornum);
         return 1;
     }
-    INFO("Socket connected to host %s port %d", host, REMOTEINTERFACE_PORT + adaptornum);
+    DEBUG("Socket connected to host %s port %d", host, REMOTEINTERFACE_PORT + adaptornum);
     SD.socketfp = fdopen(socketfd, "r+");
     SD.connected=1;
     rcvData();
