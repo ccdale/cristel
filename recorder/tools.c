@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Monday  7 March 2016, 12:35:53
+ * Last Modified: Sunday 18 September 2016, 11:28:50
  */
 
 #include "tools.h"
@@ -312,7 +312,6 @@ int numLines(char *lines)/*{{{*/
     tlines=strdup(lines);
     hlines=tlines;
     token=strchr(tlines,'\n');
-    nlines++;
     if(token){
         token=strtok(tlines,tok);
         while(token){
