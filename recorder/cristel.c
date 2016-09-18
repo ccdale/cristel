@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Monday  7 March 2016, 13:45:21
+ * Last Modified: Sunday 18 September 2016, 09:29:15
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -179,7 +179,7 @@ char *argprocessing(int argc,char **argv)/* {{{ */
             /* print the help/usage statement and exit */
             printf("Usage: %s",PROGNAME);
             arg_print_syntax(stdout,argtable,"\n");
-            printf("%s is a daemon to listen for requests to run puppet on this host.\n\n",PROGNAME);
+            printf("%s is a daemon to manage tv recordings from the dvb adaptor(s).\n\n",PROGNAME);
             arg_print_glossary(stdout,argtable,"  %-20s %s\n");
             /* free up memory used for argument processing */
             arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
