@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Sunday 18 September 2016, 09:53:58
+ * Last Modified: Sunday 18 September 2016, 09:55:12
  */
 
 #include "dvbcmds.h"
@@ -164,6 +164,7 @@ int safeToRecord(int adaptornum,char *channel)/*{{{*/
     struct AdaptorStatus *AS;
 
     AS=adaptorStatus(adaptornum);
+    logAdaptorStatus(AS);
     if(AS->recording==0){
         ret=0;
     }else{
