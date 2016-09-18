@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Sunday 18 September 2016, 09:14:29
+ * Last Modified: Sunday 18 September 2016, 09:18:19
  */
 
 #include "dvbcmds.h"
@@ -239,16 +239,16 @@ void fillFilterStatus(int adaptornum,struct FilterStatus *FS,int num)/*{{{*/
     FS->channel=getsf(adaptornum,FS->num);
     FS->mrl=getsfmrl(adaptornum,FS->name);
 }/*}}}*/
-void freeAdaptorStatus(struct AdaptorStatus *AS)/*{{{*/
+void freeAdaptorStatus(struct AdaptorStatus *AStatus)/*{{{*/
 {
     int cn;
 
-    for(cn=0; cn<AS->numfilters; cn++){
-        freeFilterStatus(AS->FS[cn]);
-        free(AS->FS[cn])
+    for(cn=0; cn<AStatus->numfilters; cn++){
+        freeFilterStatus(AStatus->FS[cn]);
+        free(AStatus->FS[cn]);
     }
-    free(AS->FS);
-    free(AS);
+    free(AStatus->FS);
+    free(AStatus);
 }/*}}}*/
 void freeFilterStatus(struct FilterStatus *FI)/*{{{*/
 {
