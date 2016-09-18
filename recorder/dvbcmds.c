@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Sunday 18 September 2016, 09:55:12
+ * Last Modified: Sunday 18 September 2016, 10:02:11
  */
 
 #include "dvbcmds.h"
@@ -194,6 +194,8 @@ struct AdaptorStatus *adaptorStatus(int adaptornum)/*{{{*/
     for(cn=0; cn<AI->numfilters; cn++){
         fillFilterStatus(adaptornum,AI->FS[cn],cn);
         if(strcmp("null://",AI->FS[cn]->mrl)!=0){
+            INFO("adaptor %d is currently recording on filter %s",adaptornum,AI->FS[cn]->name);
+            INFO("mrl: %s",AI->FS[cn]->mrl);
             AI->recording++;
         }
         if(AI->mux==0){
