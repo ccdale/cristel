@@ -1,5 +1,5 @@
 cristel
 =======
 
-A DVB recorder written in python and php.
+A DVB recorder written in c and php.
 
