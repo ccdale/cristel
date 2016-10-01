@@ -5,6 +5,7 @@ import logging.handlers
 import time
 import os.path as path
 import sys
+from optparse import OptionParser
 
 # setup the cristel lib directory
 cristel_lib_dir = path.realpath(path.join(path.dirname(sys.argv[0]), '../lib/python'))
@@ -43,17 +44,27 @@ sourcemove=0
 newchan=0
 unchanged=0
 
+
+prog=os.path.basename(__file__)
+parser = OptionParser(
+          'usage: %prog [-n]')
+parser.add_option('-n', '--noscan', action="store_true", dest='noscan', help='don\'t scan, just check channels')
+(options, args) = parser.parse_args()
+
 if not isdvbstreamerrunning():
+    appdir=os.path.expanduser("~/.epgdb")
+    adapters=readadapters(appdir)
     log.info("starting dvbstreamer")
-    startdvbstreamer(1,"tvc","tvc")
+    startdvbstreamer(adapters)
     log.debug("giving dvbstreamer 5 seconds to start")
     time.sleep(5)
 
 if isdvbstreamerrunning():
     sch=ScheduleDB(sfn,log)
     s=DvbSession("127.0.0.1",0,"tvc","tvc",log)
-    for freq in freqs:
-        s.scannet("T " + freq + " " + freqs[freq])
+    if options.noscan:
+      for freq in freqs:
+          s.scannet("T " + freq + " " + freqs[freq])
 
     lcns=s.logicalnames()
     log.info("updating channels")
