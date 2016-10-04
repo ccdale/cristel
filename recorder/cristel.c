@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Tuesday  4 October 2016, 11:27:33
+ * Last Modified: Tuesday  4 October 2016, 11:32:57
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -238,6 +238,12 @@ void setDefaultConfig(void)/*{{{*/
     updateConfig(tk,tv);
     tk=strdup("numadaptors");
     tv=strdup(CCA_DEFAULT_NUMADAPTORS);
+    updateConfig(tk,tv);
+    tk=strdup("dbpath");
+    tv=strdup(CCA_DEFAULT_DBPATH);
+    updateConfig(tk,tv);
+    tk=strdup("dbname");
+    tv=strdup(CCA_DEFAULT_DBNAME);
     updateConfig(tk,tv);
 }/* }}} */
 void daemonize(char *conffile)/* {{{1 */
