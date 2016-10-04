@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Tuesday  4 October 2016, 11:32:57
+ * Last Modified: Tuesday  4 October 2016, 11:41:34
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -53,7 +53,7 @@ void mainLoop()/*{{{*/
             DEBUG("safe to record free filter on adaptor 0: %d",ff);
             ff=safeToRecord(1,"ITV");
             DEBUG("safe to record free filter on adaptor 1: %d",ff);
-            break;
+            /* break; */
         }
         if(reload!=0){
             reload=0;
