@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Tuesday  4 October 2016, 11:10:49
+ * Last Modified: Tuesday  4 October 2016, 11:27:33
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -34,6 +34,7 @@ void mainLoop()/*{{{*/
 
     do{
         if(timetodie!=0){
+            INFO("Shutting down");
             break;
         }
         sleep(1);
@@ -53,6 +54,10 @@ void mainLoop()/*{{{*/
             ff=safeToRecord(1,"ITV");
             DEBUG("safe to record free filter on adaptor 1: %d",ff);
             break;
+        }
+        if(reload!=0){
+            reload=0;
+            INFO("Re-reading db");
         }
     }
     while(1);
@@ -141,6 +146,10 @@ void catchsignal(int sig)/* {{{1 */
         case SIGTERM:
             DBG("SIGTERM signal caught");
             timetodie=1;
+            break;
+        case SIGUSR1:
+            DBG("SIGUSR1 signal caught");
+            reload=1;
             break;
     }
 } /* }}} */
@@ -337,11 +346,12 @@ void daemonize(char *conffile)/* {{{1 */
     if((junk=sigaction(SIGINT,&siga,NULL))!=0){
         CCAE(1,"cannot set handler for SIGINT");
     }
-    siga.sa_handler=SIG_IGN;
+
+    /* interesting (caught) signals */
+    siga.sa_handler=catchsignal;
     if((junk=sigaction(SIGUSR1,&siga,NULL))!=0){
         CCAE(1,"cannot set handler for SIGUSR1");
     }
-    /* interesting (caught) signals */
     siga.sa_handler=catchsignal;
     if((junk=sigaction(SIGCHLD,&siga,NULL))!=0){
         CCAE(1,"cannot set handler for SIGCHLD");
