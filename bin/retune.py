@@ -17,8 +17,13 @@ from scheduledb import ScheduleDB
 
 log=logging.getLogger("cristel")
 log.setLevel(logging.INFO)
+#log.setLevel(logging.DEBUG)
 handler=logging.handlers.SysLogHandler(address = '/dev/log', facility=logging.handlers.SysLogHandler.LOG_DAEMON)
 log.addHandler(handler)
+
+def output(msg):
+  log.info(msg)
+  print(msg)
 
 # see https://ukfree.tv/article/1107051920/Freeview_modes_a_simplified_explanation_
 modes={
@@ -54,26 +59,32 @@ parser.add_option('-n', '--noscan', action="store_true", dest='noscan', help='do
 if not isdvbstreamerrunning():
     appdir=os.path.expanduser("~/.epgdb")
     adapters=readadapters(appdir)
-    log.info("starting dvbstreamer")
+    output("starting dvbstreamer")
     startdvbstreamer(adapters)
     log.debug("giving dvbstreamer 5 seconds to start")
     time.sleep(5)
 
 if isdvbstreamerrunning():
     sch=ScheduleDB(sfn,log)
+    # these chans cause probs, so delete and reinsert them
+    sql="delete from Channels where name like 'Children%'"
+    sch.dosql(sql)
+    sql="delete from Channels where name='Travel Channel'"
+    sch.dosql(sql)
     s=DvbSession("127.0.0.1",0,"tvc","tvc",log)
-    if options.noscan:
+    if not options.noscan:
       for freq in freqs:
-          s.scannet("T " + freq + " " + freqs[freq])
+        output("scanning %s %s" % (freq,freqs[freq]))
+        s.scannet("T " + freq + " " + freqs[freq])
 
     lcns=s.logicalnames()
-    log.info("updating channels")
+    output("updating channels")
     muxes=s.lsmuxes()
     for mux in muxes:
         log.debug("reading services for mux: " + mux)
         services=s.servicesformux(mux)
         cn=len(services)
-        log.info("mux: %s has %s services" % (mux,cn))
+        output("mux: %s has %s services" % (mux,cn))
         for svc in services:
             si=s.serviceinfo(svc)
             row=sch.getname(svc)
@@ -84,32 +95,34 @@ if isdvbstreamerrunning():
                 pass
 
             if si["Name"] in lcns:
-                lcn=si["Name"]
+                lcn=lcns[si["Name"]]
             else:
                 lcn=0
 
             if cn > 0:
                 log.debug("Channel " + si["Name"] + " already exists")
                 if si["ID"] != row[0]:
-                    log.info("channel " + si["Name"] + " has moved source, updating db")
+                    output("channel " + si["Name"] + " has moved source, updating db")
                     sch.updatelchannel(si["ID"],si["Name"],si["Multiplex UID"],lcn)
                     sourcemove+=1
-                elif si["Multiplex UID"] != row[6]:
-                    log.info("channel " + si["Name"] + " has moved mux, updating db")
+                elif si["Multiplex UID"] != str(row[6]):
+                    output("channel " + si["Name"] + " has moved mux, updating db")
+                    output("previous: %d" % row[6])
+                    output("now: %s" % si["Multiplex UID"])
                     sch.updatelchannel(si["ID"],si["Name"],si["Multiplex UID"],lcn)
                     muxmove+=1
                 else:
                     unchanged+=1
             else:
-                log.info("inserting new Channel: " + si["Name"])
+                output("inserting new Channel: " + si["Name"])
                 sch.newchan(si["ID"],si["Name"],si["Multiplex UID"])
                 sch.updatelchannel(si["ID"],si["Name"],si["Multiplex UID"],lcn)
                 newchan+=1
 
-    log.info("%s new channels" % newchan)
-    log.info("%s moved source" % sourcemove)
-    log.info("%s moved mux" % muxmove)
-    log.info("%s unchanged" % unchanged)
+    output("%s new channels" % newchan)
+    output("%s moved source" % sourcemove)
+    output("%s moved mux" % muxmove)
+    output("%s unchanged" % unchanged)
 
 else:
     log.error("dvbstreamer failed to start")

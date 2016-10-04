@@ -321,7 +321,7 @@ class DvbSession(Session):
     
     def serviceinfo(self,service):
         """returns a hash of the service info for a service"""
-        emsg,res=self.execute_command("serviceinfo '%s'" % service)
+        emsg,res=self.execute_command('serviceinfo "%s"' % service)
         si={}
         # for line in res.splitlines():
         for line in res:

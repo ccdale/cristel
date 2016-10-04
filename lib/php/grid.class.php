@@ -6,7 +6,7 @@
  * grid.class.php
  *
  * Started: Saturday 15 August 2015, 08:47:21
- * Last Modified: Wednesday 18 November 2015, 09:55:16
+ * Last Modified: Monday  3 October 2016, 13:09:08
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -224,15 +224,17 @@ class Grid extends Base
     private function grow($progs,$logicalid)/*{{{*/
     {
         $content=$this->makeChannelCell($this->chanlist[$logicalid]);
-        foreach($progs as $prog){
-            $start=$prog["start"]<$this->start?$this->start:$prog["start"];
-            $xend=$this->start+$this->width;
-            $end=$prog["end"]<=$xend?$prog["end"]:$xend;
-            $nslots=($end-$start)/$this->slotsize;
-            $atts=array("title"=>$this->titleattribute($prog,true));
-            $atts["colspan"]=$nslots;
-            $atts["class"]="programcell" . $this->recordClass($prog["record"]);
-            $content.=$this->gcell($this->makeProgContent($prog),$atts);
+        if(false!==($junk=$this->ValidArray($progs))){
+            foreach($progs as $prog){
+                $start=$prog["start"]<$this->start?$this->start:$prog["start"];
+                $xend=$this->start+$this->width;
+                $end=$prog["end"]<=$xend?$prog["end"]:$xend;
+                $nslots=($end-$start)/$this->slotsize;
+                $atts=array("title"=>$this->titleattribute($prog,true));
+                $atts["colspan"]=$nslots;
+                $atts["class"]="programcell" . $this->recordClass($prog["record"]);
+                $content.=$this->gcell($this->makeProgContent($prog),$atts);
+            }
         }
         $op=$this->pt->tableRow(array("class"=>"gridrow"),$content);
         return $op;
