@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Sunday 18 September 2016, 09:36:07
+ * Last Modified: Tuesday  4 October 2016, 11:10:49
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -32,9 +32,6 @@ void mainLoop()/*{{{*/
     char *svc;
     struct ServiceInfo *SI;
 
-    /*
-    dvbc_connect(0);
-    */
     do{
         if(timetodie!=0){
             break;
@@ -55,14 +52,6 @@ void mainLoop()/*{{{*/
             DEBUG("safe to record free filter on adaptor 0: %d",ff);
             ff=safeToRecord(1,"ITV");
             DEBUG("safe to record free filter on adaptor 1: %d",ff);
-            /*
-            svc=dvbcommand("serviceinfo 'BBC TWO'",0);
-            INFO("%s",svc);
-            free(svc);
-            svc=lsmuxes(0);
-            INFO("%s",svc);
-            free(svc);
-            */
             break;
         }
     }
