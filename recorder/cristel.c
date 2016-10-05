@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Wednesday  5 October 2016, 09:49:33
+ * Last Modified: Wednesday  5 October 2016, 10:02:58
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -30,6 +30,7 @@ void mainLoop()/*{{{*/
 {
     int cc=0;
     sqlite3 *db;
+    int rc=0;
     char *dbname;
     int fnlen=0;
     long flen=0;
@@ -37,7 +38,16 @@ void mainLoop()/*{{{*/
     struct ServiceInfo *SI;
 
     dbname=concatFileParts(3,configValue("dbpath"),"/",configValue("dbname"));
-    DEBUG("db filename: %s", dbname);
+    flen=filesize(dbname);
+    if(flen!=-1){
+        DEBUG("opening db: %s",dbname);
+        rc=sqlite3_open(dbname, &db);
+        if(rc!=SQLITE_OK){
+            CCAE(1,"error opening db: %s, error code: %d",dbname,rc);
+        }
+    }else{
+        CCAE(1,"cannot find db: %s",dbname);
+    }
     do{
         if(timetodie!=0){
             INFO("Shutting down");
@@ -70,6 +80,7 @@ void mainLoop()/*{{{*/
         pause();
     }
     while(1);
+    sqlite3_close(db);
     if(dbname){
         free(dbname);
     }
