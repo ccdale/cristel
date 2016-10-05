@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Wednesday  5 October 2016, 11:09:31
+ * Last Modified: Wednesday  5 October 2016, 11:25:03
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -26,6 +26,41 @@
 
 #include "cristel.h"
 
+int fillProgram(void *NotUsed, int argc, char **argv, char **ColName)/*{{{*/
+{
+    int x;
+    for(x=0;x<argc;x++){
+        if(strcmp(ColName[x],"id")){
+            currentprogram->id=atoi(argv[x]);
+        }else if(strcmp(ColName[x],"event")){
+            currentprogram->event=atoi(argv[x]);
+        }else if(strcmp(ColName[x],"muxid")){
+            currentprogram->muxid=atoi(argv[x]);
+        }else if(strcmp(ColName[x],"start")){
+            currentprogram->start=atoi(argv[x]);
+        }else if(strcmp(ColName[x],"end")){
+            currentprogram->end=atoi(argv[x]);
+        }else if(strcmp(ColName[x],"adaptor")){
+            currentprogram->adaptor=atoi(argv[x]);
+        }else if(strcmp(ColName[x],"source")){
+            currentprogram->source=strdup(argv[x]);
+        }else if(strcmp(ColName[x],"cname")){
+            currentprogram->cname=strdup(argv[x]);
+        }else if(strcmp(ColName[x],"title")){
+            currentprogram->title=strdup(argv[x]);
+        }else if(strcmp(ColName[x],"description")){
+            currentprogram->description=strdup(argv[x]);
+        }else if(strcmp(ColName[x],"progid")){
+            currentprogram->progid=strdup(argv[x]);
+        }else if(strcmp(ColName[x],"seriesid")){
+            currentprogram->seriesid=strdup(argv[x]);
+        }else if(strcmp(ColName[x],"record")){
+            currentprogram->record=strdup(argv[x]);
+        }else{
+            WARN("unexpected Column name %s in result",ColName[x]);
+        }
+    }
+}/*}}}*/
 void mainLoop()/*{{{*/
 {
     int cc=0;

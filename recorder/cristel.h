@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Wednesday  5 October 2016, 10:59:59
+ * Last Modified: Wednesday  5 October 2016, 11:12:02
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -60,6 +60,9 @@ int reload=0;
 char *argprocessing(int argc,char **argv);
 void catchsignal(int sig);
 void daemonize(char *conffile);
+void initProgram(void);
+void freeProgram(void);
+int fillProgram(void *NotUsed, int argc, char **argv, char **ColName);
 void setDefaultConfig( void );
 void startDvbStreamer(int adaptor);
 void stopDvbStreamer(int adaptor);
