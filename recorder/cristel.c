@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Wednesday  5 October 2016, 11:25:03
+ * Last Modified: Wednesday  5 October 2016, 14:05:59
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -60,6 +60,7 @@ int fillProgram(void *NotUsed, int argc, char **argv, char **ColName)/*{{{*/
             WARN("unexpected Column name %s in result",ColName[x]);
         }
     }
+    return 0;
 }/*}}}*/
 void mainLoop()/*{{{*/
 {
@@ -67,8 +68,9 @@ void mainLoop()/*{{{*/
     sqlite3 *db;
     int rc=0;
     char *dbname;
-    int fnlen=0;
     long flen=0;
+    char *sql;
+    char *szerr=0;
     char *svc;
     struct ServiceInfo *SI;
 
@@ -88,6 +90,11 @@ void mainLoop()/*{{{*/
         if(timetodie!=0){
             INFO("Shutting down");
             break;
+        }
+        sql="select * from schedule where record='y' order by start asc limit 1";
+        rc=sqlite3_exec(db,sql,fillProgram,0,&szerr);
+        if(rc!=SQLITE_OK){
+            WARN("error executing sql: %s, error code: %d, errmsg: %s",sql,rc,szerr);
         }
         /* sleep(1);*/
         if((++cc)>10){
@@ -112,7 +119,7 @@ void mainLoop()/*{{{*/
             reload=0;
             INFO("Re-reading db");
         }
-        alarm(5); /* goto sleep for 5 seconds */
+        alarm(500); /* goto sleep for 500 seconds */
         pause();
     }
     while(1);
