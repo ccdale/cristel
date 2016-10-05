@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Tuesday  4 October 2016, 11:28:48
+ * Last Modified: Wednesday  5 October 2016, 10:59:59
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -34,8 +34,25 @@
 #include "dvbctrl.h"
 #include "dvbcmds.h"
 
+struct Program{
+    int id;
+    int event;
+    int muxid;
+    int start;
+    int end;
+    int adaptor;
+    char *source;
+    char *cname;
+    char *title;
+    char *description;
+    char *progid;
+    char *seriesid;
+    char *record;
+};
+
 /* globals */
 struct ConfigItem *configuration;
+struct Program *currentprogram;
 int llevel=6;
 int timetodie=0;
 int reload=0;

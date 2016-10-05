@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Wednesday  5 October 2016, 10:05:25
+ * Last Modified: Wednesday  5 October 2016, 11:09:31
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -37,6 +37,7 @@ void mainLoop()/*{{{*/
     char *svc;
     struct ServiceInfo *SI;
 
+    initProgram();
     dbname=concatFileParts(3,configValue("dbpath"),"/",configValue("dbname"));
     flen=filesize(dbname);
     if(flen!=-1){
@@ -85,7 +86,52 @@ void mainLoop()/*{{{*/
     if(dbname){
         free(dbname);
     }
+    freeProgram();
 }/*}}}*/
+void initProgram(void)/* {{{1 */
+{
+    currentprogram=xmalloc(sizeof(struct Program));
+    currentprogram->id=0;
+    currentprogram->event=0;
+    currentprogram->muxid=0;
+    currentprogram->start=0;
+    currentprogram->end=0;
+    currentprogram->adaptor=0;
+    currentprogram->source=NULL;
+    currentprogram->cname=NULL;
+    currentprogram->title=NULL;
+    currentprogram->description=NULL;
+    currentprogram->progid=NULL;
+    currentprogram->seriesid=NULL;
+    currentprogram->record=NULL;
+}/* }}} */
+void freeProgram(void)/* {{{1 */
+{
+    if(currentprogram){
+        if(currentprogram->source){
+            free(currentprogram->source);
+        }
+        if(currentprogram->cname){
+            free(currentprogram->cname);
+        }
+        if(currentprogram->title){
+            free(currentprogram->title);
+        }
+        if(currentprogram->description){
+            free(currentprogram->description);
+        }
+        if(currentprogram->progid){
+            free(currentprogram->progid);
+        }
+        if(currentprogram->seriesid){
+            free(currentprogram->seriesid);
+        }
+        if(currentprogram->record){
+            free(currentprogram->record);
+        }
+        free(currentprogram);
+    }
+}/* }}} */
 void startDvbStreamer(int adaptor)/*{{{*/
 {
     char cmd[]="/usr/bin/dvbstreamer";
