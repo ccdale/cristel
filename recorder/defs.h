@@ -4,7 +4,7 @@
  * defs.h
  *
  * Started: Sunday 23 December 2012, 19:43:27
- * Last Modified: Wednesday  5 October 2016, 08:33:55
+ * Last Modified: Wednesday  5 October 2016, 08:49:18
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -67,6 +67,7 @@
 #define CCA_DEFAULT_DVBBANNER "DVBStreamer/"
 #define CCA_DEFAULT_DBPATH "/home/chris/.epgdb"
 #define CCA_DEFAULT_DBNAME "cristel.db"
+#define CCA_DEFAULT_RECPATH "/home/chris/Videos/tv"
 #define CCA_DEFAULT_CONFIGFILE PROGCONF
 
 #define REMOTEINTERFACE_PORT 54197

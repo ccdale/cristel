@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Tuesday  4 October 2016, 12:10:03
+ * Last Modified: Wednesday  5 October 2016, 08:50:01
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -250,6 +250,9 @@ void setDefaultConfig(void)/*{{{*/
     updateConfig(tk,tv);
     tk=strdup("dbname");
     tv=strdup(CCA_DEFAULT_DBNAME);
+    updateConfig(tk,tv);
+    tk=strdup("recpath");
+    tv=strdup(CCA_DEFAULT_RECPATH);
     updateConfig(tk,tv);
 }/* }}} */
 void daemonize(char *conffile)/* {{{1 */
