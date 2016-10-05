@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Wednesday  5 October 2016, 08:50:01
+ * Last Modified: Wednesday  5 October 2016, 09:49:33
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -29,9 +29,15 @@
 void mainLoop()/*{{{*/
 {
     int cc=0;
+    sqlite3 *db;
+    char *dbname;
+    int fnlen=0;
+    long flen=0;
     char *svc;
     struct ServiceInfo *SI;
 
+    dbname=concatFileParts(3,configValue("dbpath"),"/",configValue("dbname"));
+    DEBUG("db filename: %s", dbname);
     do{
         if(timetodie!=0){
             INFO("Shutting down");
@@ -64,6 +70,9 @@ void mainLoop()/*{{{*/
         pause();
     }
     while(1);
+    if(dbname){
+        free(dbname);
+    }
 }/*}}}*/
 void startDvbStreamer(int adaptor)/*{{{*/
 {

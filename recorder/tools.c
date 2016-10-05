@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Wednesday  5 October 2016, 09:44:26
+ * Last Modified: Wednesday  5 October 2016, 09:55:06
  */
 
 #include "tools.h"
@@ -41,14 +41,16 @@ char *concatFileParts(int numparts, ...)/* {{{1 */
     int fnlen=0;
 
     buffer=xmalloc(PATH_MAX);
+    *buffer='\0';
     va_start(valist, numparts);
     for(x=0;x<numparts;x++){
-        tmp=va_arg(valist, *char);
+        tmp=va_arg(valist, char*);
+        DEBUG("variable arg %d: %s",x,tmp);
         fnlen+=strlen(tmp);
         if(fnlen<PATH_MAX){
             strcat(buffer,tmp);
         }else{
-            CCAE("Filename length exceeded: %s + %s",buffer,tmp);
+            CCAE(1,"Filename length exceeded: %s + %s",buffer,tmp);
         }
     }
     va_end(valist);
