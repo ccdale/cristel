@@ -104,6 +104,12 @@ class ScheduleDB(CristelDB):
   RECORDED_COLUMN_FILE = "filepath"
   RECORDED_COLUMNS = [RECORDED_COLUMN_SRC,RECORDED_COLUMN_CNAME,RECORDED_COLUMN_EVENT,RECORDED_COLUMN_MUXID,RECORDED_COLUMM_START,RECORDED_COLUMN_END,RECORDED_COLUMN_TITLE,RECORDED_COLUMN_DESC,RECORDED_COLUMN_PROGID,RECORDED_COLUMN_SERIESID,RECORDED_COLUMN_ADAPTOR,RECORDED_COLUMN_FILE]
 
+  DATA_TABLE = "Data"
+  DATA_COLUMN_ID = "id"
+  DATA_COLUMN_KEY = "key"
+  DATA_COLUMN_VAL = "val"
+  DATA_COLUMNS = [DATA_COLUMN_ID,DATA_COLUMN_KEY,DATA_COLUMN_VAL]
+
   def __init__(self,scheddbfile,log=None):
     """sets up the ScheduleDB class"""
     CristelDB.__init__(self,scheddbfile,log)
@@ -125,6 +131,7 @@ class ScheduleDB(CristelDB):
     self.create_autoincrement_table(cursor,ScheduleDB.PREVIOUS_TABLE,ScheduleDB.PREVIOUS_COLUMNS,ScheduleDB.PREVIOUS_COLUMN_ID)
     self.create_autoincrement_table(cursor,ScheduleDB.RECORDING_TABLE,ScheduleDB.RECORDING_COLUMNS,ScheduleDB.RECORDING_COLUMN_ID)
     self.create_autoincrement_table(cursor,ScheduleDB.RECORDED_TABLE,ScheduleDB.RECORDED_COLUMNS,ScheduleDB.RECORDED_COLUMN_ID)
+    self.create_autoincrement_table(cursor,ScheduleDB.DATA_TABLE,ScheduleDB.DATA_COLUMNS,ScheduleDB.DATA_COLUMN_ID)
     self.connection.close()
 
   def updatelogical(self,data):
