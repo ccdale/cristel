@@ -4,7 +4,7 @@
  * defs.h
  *
  * Started: Sunday 23 December 2012, 19:43:27
- * Last Modified: Wednesday  5 October 2016, 08:49:18
+ * Last Modified: Wednesday  5 October 2016, 09:21:16
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <syslog.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <string.h>
 #include <assert.h>

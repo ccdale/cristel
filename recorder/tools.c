@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Sunday 18 September 2016, 11:28:50
+ * Last Modified: Wednesday  5 October 2016, 09:44:26
  */
 
 #include "tools.h"
@@ -32,6 +32,28 @@ void *xcalloc(size_t nmemb, size_t size)/*{{{*/
     xmem=memset(xmem,0,nmemb*size);
     return xmem;
 }/*}}}*/
+char *concatFileParts(int numparts, ...)/* {{{1 */
+{
+    va_list valist;
+    int x;
+    char *tmp;
+    char *buffer;
+    int fnlen=0;
+
+    buffer=xmalloc(PATH_MAX);
+    va_start(valist, numparts);
+    for(x=0;x<numparts;x++){
+        tmp=va_arg(valist, *char);
+        fnlen+=strlen(tmp);
+        if(fnlen<PATH_MAX){
+            strcat(buffer,tmp);
+        }else{
+            CCAE("Filename length exceeded: %s + %s",buffer,tmp);
+        }
+    }
+    va_end(valist);
+    return buffer;
+}/* }}} */
 int filenumberFromFilename(char *filename)/* {{{1 */
 {
     /*
