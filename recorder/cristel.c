@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Wednesday  5 October 2016, 10:02:58
+ * Last Modified: Wednesday  5 October 2016, 10:05:25
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -80,6 +80,7 @@ void mainLoop()/*{{{*/
         pause();
     }
     while(1);
+    DEBUG("Closing db %s",dbname);
     sqlite3_close(db);
     if(dbname){
         free(dbname);
