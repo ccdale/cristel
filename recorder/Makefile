@@ -7,7 +7,7 @@ LD = $(CC)
 # LDFLAGS = -L/usr/local/lib `mysql_config --libs`
 LDFLAGS = -L/usr/local/lib
 # LIBS = -largtable2 `mysql_config --libs`
-LIBS = -largtable2
+LIBS = -largtable2 -lsqlite3
 LDLIBS = -largtable2
 
 SRC := $(wildcard *.c)

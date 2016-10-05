@@ -4,7 +4,7 @@
  * defs.h
  *
  * Started: Sunday 23 December 2012, 19:43:27
- * Last Modified: Tuesday  4 October 2016, 11:33:11
+ * Last Modified: Wednesday  5 October 2016, 08:33:55
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -46,6 +46,7 @@
 #include <netdb.h>
 #include <sys/wait.h>
 #include <pwd.h>
+#include <sqlite3.h>
 
 #define PROGNAME "cristel"
 #define PROGVERSION "0.01"
