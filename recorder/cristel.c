@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 12:17:15
+ * Last Modified: Thursday  6 October 2016, 12:19:00
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -130,7 +130,7 @@ int countFutureRecordings(sqlite3 *db)/* {{{1 */
     time_t now;
     int numr=0;
 
-    now=time();
+    now=time(NULL);
     sql=fitstring("select count(*) as xcount from schedule where record='y' and start > %l",now);
     rc=sqlexec(db,sql,returnSingle);
     free(sql);
@@ -377,7 +377,7 @@ int getNextToRecord(sqlite3 *db)/* {{{1 */
 
     numr=countFutureRecordings(db);
     if(numr>0){
-        now=time();
+        now=time(NULL);
         sql=fitstring("select * from schedule where record='y' and start > %l order by start asc limit 1",now);
         rc=sqlexec(db,sql,fillProgram);
         free(sql);
