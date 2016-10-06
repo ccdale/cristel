@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Thursday  6 October 2016, 11:25:46
+ * Last Modified: Thursday  6 October 2016, 12:37:23
  */
 
 #include "tools.h"
@@ -34,19 +34,26 @@ void *xcalloc(size_t nmemb, size_t size)/*{{{*/
 }/*}}}*/
 char *fitstring(char *str, ...)/*{{{*/
 {
-    char *xstr=NULL;
-    int slen;
+    char *xstr;
+    int slen=0;
     va_list args;
 
     va_start(args,str);
-    slen=vsnprintf(xstr,0,str,args);
+    slen=vsnprintf(xstr,slen,str,args);
+    va_end(args);
+    if(slen<0){
+        WARN("fitstring: failed! string: '%s', returned %d",str,slen);
+        return NULL:
+    }
     DEBUG("fitstring: length: %d",slen);
     if(slen>0){
         xstr=xmalloc(++slen);
-        slen=vsnprintf(xstr,slen,str,args);
     }else{
         WARN("fitstring: failed! string: '%s', returned %d",str,slen);
+        return NULL;
     }
+    va_start(args,str);
+    slen=vsnprintf(xstr,slen,str,args);
     va_end(args);
     return xstr;
 }/*}}}*/
