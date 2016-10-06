@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Thursday  6 October 2016, 12:11:03
+ * Last Modified: Thursday  6 October 2016, 12:20:24
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -68,7 +68,7 @@ int countFutureRecordings(sqlite3 *db);
 void daemonize(char *conffile);
 int fillProgram(void *NotUsed, int argc, char **argv, char **ColName);
 void freeProgram(void);
-int getNextToRecord(void);
+int getNextToRecord(sqlite3 *db);
 void initProgram(void);
 void logProgram(void);
 int returnSingle(void *unused, int argc, char **argv, char **colname);
