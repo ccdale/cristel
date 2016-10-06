@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 12:21:10
+ * Last Modified: Thursday  6 October 2016, 12:42:30
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -131,7 +131,7 @@ int countFutureRecordings(sqlite3 *db)/* {{{1 */
     int numr=0;
 
     now=time(NULL);
-    sql=fitstring("select count(*) as xcount from schedule where record='y' and start > %l",now);
+    sql=fitstring("select count(*) as xcount from schedule where record='y' and start > %ld",now);
     rc=sqlexec(db,sql,returnSingle);
     free(sql);
     if(rc==0){
@@ -379,7 +379,7 @@ int getNextToRecord(sqlite3 *db)/* {{{1 */
     numr=countFutureRecordings(db);
     if(numr>0){
         now=time(NULL);
-        sql=fitstring("select * from schedule where record='y' and start > %l order by start asc limit 1",now);
+        sql=fitstring("select * from schedule where record='y' and start > %ld order by start asc limit 1",now);
         rc=sqlexec(db,sql,fillProgram);
         free(sql);
     }
@@ -624,6 +624,9 @@ void mainLoop()/*{{{*/
             INFO("Shutting down");
             break;
         }
+        DEBUG("Calling new func: getNextToRecord");
+        getNextToRecord(db);
+        /*
         DEBUG("Setting up sql string");
         cc=sprintf(sql,"%s","select * from schedule where record='y' order by start asc limit 1;");
         DEBUG("sql: %s",sql);
@@ -632,6 +635,7 @@ void mainLoop()/*{{{*/
             WARN("error executing sql: %s, error code: %d, errmsg: %s",sql,rc,szerr);
             sqlite3_free(szerr);
         }
+        */
         break;
         /* sleep(1);*/
         if((++cc)>10){
