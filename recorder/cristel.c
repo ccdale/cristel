@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 12:19:00
+ * Last Modified: Thursday  6 October 2016, 12:21:10
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -374,6 +374,7 @@ int getNextToRecord(sqlite3 *db)/* {{{1 */
     char *sqlerr=0;
     int rc=0;
     time_t now;
+    int numr;
 
     numr=countFutureRecordings(db);
     if(numr>0){
