@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 10:44:27
+ * Last Modified: Thursday  6 October 2016, 10:45:27
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -201,7 +201,7 @@ void mainLoop()/*{{{*/
         DEBUG("sql: %s",sql);
         rc=sqlite3_exec(db,sql,fillProgram,0,&szerr);
         if(rc!=SQLITE_OK){
-            WARN("error executing sql: %s, error code: %d, errmsg: %s",sql,rc,&szerr);
+            WARN("error executing sql: %s, error code: %d, errmsg: %s",sql,rc,szerr);
             sqlite3_free(szerr);
         }
         break;
