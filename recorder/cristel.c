@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 13:20:47
+ * Last Modified: Thursday  6 October 2016, 13:23:01
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -621,7 +621,9 @@ void mainLoop()/*{{{*/
     char *svc;
     struct ServiceInfo *SI;
 
+    /* wait for the parent to exit cleanly */
     sleep(10);
+
     sql=xmalloc(4096);
     initProgram();
     dbname=concatFileParts(3,configValue("dbpath"),"/",configValue("dbname"));
@@ -647,17 +649,6 @@ void mainLoop()/*{{{*/
             then=currentprogram->start-now;
             INFO("Next recording: %d seconds. (%s)",then,currentprogram->title);
         }
-        /*
-        DEBUG("Setting up sql string");
-        cc=sprintf(sql,"%s","select * from schedule where record='y' order by start asc limit 1;");
-        DEBUG("sql: %s",sql);
-        rc=sqlite3_exec(db,sql,fillProgram,0,&szerr);
-        if(rc!=SQLITE_OK){
-            WARN("error executing sql: %s, error code: %d, errmsg: %s",sql,rc,szerr);
-            sqlite3_free(szerr);
-        }
-        */
-        break;
         /* sleep(1);*/
         if((++cc)>10){
             cc=selectlcn(0,1);
