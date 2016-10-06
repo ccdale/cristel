@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 13:14:25
+ * Last Modified: Thursday  6 October 2016, 13:15:13
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -137,7 +137,7 @@ int countFutureRecordings(sqlite3 *db)/* {{{1 */
     if(rc==0){
         numr=atoi(single->val);
     }
-    DEBUG("number of future recordings: %d",numr);
+    INFO("number of future recordings: %d",numr);
     return numr;
 }/* }}} */
 void daemonize(char *conffile)/* {{{1 */
