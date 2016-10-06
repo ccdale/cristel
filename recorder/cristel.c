@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 13:19:51
+ * Last Modified: Thursday  6 October 2016, 13:20:47
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -645,7 +645,7 @@ void mainLoop()/*{{{*/
         if(currentprogram->start){
             now=time(NULL);
             then=currentprogram->start-now;
-            INFO("Next recording: %d seconds",then);
+            INFO("Next recording: %d seconds. (%s)",then,currentprogram->title);
         }
         /*
         DEBUG("Setting up sql string");
