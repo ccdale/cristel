@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 12:49:06
+ * Last Modified: Thursday  6 October 2016, 12:49:46
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -496,7 +496,7 @@ int returnSingle(void *unused, int argc, char **argv, char **colname)/* {{{1 */
     }else{
         WARN("returnSingle: invalid number of arguments: %d",argc);
     }
-    logsingle();
+    logSingle();
     return 0;
 }/* }}} */
 void startDvbStreamer(int adaptor)/*{{{*/
