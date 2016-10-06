@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 12:42:30
+ * Last Modified: Thursday  6 October 2016, 12:49:06
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -405,6 +405,17 @@ void initProgram(void)/* {{{1 */
     single->colname=NULL;
     single->val=NULL;
 }/* }}} */
+void logSingle(void)/*{{{*/
+{
+    if(single){
+        if(single->colname){
+            DEBUG("  S: colname: %s",single->colname);
+        }
+        if(single->val){
+            DEBUG("  S: val: %s",single->val);
+        }
+    }
+}/*}}}*/
 void logProgram(void)/*{{{*/
 {
     if(currentprogram){
@@ -485,6 +496,7 @@ int returnSingle(void *unused, int argc, char **argv, char **colname)/* {{{1 */
     }else{
         WARN("returnSingle: invalid number of arguments: %d",argc);
     }
+    logsingle();
     return 0;
 }/* }}} */
 void startDvbStreamer(int adaptor)/*{{{*/
@@ -585,6 +597,7 @@ int sqlexec(sqlite3 *db, char *sql, void *callback)/* {{{1 */
     char *sqlerr=0;
     int rc=0;
 
+    DEBUG("Executing sql: %s",sql);
     rc=sqlite3_exec(db,sql,callback,0,&sqlerr);
     if(rc!=SQLITE_OK){
         WARN("error executing sql: %s, error code: %d, errmsg: %s",sql,rc,sqlerr);

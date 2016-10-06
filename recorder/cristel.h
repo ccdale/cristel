@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Thursday  6 October 2016, 12:20:24
+ * Last Modified: Thursday  6 October 2016, 12:48:16
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -71,6 +71,7 @@ void freeProgram(void);
 int getNextToRecord(sqlite3 *db);
 void initProgram(void);
 void logProgram(void);
+void logSingle(void);
 int returnSingle(void *unused, int argc, char **argv, char **colname);
 void setDefaultConfig( void );
 void startDvbStreamer(int adaptor);
