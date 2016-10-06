@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 11:45:55
+ * Last Modified: Thursday  6 October 2016, 12:17:15
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -126,18 +126,18 @@ void catchsignal(int sig)/* {{{1 */
 int countFutureRecordings(sqlite3 *db)/* {{{1 */
 {
     char *sql;
-    char *sqlerr=0;
     int rc=0;
     time_t now;
-    int slen=0;
+    int numr=0;
 
     now=time();
-    sql=fitstring("select count(*) as xcount from schedule where record=y and start > %l",now);
-    rc=sqlite3_exec(db,sql,returnsingle,0,&sqlerr);
-    if(rc!=SQLITE_OK){
-        WARN("error executing sql: %s, error code: %d, errmsg: %s",sql,rc,sqlerr);
-        sqlite3_free(sqlerr);
+    sql=fitstring("select count(*) as xcount from schedule where record='y' and start > %l",now);
+    rc=sqlexec(db,sql,returnSingle);
+    free(sql);
+    if(rc==0){
+        numr=atoi(single->val);
     }
+    return numr;
 }/* }}} */
 void daemonize(char *conffile)/* {{{1 */
 {
@@ -373,6 +373,16 @@ int getNextToRecord(sqlite3 *db)/* {{{1 */
     char *sql;
     char *sqlerr=0;
     int rc=0;
+    time_t now;
+
+    numr=countFutureRecordings(db);
+    if(numr>0){
+        now=time();
+        sql=fitstring("select * from schedule where record='y' and start > %l order by start asc limit 1",now);
+        rc=sqlexec(db,sql,fillProgram);
+        free(sql);
+    }
+    return rc;
 }/* }}} */
 void initProgram(void)/* {{{1 */
 {
@@ -568,6 +578,19 @@ void setDefaultConfig(void)/*{{{*/
     tk=strdup("recpath");
     tv=strdup(CCA_DEFAULT_RECPATH);
     updateConfig(tk,tv);
+}/* }}} */
+int sqlexec(sqlite3 *db, char *sql, void *callback)/* {{{1 */
+{
+    char *sqlerr=0;
+    int rc=0;
+
+    rc=sqlite3_exec(db,sql,callback,0,&sqlerr);
+    if(rc!=SQLITE_OK){
+        WARN("error executing sql: %s, error code: %d, errmsg: %s",sql,rc,sqlerr);
+        sqlite3_free(sqlerr);
+        return rc;
+    }
+    return 0;
 }/* }}} */
 void mainLoop()/*{{{*/
 {

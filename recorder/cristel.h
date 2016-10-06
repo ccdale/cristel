@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Thursday  6 October 2016, 11:38:48
+ * Last Modified: Thursday  6 October 2016, 12:11:03
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -75,5 +75,6 @@ int returnSingle(void *unused, int argc, char **argv, char **colname);
 void setDefaultConfig( void );
 void startDvbStreamer(int adaptor);
 void stopDvbStreamer(int adaptor);
+int sqlexec(sqlite3 *db, char *sql, void *callback);
 void mainLoop();
 int main(int argc,char **argv);
