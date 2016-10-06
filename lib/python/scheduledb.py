@@ -108,7 +108,7 @@ class ScheduleDB(CristelDB):
   DATA_COLUMN_ID = "id"
   DATA_COLUMN_KEY = "key"
   DATA_COLUMN_VAL = "val"
-  DATA_COLUMNS = [DATA_COLUMN_ID,DATA_COLUMN_KEY,DATA_COLUMN_VAL]
+  DATA_COLUMNS = [DATA_COLUMN_KEY,DATA_COLUMN_VAL]
 
   def __init__(self,scheddbfile,log=None):
     """sets up the ScheduleDB class"""
