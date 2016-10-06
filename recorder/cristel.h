@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Thursday  6 October 2016, 10:55:31
+ * Last Modified: Thursday  6 October 2016, 10:58:09
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -62,6 +62,7 @@ void catchsignal(int sig);
 void daemonize(char *conffile);
 int fillProgram(void *NotUsed, int argc, char **argv, char **ColName);
 void freeProgram(void);
+int getNextToRecord(void);
 void initProgram(void);
 void logProgram(void);
 void setDefaultConfig( void );
