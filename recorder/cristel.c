@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 10:33:32
+ * Last Modified: Thursday  6 October 2016, 10:44:27
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -173,13 +173,12 @@ void mainLoop()/*{{{*/
     char *dbname;
     long flen=0;
     char *sql;
-    char *szerr;
+    char *szerr=0;
     char *svc;
     struct ServiceInfo *SI;
 
     sleep(10);
     sql=xmalloc(4096);
-    szerr=xmalloc(4096);
     initProgram();
     dbname=concatFileParts(3,configValue("dbpath"),"/",configValue("dbname"));
     flen=filesize(dbname);
@@ -202,7 +201,8 @@ void mainLoop()/*{{{*/
         DEBUG("sql: %s",sql);
         rc=sqlite3_exec(db,sql,fillProgram,0,&szerr);
         if(rc!=SQLITE_OK){
-            WARN("error executing sql: %s, error code: %d, errmsg: %s",sql,rc,szerr);
+            WARN("error executing sql: %s, error code: %d, errmsg: %s",sql,rc,&szerr);
+            sqlite3_free(szerr);
         }
         break;
         /* sleep(1);*/
@@ -239,7 +239,6 @@ void mainLoop()/*{{{*/
     }
     freeProgram();
     free(sql);
-    free(szerr);
 }/*}}}*/
 void initProgram(void)/* {{{1 */
 {
