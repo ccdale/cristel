@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 13:15:13
+ * Last Modified: Thursday  6 October 2016, 13:19:51
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -614,6 +614,8 @@ void mainLoop()/*{{{*/
     int rc=0;
     char *dbname;
     long flen=0;
+    time_t now;
+    int then;
     char *sql;
     char *szerr=0;
     char *svc;
@@ -640,6 +642,11 @@ void mainLoop()/*{{{*/
         }
         DEBUG("Calling new func: getNextToRecord");
         getNextToRecord(db);
+        if(currentprogram->start){
+            now=time(NULL);
+            then=currentprogram->start-now;
+            INFO("Next recording: %d seconds",then);
+        }
         /*
         DEBUG("Setting up sql string");
         cc=sprintf(sql,"%s","select * from schedule where record='y' order by start asc limit 1;");
