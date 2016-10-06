@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Thursday  6 October 2016, 10:58:09
+ * Last Modified: Thursday  6 October 2016, 11:38:48
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -49,22 +49,29 @@ struct Program{
     char *seriesid;
     char *record;
 };
+struct Single{
+    char *colname;
+    char *val;
+};
 
 /* globals */
 struct ConfigItem *configuration;
 struct Program *currentprogram;
+struct Single *single;
 int llevel=6;
 int timetodie=0;
 int reload=0;
 
 char *argprocessing(int argc,char **argv);
 void catchsignal(int sig);
+int countFutureRecordings(sqlite3 *db);
 void daemonize(char *conffile);
 int fillProgram(void *NotUsed, int argc, char **argv, char **ColName);
 void freeProgram(void);
 int getNextToRecord(void);
 void initProgram(void);
 void logProgram(void);
+int returnSingle(void *unused, int argc, char **argv, char **colname);
 void setDefaultConfig( void );
 void startDvbStreamer(int adaptor);
 void stopDvbStreamer(int adaptor);

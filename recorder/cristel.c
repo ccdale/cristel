@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Thursday  6 October 2016, 10:55:36
+ * Last Modified: Thursday  6 October 2016, 11:45:55
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -123,6 +123,22 @@ void catchsignal(int sig)/* {{{1 */
             break;
     }
 } /* }}} */
+int countFutureRecordings(sqlite3 *db)/* {{{1 */
+{
+    char *sql;
+    char *sqlerr=0;
+    int rc=0;
+    time_t now;
+    int slen=0;
+
+    now=time();
+    sql=fitstring("select count(*) as xcount from schedule where record=y and start > %l",now);
+    rc=sqlite3_exec(db,sql,returnsingle,0,&sqlerr);
+    if(rc!=SQLITE_OK){
+        WARN("error executing sql: %s, error code: %d, errmsg: %s",sql,rc,sqlerr);
+        sqlite3_free(sqlerr);
+    }
+}/* }}} */
 void daemonize(char *conffile)/* {{{1 */
 {
     int i,lfp;
@@ -342,6 +358,21 @@ void freeProgram(void)/* {{{1 */
         }
         free(currentprogram);
     }
+    if(single){
+        if(single->colname){
+            free(single->colname);
+        }
+        if(single->val){
+            free(single->val);
+        }
+        free(single);
+    }
+}/* }}} */
+int getNextToRecord(sqlite3 *db)/* {{{1 */
+{
+    char *sql;
+    char *sqlerr=0;
+    int rc=0;
 }/* }}} */
 void initProgram(void)/* {{{1 */
 {
@@ -359,6 +390,9 @@ void initProgram(void)/* {{{1 */
     currentprogram->progid=NULL;
     currentprogram->seriesid=NULL;
     currentprogram->record=NULL;
+    single=xmalloc(sizeof(struct Single));
+    single->colname=NULL;
+    single->val=NULL;
 }/* }}} */
 void logProgram(void)/*{{{*/
 {
@@ -432,6 +466,16 @@ void logProgram(void)/*{{{*/
         DEBUG("current program not setup");
     }
 }/*}}}*/
+int returnSingle(void *unused, int argc, char **argv, char **colname)/* {{{1 */
+{
+    if(argc==1){
+        single->colname=strdup(colname[0]);
+        single->val=strdup(argv[0]);
+    }else{
+        WARN("returnSingle: invalid number of arguments: %d",argc);
+    }
+    return 0;
+}/* }}} */
 void startDvbStreamer(int adaptor)/*{{{*/
 {
     char cmd[]="/usr/bin/dvbstreamer";
