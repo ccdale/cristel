@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 12:44:26
  * Version: 0.00
  * Revision: $Id: tools.h 46 2013-02-15 07:08:18Z chris.charles.allison@gmail.com $
- * Last Modified: Thursday  6 October 2016, 11:25:42
+ * Last Modified: Friday  7 October 2016, 03:20:14
  */
 
 #include "defs.h"
@@ -19,6 +19,9 @@ void *xmalloc(size_t size);
 void *xcalloc(size_t nmemb, size_t size);
 char *fitstring(char *str, ...);
 int filenumberFromFilename(char *filename);
+char *sensibleFilename(char *fnstr);
+char *replaceSpaces(char *str);
+char *sensibleChars(char *str);
 char *concatFileParts(int numparts, ...);
 char *escapestr(char *str);
 struct tm *initTm(void);

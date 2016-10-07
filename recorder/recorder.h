@@ -1,12 +1,11 @@
 /*
  * vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4 foldmethod=marker:
  *
- * cristel.h
- * 
- * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Thursday  6 October 2016, 17:56:00
+ * recorder.h
  *
- * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
+ * Last Modified: Thursday  6 October 2016, 18:09:54
+ *
+ * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
  * This file is part of cristel.
  * 
@@ -24,30 +23,11 @@
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/types.h>
+#ifndef RECORDER_H
+#define RECORDER_H
 #include "defs.h"
-#include <locale.h>
 #include "macros.h"
 #include "tools.h"
 #include "configfile.h"
-#include <argtable2.h>
-#include "dvbctrl.h"
-#include "dvbcmds.h"
-#include "sql.h"
 
-/* globals */
-struct ConfigItem *configuration;
-struct Program *currentprogram;
-struct Single *single;
-int llevel=6;
-int timetodie=0;
-int reload=0;
-
-char *argprocessing(int argc,char **argv);
-void catchsignal(int sig);
-void daemonize(char *conffile);
-void setDefaultConfig( void );
-void startDvbStreamer(int adaptor);
-void stopDvbStreamer(int adaptor);
-void mainLoop();
-int main(int argc,char **argv);
+#endif

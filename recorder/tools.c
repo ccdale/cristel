@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Thursday  6 October 2016, 12:37:51
+ * Last Modified: Friday  7 October 2016, 04:28:05
  */
 
 #include "tools.h"
@@ -45,7 +45,7 @@ char *fitstring(char *str, ...)/*{{{*/
         WARN("fitstring: failed! string: '%s', returned %d",str,slen);
         return NULL;
     }
-    DEBUG("fitstring: length: %d",slen);
+    /* DEBUG("fitstring: length: %d",slen);*/
     if(slen>0){
         xstr=xmalloc(++slen);
     }else{
@@ -70,7 +70,7 @@ char *concatFileParts(int numparts, ...)/* {{{1 */
     va_start(valist, numparts);
     for(x=0;x<numparts;x++){
         tmp=va_arg(valist, char*);
-        DEBUG("variable arg %d: %s",x,tmp);
+        /* DEBUG("variable arg %d: %s",x,tmp);*/
         fnlen+=strlen(tmp);
         if(fnlen<PATH_MAX){
             strcat(buffer,tmp);
@@ -111,6 +111,144 @@ int filenumberFromFilename(char *filename)/* {{{1 */
     free(str);
     return ret;
 }/* }}} */
+char *sensibleFilename(char *str)/* {{{1 */
+{
+    char *fnstr,*tmpstr;
+    tmpstr=replaceSpaces(str);
+    if(tmpstr){
+        /* DEBUG("replaceSpaces has returned: '%s'",tmpstr);*/
+        fnstr=sensibleChars(tmpstr);
+        /* DEBUG("sensibleChars has returned: '%s'",fnstr);*/
+        free(tmpstr);
+    }
+    return fnstr;
+}/* }}} */
+char *replaceSpaces(char *str)/*{{{*/
+{
+    int outpipe[2];
+    int inpipe[2];
+    char *fnstr=NULL;
+    char *tmp;
+    int slen,wlen,rlen;
+    int cpid;
+    int status;
+    pid_t pid;
+
+    if((slen=strlen(str))>0){
+        fnstr=xcalloc(sizeof(char),++slen);
+        if(pipe(outpipe)<0){
+            WARN("sensible filename failed for '%s' at create out pipe",str);
+        }
+        if(pipe(inpipe)<0){
+            WARN("sensible filename failed for '%s' at create in pipe",str);
+        }
+        if((cpid=fork())<0){
+            WARN("sensible filename failed to fork for '%s'",str);
+            close(outpipe[0]);
+            close(outpipe[1]);
+            close(inpipe[0]);
+            close(inpipe[1]);
+        }else if(cpid==0){
+            /* child process */
+            close(inpipe[1]); /* don't need in pipe write end */
+            close(outpipe[0]); /* nor outpipe's read end */
+            if(dup2(inpipe[0],STDIN_FILENO) < 0){
+                CCAE(1,"sensible filename failed to duplicate stdin for forked process");
+            }
+            if(dup2(outpipe[1],STDOUT_FILENO) < 0){
+                CCAE(1,"sensible filename failed to duplicate stdout for forked process");
+            }
+            /* convert spaces to underscores */
+            execlp("/usr/bin/tr","/usr/bin/tr","[ ]","_",NULL);
+            close(inpipe[0]);
+            close(outpipe[1]);
+            CCAE(1,"error executing /usr/bin/tr");
+        }else{
+            /* parent process continues */
+            close(inpipe[0]);
+            close(outpipe[1]);
+            /* DEBUG("writing str to tr: '%s'",str);*/
+            wlen=write(inpipe[1],str,slen);
+            /* DEBUG("wrote %d bytes of len %d",wlen,(int)strlen(str));*/
+            close(inpipe[1]);
+            /* DEBUG("reading from tr into fnstr");*/
+            rlen=read(outpipe[0],fnstr,slen);
+            close(outpipe[0]);
+            /* DEBUG("read %d bytes from tr",rlen);*/
+            /* DEBUG("adding terminating zero");*/
+            tmp=fnstr+rlen;
+            *tmp='\0';
+            /* DEBUG("read: '%s'",fnstr);*/
+            /* DEBUG("Parent will now wait for tr process to finish");*/
+            pid=wait(&status);
+            /* DEBUG("Parent detect process %d finished",(int)pid);*/
+        }
+    }
+    return fnstr;
+}/*}}}*/
+char *sensibleChars(char *str)/*{{{*/
+{
+    int outpipe[2];
+    int inpipe[2];
+    char *fnstr=NULL;
+    char *tmp;
+    int slen,wlen,rlen;
+    int cpid;
+    int status;
+    pid_t pid;
+
+    if((slen=strlen(str))>0){
+        fnstr=xcalloc(sizeof(char),++slen);
+        if(pipe(outpipe)<0){
+            WARN("sensible chars failed for '%s' at create out pipe",str);
+        }
+        if(pipe(inpipe)<0){
+            WARN("sensible chars failed for '%s' at create in pipe",str);
+        }
+        if((cpid=fork())<0){
+            WARN("sensible chars failed to fork for '%s'",str);
+            close(outpipe[0]);
+            close(outpipe[1]);
+            close(inpipe[0]);
+            close(inpipe[1]);
+        }else if(cpid==0){
+            /* child process */
+            close(inpipe[1]); /* don't need in pipe write end */
+            close(outpipe[0]); /* nor outpipe's read end */
+            if(dup2(inpipe[0],STDIN_FILENO) < 0){
+                CCAE(1,"sensible chars failed to duplicate stdin for forked process");
+            }
+            if(dup2(outpipe[1],STDOUT_FILENO) < 0){
+                CCAE(1,"sensible chars failed to duplicate stdout for forked process");
+            }
+            /* convert spaces to underscores */
+            /* DEBUG("running: tr -cd '[a-zA-Z0-9_-]'");*/
+            execlp("/usr/bin/tr","/usr/bin/tr","--complement","--delete","[a-zA-Z0-9]_-",NULL);
+            close(inpipe[0]);
+            close(outpipe[1]);
+            CCAE(1,"error executing /usr/bin/tr");
+        }else{
+            /* parent process continues */
+            close(inpipe[0]);
+            close(outpipe[1]);
+            /* DEBUG("writing str to tr: '%s'",str);*/
+            wlen=write(inpipe[1],str,slen);
+            /* DEBUG("wrote %d bytes of len %d",wlen,(int)strlen(str));*/
+            close(inpipe[1]);
+            /* DEBUG("reading from tr into fnstr");*/
+            rlen=read(outpipe[0],fnstr,slen);
+            close(outpipe[0]);
+            /* DEBUG("read %d bytes from tr",rlen);*/
+            /* DEBUG("adding terminating zero");*/
+            tmp=fnstr+rlen;
+            *tmp='\0';
+            /* DEBUG("read: '%s'",fnstr);*/
+            pid=wait(&status);
+            /* DEBUG("Parent finished waiting: %d",(int)pid);*/
+        }
+    }
+    return fnstr;
+}/*}}}*/
 char *escapestr(char *str)/* {{{1 */
 {
     char *op=NULL;
@@ -207,7 +345,7 @@ long filesize(char *filename)/* {{{1 */
          * read, if this function is used as a 
          * file_exists function
          */
-        DEBUG("Cannot read file %s",filename);
+        DEBUG("file does not exist: %s",filename);
     }
     /* syslog(LOG_DEBUG,"freeing stat buffer"); */
     free(statbuf);
