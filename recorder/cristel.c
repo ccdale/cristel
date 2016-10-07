@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Friday  7 October 2016, 10:21:44
+ * Last Modified: Friday  7 October 2016, 10:32:40
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -228,6 +228,10 @@ void daemonize(char *conffile)/* {{{1 */
     if((junk=sigaction(SIGINT,&siga,NULL))!=0){
         CCAE(1,"cannot set handler for SIGINT");
     }
+    siga.sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGCHLD,&siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGCHLD");
+    }
 
     /* interesting (caught) signals */
     siga.sa_handler=catchsignal;
@@ -237,10 +241,6 @@ void daemonize(char *conffile)/* {{{1 */
     siga.sa_handler=catchsignal;
     if((junk=sigaction(SIGUSR1,&siga,NULL))!=0){
         CCAE(1,"cannot set handler for SIGUSR1");
-    }
-    siga.sa_handler=catchsignal;
-    if((junk=sigaction(SIGCHLD,&siga,NULL))!=0){
-        CCAE(1,"cannot set handler for SIGCHLD");
     }
     siga.sa_handler=catchsignal;
     if((junk=sigaction(SIGTERM,&siga,NULL))!=0){
@@ -402,11 +402,8 @@ int main(int argc,char **argv)/* {{{ */
     NOTICE(PROGNAME" starting");
 
     daemonize(conffile);
-    /*
-     * wait for parent to exit cleanly
-     * sleep will be interrupted when SIGCHLD fires
-     */
-    /* sleep(10); */
+    /* sleep for a bit to allow daemonize to settle */
+    /* sleep(10);*/
 
     na=atoi(configValue("numadaptors"));
     for(x=0;x<na;x++){
