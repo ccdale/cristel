@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Friday  7 October 2016, 10:16:55
+ * Last Modified: Friday  7 October 2016, 10:21:44
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -381,7 +381,7 @@ void mainLoop(sqlite3 *db)/*{{{*/
             /* break; */
             cc=0; /* only every 10 seconds */
         }
-        alarm(500); /* goto sleep for 500 seconds */
+        alarm(30); /* goto sleep for 30 seconds */
         pause();
     }
     while(1);
@@ -406,7 +406,7 @@ int main(int argc,char **argv)/* {{{ */
      * wait for parent to exit cleanly
      * sleep will be interrupted when SIGCHLD fires
      */
-    sleep(10);
+    /* sleep(10); */
 
     na=atoi(configValue("numadaptors"));
     for(x=0;x<na;x++){

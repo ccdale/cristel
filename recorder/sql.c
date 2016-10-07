@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Friday  7 October 2016, 10:01:27
+ * Last Modified: Friday  7 October 2016, 10:25:22
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -47,57 +47,57 @@ int fillProgram(void *NotUsed, int argc, char **argv, char **ColName)/*{{{*/
     int x;
     for(x=0;x<argc;x++){
         if((strcmp(ColName[x],"id")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->id=atoi(argv[x]);
-            DEBUG("Check: %d", currentprogram->id);
+            /* DEBUG("Check: %d", currentprogram->id);*/
         }else if((strcmp(ColName[x],"event")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->event=atoi(argv[x]);
-            DEBUG("Check: %d", currentprogram->event);
+            /* DEBUG("Check: %d", currentprogram->event);*/
         }else if((strcmp(ColName[x],"muxid")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->muxid=atoi(argv[x]);
-            DEBUG("Check: %d", currentprogram->muxid);
+            /* DEBUG("Check: %d", currentprogram->muxid);*/
         }else if((strcmp(ColName[x],"start")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->start=atoi(argv[x]);
-            DEBUG("Check: %d", currentprogram->start);
+            /* DEBUG("Check: %d", currentprogram->start);*/
         }else if((strcmp(ColName[x],"end")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->end=atoi(argv[x]);
-            DEBUG("Check: %d", currentprogram->end);
+            /* DEBUG("Check: %d", currentprogram->end);*/
         }else if((strcmp(ColName[x],"adaptor")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->adaptor=atoi(argv[x]);
-            DEBUG("Check: %d", currentprogram->adaptor);
+            /* DEBUG("Check: %d", currentprogram->adaptor);*/
         }else if((strcmp(ColName[x],"source")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->source=strdup(argv[x]);
-            DEBUG("Check: %s", currentprogram->source);
+            /* DEBUG("Check: %s", currentprogram->source);*/
         }else if((strcmp(ColName[x],"cname")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->cname=strdup(argv[x]);
-            DEBUG("Check: %s", currentprogram->cname);
+            /* DEBUG("Check: %s", currentprogram->cname);*/
         }else if((strcmp(ColName[x],"title")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->title=strdup(argv[x]);
-            DEBUG("Check: %s", currentprogram->title);
+            /* DEBUG("Check: %s", currentprogram->title);*/
         }else if((strcmp(ColName[x],"description")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->description=strdup(argv[x]);
-            DEBUG("Check: %s", currentprogram->description);
+            /* DEBUG("Check: %s", currentprogram->description);*/
         }else if((strcmp(ColName[x],"progid")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->progid=strdup(argv[x]);
-            DEBUG("Check: %s", currentprogram->progid);
+            /* DEBUG("Check: %s", currentprogram->progid);*/
         }else if((strcmp(ColName[x],"seriesid")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->seriesid=strdup(argv[x]);
-            DEBUG("Check: %s", currentprogram->seriesid);
+            /* DEBUG("Check: %s", currentprogram->seriesid);*/
         }else if((strcmp(ColName[x],"record")==0) && (argv[x]!=NULL)){
-            DEBUG("Setting %s to %s",ColName[x],argv[x]);
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->record=strdup(argv[x]);
-            DEBUG("Check: %s", currentprogram->record);
+            /* DEBUG("Check: %s", currentprogram->record);*/
         }else{
             if(argv[x]==NULL){
                 DEBUG("Column %s is NULL",ColName[x]);
