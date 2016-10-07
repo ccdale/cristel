@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Friday  7 October 2016, 09:58:48
+ * Last Modified: Friday  7 October 2016, 10:01:27
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -31,6 +31,7 @@ int countFutureRecordings(sqlite3 *db)/* {{{1 */
     time_t now;
     int numr=0;
 
+    resetSingle();
     now=time(NULL);
     sql=fitstring("select count(*) as xcount from schedule where record='y' and start > %ld",now);
     rc=sqlexec(db,sql,returnSingle);
@@ -152,6 +153,7 @@ int getNextToRecord(sqlite3 *db)/* {{{1 */
     time_t now;
     int numr;
 
+    resetProgram();
     numr=countFutureRecordings(db);
     if(numr>0){
         now=time(NULL);
