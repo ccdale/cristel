@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Friday  7 October 2016, 09:46:54
+ * Last Modified: Friday  7 October 2016, 10:16:55
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -102,10 +102,10 @@ void catchsignal(int sig)/* {{{1 */
                 if (WIFEXITED(childStatus)){
                     WARN("Child Exit Code: %d\n", WEXITSTATUS(childStatus));
                 }else{
-                    INFO("Child exit Status: 0x%.4X\n", childStatus);
+                    DEBUG("Child exit Status: 0x%.4X\n", childStatus);
                 }
             }else if (returnValue == 0){
-                INFO("Child process still running\n");
+                DEBUG("Child process still running\n");
             }else{
                 WARN("error: %d: %s",errno,strerror(errno));
             }
@@ -116,7 +116,6 @@ void catchsignal(int sig)/* {{{1 */
             break;
         case SIGUSR1:
             DBG("SIGUSR1 signal caught");
-            reload=1;
             break;
         case SIGALRM:
             DBG("SIGALRM signal caught");
@@ -342,47 +341,26 @@ void setDefaultConfig(void)/*{{{*/
     tv=strdup(CCA_DEFAULT_RECPATH);
     updateConfig(tk,tv);
 }/* }}} */
-void mainLoop()/*{{{*/
+void mainLoop(sqlite3 *db)/*{{{*/
 {
     int cc=0;
-    sqlite3 *db;
-    int rc=0;
-    char *dbname;
-    long flen=0;
-    time_t now;
+    time_t now,t2;
     int then;
     struct tm *tim;
     struct ServiceInfo *SI;
 
-    /* wait for the parent to exit cleanly */
-    sleep(10);
-
-    tzset();
-    initProgram();
-    dbname=concatFileParts(3,configValue("dbpath"),"/",configValue("dbname"));
-    flen=filesize(dbname);
-    if(flen!=-1){
-        DEBUG("opening db: %s",dbname);
-        rc=sqlite3_open(dbname, &db);
-        if(rc!=SQLITE_OK){
-            CCAE(1,"error opening db: %s, error code: %d",dbname,rc);
-        }
-    }else{
-        CCAE(1,"cannot find db: %s",dbname);
-    }
     do{
         if(timetodie!=0){
             INFO("Shutting down");
             break;
         }
-        DEBUG("Calling new func: getNextToRecord");
         getNextToRecord(db);
         if(currentprogram->start){
             now=time(NULL);
-            tim=gmtime(&now);
+            t2=currentprogram->start;
+            tim=localtime(&t2);
             then=currentprogram->start-now;
             INFO("Next: '%s' at %.2d:%.2d in %d secs.",currentprogram->title,tim->tm_hour,tim->tm_min,then);
-            /* INFO("Next recording: %d seconds. (%s)",then,currentprogram->title); */
         }
         /* sleep(1);*/
         if((++cc)>10){
@@ -403,20 +381,10 @@ void mainLoop()/*{{{*/
             /* break; */
             cc=0; /* only every 10 seconds */
         }
-        if(reload!=0){
-            reload=0;
-            INFO("Re-reading db");
-        }
         alarm(500); /* goto sleep for 500 seconds */
         pause();
     }
     while(1);
-    DEBUG("Closing db %s",dbname);
-    sqlite3_close(db);
-    if(dbname){
-        free(dbname);
-    }
-    freeProgram();
 }/*}}}*/
 int main(int argc,char **argv)/* {{{ */
 {
@@ -424,19 +392,49 @@ int main(int argc,char **argv)/* {{{ */
     char *conffile=NULL;
     int na=1;
     int x;
+    sqlite3 *db;
+    int rc=0;
+    long flen=0;
+    char *dbname;
 
     conffile=argprocessing(argc,argv);
 
     NOTICE(PROGNAME" starting");
 
     daemonize(conffile);
+    /*
+     * wait for parent to exit cleanly
+     * sleep will be interrupted when SIGCHLD fires
+     */
+    sleep(10);
 
     na=atoi(configValue("numadaptors"));
     for(x=0;x<na;x++){
         startDvbStreamer(x);
     }
 
-    mainLoop();
+    tzset();
+    initProgram();
+    dbname=concatFileParts(3,configValue("dbpath"),"/",configValue("dbname"));
+    flen=filesize(dbname);
+    if(flen!=-1){
+        DEBUG("opening db: %s",dbname);
+        rc=sqlite3_open(dbname, &db);
+        if(rc!=SQLITE_OK){
+            CCAE(1,"error opening db: %s, error code: %d",dbname,rc);
+        }
+    }else{
+        CCAE(1,"cannot find db: %s",dbname);
+    }
+
+    mainLoop(db);
+
+    DEBUG("Closing db %s",dbname);
+    sqlite3_close(db);
+    if(dbname){
+        free(dbname);
+    }
+    freeProgram();
 
     for(x=0;x<na;x++){
         stopDvbStreamer(x);

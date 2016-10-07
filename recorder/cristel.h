@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Thursday  6 October 2016, 17:56:00
+ * Last Modified: Friday  7 October 2016, 10:14:39
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -41,7 +41,6 @@ struct Program *currentprogram;
 struct Single *single;
 int llevel=6;
 int timetodie=0;
-int reload=0;
 
 char *argprocessing(int argc,char **argv);
 void catchsignal(int sig);
@@ -49,5 +48,5 @@ void daemonize(char *conffile);
 void setDefaultConfig( void );
 void startDvbStreamer(int adaptor);
 void stopDvbStreamer(int adaptor);
-void mainLoop();
+void mainLoop(sqlite3 *db);
 int main(int argc,char **argv);
