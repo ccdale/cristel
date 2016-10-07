@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Friday  7 October 2016, 03:28:37
+ * Last Modified: Friday  7 October 2016, 09:46:54
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -351,11 +351,13 @@ void mainLoop()/*{{{*/
     long flen=0;
     time_t now;
     int then;
+    struct tm *tim;
     struct ServiceInfo *SI;
 
     /* wait for the parent to exit cleanly */
     sleep(10);
 
+    tzset();
     initProgram();
     dbname=concatFileParts(3,configValue("dbpath"),"/",configValue("dbname"));
     flen=filesize(dbname);
@@ -377,8 +379,10 @@ void mainLoop()/*{{{*/
         getNextToRecord(db);
         if(currentprogram->start){
             now=time(NULL);
+            tim=gmtime(&now);
             then=currentprogram->start-now;
-            INFO("Next recording: %d seconds. (%s)",then,currentprogram->title);
+            INFO("Next: '%s' at %.2d:%.2d in %d secs.",currentprogram->title,tim->tm_hour,tim->tm_min,then);
+            /* INFO("Next recording: %d seconds. (%s)",then,currentprogram->title); */
         }
         /* sleep(1);*/
         if((++cc)>10){
@@ -413,13 +417,6 @@ void mainLoop()/*{{{*/
         free(dbname);
     }
     freeProgram();
-    DEBUG("testing sensibleFilename");
-    char *fnstr=NULL;
-    fnstr=sensibleFilename("A long and spacey string (with some @!->) odd chars");
-    if(fnstr){
-        DEBUG("returned: '%s'");
-        free(fnstr);
-    }
 }/*}}}*/
 int main(int argc,char **argv)/* {{{ */
 {

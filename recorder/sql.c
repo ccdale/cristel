@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Thursday  6 October 2016, 13:35:40
+ * Last Modified: Friday  7 October 2016, 09:58:48
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -164,22 +164,9 @@ int getNextToRecord(sqlite3 *db)/* {{{1 */
 void initProgram(void)/* {{{1 */
 {
     currentprogram=xmalloc(sizeof(struct Program));
-    currentprogram->id=0;
-    currentprogram->event=0;
-    currentprogram->muxid=0;
-    currentprogram->start=0;
-    currentprogram->end=0;
-    currentprogram->adaptor=0;
-    currentprogram->source=NULL;
-    currentprogram->cname=NULL;
-    currentprogram->title=NULL;
-    currentprogram->description=NULL;
-    currentprogram->progid=NULL;
-    currentprogram->seriesid=NULL;
-    currentprogram->record=NULL;
+    resetProgram();
     single=xmalloc(sizeof(struct Single));
-    single->colname=NULL;
-    single->val=NULL;
+    resetSingle();
 }/* }}} */
 void logSingle(void)/*{{{*/
 {
@@ -264,6 +251,27 @@ void logProgram(void)/*{{{*/
         DEBUG("current program not setup");
     }
 }/*}}}*/
+void resetProgram(void)/* {{{1 */
+{
+    currentprogram->id=0;
+    currentprogram->event=0;
+    currentprogram->muxid=0;
+    currentprogram->start=0;
+    currentprogram->end=0;
+    currentprogram->adaptor=0;
+    currentprogram->source=NULL;
+    currentprogram->cname=NULL;
+    currentprogram->title=NULL;
+    currentprogram->description=NULL;
+    currentprogram->progid=NULL;
+    currentprogram->seriesid=NULL;
+    currentprogram->record=NULL;
+}/* }}} */
+void resetSingle(void)/* {{{1 */
+{
+    single->colname=NULL;
+    single->val=NULL;
+}/* }}} */
 int returnSingle(void *unused, int argc, char **argv, char **colname)/* {{{1 */
 {
     if(argc==1){
