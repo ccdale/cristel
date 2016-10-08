@@ -3,7 +3,7 @@
  *
  * recorder.h
  *
- * Last Modified: Thursday  6 October 2016, 18:09:54
+ * Last Modified: Saturday  8 October 2016, 08:12:56
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -31,3 +31,6 @@
 #include "configfile.h"
 
 #endif
+
+int recordProgram();
+char *filenameFromTitle(char *title);

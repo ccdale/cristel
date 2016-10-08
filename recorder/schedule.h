@@ -3,7 +3,7 @@
  *
  * schedule.h
  *
- * Last Modified: Friday  7 October 2016, 16:05:35
+ * Last Modified: Friday  7 October 2016, 17:07:05
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -32,4 +32,3 @@
 
 #endif
 void getepg(void);
-void runepgupdate(void);

@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Friday  7 October 2016, 15:07:55
+ * Last Modified: Saturday  8 October 2016, 07:30:45
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -362,7 +362,6 @@ void mainLoop(sqlite3 *db)/*{{{*/
             then=currentprogram->start-now;
             INFO("Next: '%s' at %.2d:%.2d in %d secs.",currentprogram->title,tim->tm_hour,tim->tm_min,then);
         }
-        getepg();
         /* sleep(1);*/
         if((++cc)>10){
             cc=selectlcn(0,1);
@@ -382,7 +381,7 @@ void mainLoop(sqlite3 *db)/*{{{*/
             /* break; */
             cc=0; /* only every 10 seconds */
         }
-        alarm(30); /* goto sleep for 30 seconds */
+        alarm(300); /* goto sleep for 300 seconds */
         pause();
     }
     while(1);
