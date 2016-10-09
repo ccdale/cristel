@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Saturday  8 October 2016, 13:27:43
+ * Last Modified: Sunday  9 October 2016, 09:30:16
  */
 
 #include "tools.h"
@@ -32,6 +32,34 @@ void *xcalloc(size_t nmemb, size_t size)/*{{{*/
     xmem=memset(xmem,0,nmemb*size);
     return xmem;
 }/*}}}*/
+char *hms(int seconds)/* {{{1 */
+{
+    int days=0, hours=0, mins=0, secs=0;
+    char *output;
+
+    if(seconds>86400){
+        days=seconds / 86400;
+        secs=seconds % 86400;
+    }else{
+        secs=seconds;
+    }
+    if(secs>3600){
+        hours=secs / 3600;
+        secs=secs % 3600;
+    }
+    if(secs>60){
+        mins=secs / 60;
+        secs=secs % 60;
+    }
+    if(days>1){
+        output=fitstring("%d days, %.2d:%.2d:%.2d",days,hours,mins,secs);
+    }else if(days==1){
+        output=fitstring("%d day, %.2d:%.2d:%.2d",days,hours,mins,secs);
+    }else{
+        output=fitstring("%.2d:%.2d:%.2d",hours,mins,secs);
+    }
+    return output;
+}/* }}} */
 char *fitstring(char *str, ...)/*{{{*/
 {
     char *xstr;
