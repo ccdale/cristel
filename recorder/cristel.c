@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Saturday  8 October 2016, 09:10:40
+ * Last Modified: Sunday  9 October 2016, 10:03:45
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -343,49 +343,27 @@ void setDefaultConfig(void)/*{{{*/
 }/* }}} */
 void mainLoop(sqlite3 *db)/*{{{*/
 {
-    int cc=0;
-    time_t now,t2;
-    int then,x;
-    struct tm *tim;
-    struct ServiceInfo *SI;
+    int then,wait=86400;
+    char *howlong=NULL;
 
     do{
         if(timetodie!=0){
             INFO("Shutting down");
             break;
         }
-        getNextToRecord(db);
-        if(currentprogram->start){
-            now=time(NULL);
-            t2=currentprogram->start;
-            tim=localtime(&t2);
-            then=currentprogram->start-now;
-            INFO("Next: '%s' at %.2d:%.2d in %d secs.",currentprogram->title,tim->tm_hour,tim->tm_min,then);
-            INFO("Setting up recording");
-            x=recordProgram();
-            DEBUG("recordProgram returned %d",x);
-            break;
+        then=checkNextRecordStart(db);
+        if(then<wait){
+            wait=then;
         }
-        /* sleep(1);*/
-        if((++cc)>10){
-            cc=selectlcn(0,1);
-            cc=selectlcn(1,3);
-            SI=getServiceInfo("BBC TWO");
-            DEBUG("SI: Name: %s",SI->name);
-            DEBUG("SI: Type: %d",SI->type);
-            DEBUG("SI: ca: %d",SI->ca);
-            DEBUG("SI: ID: %s",SI->ID);
-            DEBUG("SI: mux: %d",SI->mux);
-            DEBUG("SI: Source: %s",SI->source);
-            freeServiceInfo(SI);
-            int ff=safeToRecord(0,"ITV");
-            DEBUG("safe to record free filter on adaptor 0: %d",ff);
-            ff=safeToRecord(1,"ITV");
-            DEBUG("safe to record free filter on adaptor 1: %d",ff);
-            /* break; */
-            cc=0; /* only every 10 seconds */
+        howlong=hms(wait);
+        if(howlong){
+            DEBUG("Sleeping for %d seconds (%s)",wait,howlong);
+            free(howlong);
+            howlong=NULL;
+        }else{
+            DEBUG("Sleeping for %d seconds",wait);
         }
-        alarm(300); /* goto sleep for 300 seconds */
+        alarm(wait); /* goto sleep for wait time */
         pause();
     }
     while(1);

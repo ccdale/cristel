@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Sunday  9 October 2016, 09:17:45
+ * Last Modified: Sunday  9 October 2016, 10:03:04
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -25,6 +25,23 @@
 
 #include "recorder.h"
 
+int checkNextRecordStart(sqlite3 *db)/* {{{1 */
+{
+    int then,x;
+
+    then=nextToRecordI(db);
+    if(then==INT_MAX){
+        INFO("Nothing to record");
+    }else{
+        if(then<1){
+            INFO("Preparing to record %s",currentprogram->title);
+            x=recordProgram();
+            DEBUG("recordProgram returned %d",x);
+            then=INT_MAX;
+        }
+    }
+    return then;
+}/* }}} */
 char *filenameFromTitle(char *title)/* {{{1 */
 {
     char *fn;
@@ -56,14 +73,25 @@ char *filenameFromTitle(char *title)/* {{{1 */
 }/* }}} */
 int nextToRecordI(sqlite3 *db)/* {{{1 */
 {
-    int ret=-1;
-    int togo;
+    int togo=INT_MAX;
+    struct tm *tim;
+    char *howlong;
+    time_t then;
 
     getNextToRecord(db);
     if(currentprogram->start){
-        togo=currentprogram->start-time(NULL);
+        then=currentprogram->start;
+        tim=localtime(&then);
+        togo=currentprogram->start - time(NULL);
+        if(togo>0){
+            howlong=hms(togo);
+            INFO("Next Recording: '%s' at %.2d:%.2d in %s",currentprogram->title,tim->tm_hour,tim->tm_min,howlong);
+            free(howlong);
+        }else{
+            INFO("Next Recording: '%s' at %.2d:%.2d - NOW",currentprogram->title,tim->tm_hour,tim->tm_min);
+        }
     }
-    return ret;
+    return togo;
 }/* }}} */
 int recordProgram(void)/* {{{1 */
 {
