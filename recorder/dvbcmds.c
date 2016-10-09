@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Sunday 18 September 2016, 21:27:43
+ * Last Modified: Saturday  8 October 2016, 09:06:14
  */
 
 #include "dvbcmds.h"
@@ -89,6 +89,30 @@ int addsf(int adaptornum,int filternum)/*{{{*/
     free(junk);
     return filternum;
 }/*}}}*/
+int setsf(int adaptornum,int filternum,char *cname)/* {{{1 */
+{
+    char *cmd=NULL;
+    char *output=NULL;
+    int ret=1;
+    int nl;
+
+    if(filternum==0){
+        cmd=fitstring("select '%s'",cname);
+    }else{
+        cmd=fitstring("setsf dvb%d '%s'",filternum,cname);
+    }
+    if(cmd){
+        nl=dvbcmd(cmd,adaptornum,output);
+        if(nl>0){
+            DEBUG("setsf: %d lines",nl);
+            DEBUG("setsf: output: %s",output);
+            free(output);
+        }
+    }else{
+        WARN("setsf: failed to allocate cmd string for filter %d and channel %s",filternum,cname);
+    }
+    return ret;
+}/* }}} */
 
 /* helper commands */
 int getsfmux(int adaptornum)/*{{{*/

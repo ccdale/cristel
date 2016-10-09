@@ -3,7 +3,7 @@
  *
  * sql.h
  *
- * Last Modified: Friday  7 October 2016, 09:59:26
+ * Last Modified: Saturday  8 October 2016, 13:21:35
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -49,9 +49,10 @@ struct Single{
     char *colname;
     char *val;
 };
+#endif
+
 extern struct Program *currentprogram;
 extern struct Single *single;
-#endif
 
 int countFutureRecordings(sqlite3 *db);
 int fillProgram(void *NotUsed, int argc, char **argv, char **ColName);

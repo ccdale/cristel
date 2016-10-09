@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Friday  7 October 2016, 04:28:05
+ * Last Modified: Saturday  8 October 2016, 13:27:43
  */
 
 #include "tools.h"
@@ -35,11 +35,11 @@ void *xcalloc(size_t nmemb, size_t size)/*{{{*/
 char *fitstring(char *str, ...)/*{{{*/
 {
     char *xstr;
-    int slen=0;
+    int slen;
     va_list args;
 
     va_start(args,str);
-    slen=vsnprintf(xstr,slen,str,args);
+    slen=vsnprintf(0,0,str,args);
     va_end(args);
     if(slen<0){
         WARN("fitstring: failed! string: '%s', returned %d",str,slen);
@@ -129,10 +129,9 @@ char *replaceSpaces(char *str)/*{{{*/
     int inpipe[2];
     char *fnstr=NULL;
     char *tmp;
-    int slen,wlen,rlen;
+    int slen,rlen;
     int cpid;
     int status;
-    pid_t pid;
 
     if((slen=strlen(str))>0){
         fnstr=xcalloc(sizeof(char),++slen);
@@ -168,8 +167,7 @@ char *replaceSpaces(char *str)/*{{{*/
             close(inpipe[0]);
             close(outpipe[1]);
             /* DEBUG("writing str to tr: '%s'",str);*/
-            wlen=write(inpipe[1],str,slen);
-            /* DEBUG("wrote %d bytes of len %d",wlen,(int)strlen(str));*/
+            write(inpipe[1],str,slen);
             close(inpipe[1]);
             /* DEBUG("reading from tr into fnstr");*/
             rlen=read(outpipe[0],fnstr,slen);
@@ -180,8 +178,7 @@ char *replaceSpaces(char *str)/*{{{*/
             *tmp='\0';
             /* DEBUG("read: '%s'",fnstr);*/
             /* DEBUG("Parent will now wait for tr process to finish");*/
-            pid=wait(&status);
-            /* DEBUG("Parent detect process %d finished",(int)pid);*/
+            wait(&status);
         }
     }
     return fnstr;
@@ -192,10 +189,9 @@ char *sensibleChars(char *str)/*{{{*/
     int inpipe[2];
     char *fnstr=NULL;
     char *tmp;
-    int slen,wlen,rlen;
+    int slen,rlen;
     int cpid;
     int status;
-    pid_t pid;
 
     if((slen=strlen(str))>0){
         fnstr=xcalloc(sizeof(char),++slen);
@@ -232,8 +228,7 @@ char *sensibleChars(char *str)/*{{{*/
             close(inpipe[0]);
             close(outpipe[1]);
             /* DEBUG("writing str to tr: '%s'",str);*/
-            wlen=write(inpipe[1],str,slen);
-            /* DEBUG("wrote %d bytes of len %d",wlen,(int)strlen(str));*/
+            write(inpipe[1],str,slen);
             close(inpipe[1]);
             /* DEBUG("reading from tr into fnstr");*/
             rlen=read(outpipe[0],fnstr,slen);
@@ -243,8 +238,7 @@ char *sensibleChars(char *str)/*{{{*/
             tmp=fnstr+rlen;
             *tmp='\0';
             /* DEBUG("read: '%s'",fnstr);*/
-            pid=wait(&status);
-            /* DEBUG("Parent finished waiting: %d",(int)pid);*/
+            wait(&status);
         }
     }
     return fnstr;

@@ -6,7 +6,7 @@
  * index.php
  *
  * Started: Sunday 16 August 2015, 02:21:57
- * Last Modified: Wednesday 18 November 2015, 09:43:05
+ * Last Modified: Saturday  8 October 2016, 14:33:44
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -51,8 +51,8 @@ function doGrid()/*{{{*/
     $op=$g->build();
     return $op;
 }/*}}}*/
-// $logg=new Logging(false,"CPHP",0,LOG_DEBUG);
-$logg=new Logging(false,"CPHP",0,LOG_INFO);
+$logg=new Logging(false,"CPHP",0,LOG_DEBUG);
+// $logg=new Logging(false,"CPHP",0,LOG_INFO);
 $b=new Base($logg);
 $homedir="/home/chris";
 $datadir=$b->unixpath($homedir) . ".epgdb";
@@ -60,6 +60,7 @@ $cristeldbfn=$b->unixpath($datadir) . "cristel.db";
 $epgdbfn=$b->unixpath($datadir) . "database.db";
 
 $cdb=new SSql($cristeldbfn,$logg);
+$iid=$cdb->insertCheck("Data",array('key'=>'timestamp','val'=>time()));
 $edb=new SSql($epgdbfn,$logg);
 
 $eventkeys=array("start","end","source","duration","logicalid","progid","description","seriesid","title");

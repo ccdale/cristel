@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Saturday  8 October 2016, 07:30:45
+ * Last Modified: Saturday  8 October 2016, 09:10:40
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -345,7 +345,7 @@ void mainLoop(sqlite3 *db)/*{{{*/
 {
     int cc=0;
     time_t now,t2;
-    int then;
+    int then,x;
     struct tm *tim;
     struct ServiceInfo *SI;
 
@@ -361,6 +361,10 @@ void mainLoop(sqlite3 *db)/*{{{*/
             tim=localtime(&t2);
             then=currentprogram->start-now;
             INFO("Next: '%s' at %.2d:%.2d in %d secs.",currentprogram->title,tim->tm_hour,tim->tm_min,then);
+            INFO("Setting up recording");
+            x=recordProgram();
+            DEBUG("recordProgram returned %d",x);
+            break;
         }
         /* sleep(1);*/
         if((++cc)>10){

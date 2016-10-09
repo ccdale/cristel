@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Saturday  8 October 2016, 08:25:44
+ * Last Modified: Saturday  8 October 2016, 13:38:44
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -25,8 +25,31 @@
 
 #include "recorder.h"
 
-int recordProgram()/* {{{1 */
+int recordProgram(void)/* {{{1 */
 {
+    char *fn;
+    int ff;
+    int adaptor;
+    int c;
+    int ret=1;
+
+    if((fn=filenameFromTitle(currentprogram->title))!=NULL){
+        c=2;
+        for(adaptor=0;adaptor<c;adaptor++){
+            if((ff=safeToRecord(0,currentprogram->cname))!=-1){
+                break;
+            }
+        }
+        if(ff!=-1){
+            c=setsf(adaptor,ff,currentprogram->cname);
+            DEBUG("recordProgram: setsf returned %d",c);
+        }else{
+            WARN("recordProgram failed to find free filter on any apaptor");
+        }
+    }else{
+        WARN("recordProgram failed to make filename from time and title");
+    }
+    return ret;
 }/* }}} */
 char *filenameFromTitle(char *title)/* {{{1 */
 {

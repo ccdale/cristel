@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:38:36
- * Last Modified: Sunday 18 September 2016, 09:50:20
+ * Last Modified: Saturday  8 October 2016, 08:52:07
  */
 
 #include "dvbctrl.h"
@@ -26,6 +26,7 @@ char * lssfs(int adaptornum);
 char * getsf(int adaptornum,int filternum);
 char * getsfmrl(int adaptornum,char *sfname);
 int addsf(int adaptornum,int filternum);
+int setsf(int adaptornum,int filternum,char *cname);
 int getsfmux(int adaptornum);
 int muxforchannel(char *channel);
 int selectlcn(int adaptornum,int channelnum);

@@ -3,7 +3,7 @@
  *
  * recorder.h
  *
- * Last Modified: Saturday  8 October 2016, 08:12:56
+ * Last Modified: Saturday  8 October 2016, 13:22:08
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -29,8 +29,11 @@
 #include "macros.h"
 #include "tools.h"
 #include "configfile.h"
-
+#include "dvbcmds.h"
+#include "sql.h"
 #endif
 
-int recordProgram();
+extern struct Program *currentprogram;
+
+int recordProgram(void);
 char *filenameFromTitle(char *title);

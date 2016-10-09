@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:07:48
- * Last Modified: Sunday 18 September 2016, 11:21:22
+ * Last Modified: Saturday  8 October 2016, 13:36:38
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -388,3 +388,21 @@ char * dvbcommand(char *cmd,int adaptornum)/*{{{*/
     closeConnect();
     return output;
 }/*}}}*/
+int dvbcmd(char *cmd,int adaptornum,char *output)/* {{{1 */
+{
+    int nl;
+
+    /* clean up compiler warning about *output being unused */
+    if(output){
+    }
+    setupConnect(adaptornum);
+    if(SD.authenticated){
+        sprintf(SD.line,"%s",cmd);
+        nl=request(SD.line);
+        if(nl>0){
+            output=strdup(SD.data);
+        }
+    }
+    closeConnect();
+    return nl;
+}/* }}} */

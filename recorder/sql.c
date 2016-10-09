@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Friday  7 October 2016, 10:25:22
+ * Last Modified: Saturday  8 October 2016, 13:34:35
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -45,6 +45,9 @@ int countFutureRecordings(sqlite3 *db)/* {{{1 */
 int fillProgram(void *NotUsed, int argc, char **argv, char **ColName)/*{{{*/
 {
     int x;
+    /* to clear up the unused var warning */
+    if(NotUsed){
+    }
     for(x=0;x<argc;x++){
         if((strcmp(ColName[x],"id")==0) && (argv[x]!=NULL)){
             /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
@@ -148,7 +151,6 @@ void freeProgram(void)/* {{{1 */
 int getNextToRecord(sqlite3 *db)/* {{{1 */
 {
     char *sql;
-    char *sqlerr=0;
     int rc=0;
     time_t now;
     int numr;
@@ -276,6 +278,9 @@ void resetSingle(void)/* {{{1 */
 }/* }}} */
 int returnSingle(void *unused, int argc, char **argv, char **colname)/* {{{1 */
 {
+    /* removing compiler warning about *unused being 'unused' */
+    if(unused){
+    }
     if(argc==1){
         single->colname=strdup(colname[0]);
         single->val=strdup(argv[0]);
