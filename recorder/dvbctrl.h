@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:09:19
- * Last Modified: Saturday  8 October 2016, 09:01:23
+ * Last Modified: Sunday  9 October 2016, 10:38:50
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -95,4 +95,4 @@ struct ColonParse *parseColon(char *line);
 void updateServiceInfo(struct ServiceInfo *SI,char *key,char *val);
 struct ServiceInfo *getServiceInfo(char *service);
 char * dvbcommand(char *cmd,int adaptornum);
-int dvbcmd(char *cmd,int adaptornum,char *output);
+int dvbcmd(char *cmd,int adaptornum,char **output);

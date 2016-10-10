@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Saturday  8 October 2016, 09:06:14
+ * Last Modified: Monday 10 October 2016, 21:05:25
  */
 
 #include "dvbcmds.h"
@@ -34,29 +34,29 @@ char * lssfs(int adaptornum)/*{{{*/
 char * getsf(int adaptornum,int filternum)/*{{{*/
 {
     char *channel=NULL;
-    char *cmd;
-    char *line;
-    int len;
+    char *cmd=NULL;
+    char *line=NULL;
     struct ColonParse *CP;
+    int nl;
 
-    cmd=xmalloc(MAX_MSG_LEN);
     if(filternum==0){
-        len=snprintf(cmd,MAX_MSG_LEN,"getsf '<Primary>'");
+        cmd=fitstring("current");
     }else{
-        len=snprintf(cmd,MAX_MSG_LEN,"getsf dvb%d",filternum);
+        cmd=fitstring("getsf dvb%d",filternum);
     }
-    line=dvbcommand(cmd,adaptornum);
-    len=strlen(line);
-    if(len){
-        CP=parseColon(line);
-        channel=strdup(CP->val);
-        if(CP->tmp){
-            free(CP->tmp);
+    if(cmd){
+        nl=dvbcmd(cmd,adaptornum,&line);
+        if(nl>0){
+            CP=parseColon(line);
+            channel=strdup(CP->val);
+            if(CP->tmp){
+                free(CP->tmp);
+            }
+            free(CP);
         }
-        free(CP);
+        free(cmd);
+        free(line);
     }
-    free(line);
-    free(cmd);
     return channel;
 }/*}}}*/
 char * getsfmrl(int adaptornum,char *sfname)/*{{{*/
@@ -102,14 +102,44 @@ int setsf(int adaptornum,int filternum,char *cname)/* {{{1 */
         cmd=fitstring("setsf dvb%d '%s'",filternum,cname);
     }
     if(cmd){
-        nl=dvbcmd(cmd,adaptornum,output);
+        nl=dvbcmd(cmd,adaptornum,&output);
         if(nl>0){
             DEBUG("setsf: %d lines",nl);
             DEBUG("setsf: output: %s",output);
             free(output);
+            ret=0;
         }
+        free(cmd);
     }else{
         WARN("setsf: failed to allocate cmd string for filter %d and channel %s",filternum,cname);
+    }
+    return ret;
+}/* }}} */
+int setsfmrl(int adaptornum, int filternum, char *mrl)/* {{{1 */
+{
+    char *cmd=NULL;
+    char *output=NULL;
+    int ret=1;
+    int nl;
+
+    if(filternum==0){
+        cmd=fitstring("setmrl '%s'",mrl);
+    }else{
+        cmd=fitstring("setsfmrl dvb%d '%s'",filternum,mrl);
+    }
+    if(cmd){
+        nl=dvbcmd(cmd,adaptornum,&output);
+        if(nl>0){
+            DEBUG("setsfmrl: %d lines",nl);
+            DEBUG("setsfmrl: output: %s",output);
+            if(output){
+                free(output);
+            }
+            ret=0;
+        }
+        free(cmd);
+    }else{
+        WARN("setsfmrl: failed to allocate cmd string for filter %d and mrl %s",filternum,mrl);
     }
     return ret;
 }/* }}} */
@@ -321,4 +351,39 @@ void logFilterStatus(struct FilterStatus *FS)/*{{{*/
     }else{
         INFO("  FS: mrl not set");
     }
-}
+}/*}}}*/
+int streamNewProgram(char *fn, char *cname)/* {{{1 */
+{
+    int adaptor;
+    int freefilter;
+    int c;
+    int ret=1;
+    char *mrl=NULL;
+
+    c=2;
+    for(adaptor=0;adaptor<c;adaptor++){
+        if((freefilter=safeToRecord(adaptor,cname))!=-1){
+            break;
+        }
+    }
+    if(freefilter==-1){
+        WARN("streamNewProgram failed to find free filter on any adaptor");
+    }else{
+        if((c=setsf(adaptor,freefilter,cname))==0){
+            mrl=fitstring("file://%s",fn);
+            if(mrl){
+                if((c=setsfmrl(adaptor,freefilter,mrl))==0){
+                    ret=0;
+                }else{
+                    WARN("streamNewProgram: failed to set mrl on adaptor: %d with filter: %d of: %s",adaptor,freefilter,mrl);
+                }
+                free(mrl);
+            }else{
+                WARN("streamNewProgram: failed to allocate memory for mrl");
+            }
+        }else{
+            WARN("streamNewProgram: failed to tune adaptor %d with filter %d to channel %s",adaptor,freefilter,cname);
+        }
+    }
+    return ret;
+}/* }}} */

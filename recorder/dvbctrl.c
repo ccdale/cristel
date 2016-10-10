@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:07:48
- * Last Modified: Saturday  8 October 2016, 13:36:38
+ * Last Modified: Sunday  9 October 2016, 10:45:50
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -388,9 +388,9 @@ char * dvbcommand(char *cmd,int adaptornum)/*{{{*/
     closeConnect();
     return output;
 }/*}}}*/
-int dvbcmd(char *cmd,int adaptornum,char *output)/* {{{1 */
+int dvbcmd(char *cmd,int adaptornum,char **output)/* {{{1 */
 {
-    int nl;
+    int nl=0;
 
     /* clean up compiler warning about *output being unused */
     if(output){
@@ -400,7 +400,7 @@ int dvbcmd(char *cmd,int adaptornum,char *output)/* {{{1 */
         sprintf(SD.line,"%s",cmd);
         nl=request(SD.line);
         if(nl>0){
-            output=strdup(SD.data);
+            *output=strdup(SD.data);
         }
     }
     closeConnect();

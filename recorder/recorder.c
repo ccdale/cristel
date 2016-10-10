@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Sunday  9 October 2016, 10:03:04
+ * Last Modified: Monday 10 October 2016, 21:03:41
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -95,27 +95,22 @@ int nextToRecordI(sqlite3 *db)/* {{{1 */
 }/* }}} */
 int recordProgram(void)/* {{{1 */
 {
-    char *fn;
-    int ff;
-    int adaptor;
-    int c;
+    char *fn=NULL;
+    char *tfn=NULL;
     int ret=1;
 
-    if((fn=filenameFromTitle(currentprogram->title))!=NULL){
-        c=2;
-        for(adaptor=0;adaptor<c;adaptor++){
-            if((ff=safeToRecord(0,currentprogram->cname))!=-1){
-                break;
-            }
-        }
-        if(ff!=-1){
-            c=setsf(adaptor,ff,currentprogram->cname);
-            DEBUG("recordProgram: setsf returned %d",c);
+    tfn=sensibleFilename(currentprogram->title);
+    if(tfn){
+        fn=concatFileParts(4,configValue("recpath"),"/",tfn,".ts");
+        if(fn){
+            ret=streamNewProgram(fn,currentprogram->cname);
+            free(fn);
         }else{
-            WARN("recordProgram failed to find free filter on any apaptor");
+            WARN("recordProgram: failed to build filename from recpath: %s and %s",configValue("recpath"),tfn);
         }
+        free(tfn);
     }else{
-        WARN("recordProgram failed to make filename from time and title");
+        WARN("recordProgram: failed to allocate memory for filename for title: %s",currentprogram->title);
     }
     return ret;
 }/* }}} */

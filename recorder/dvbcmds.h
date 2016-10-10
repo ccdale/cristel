@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:38:36
- * Last Modified: Saturday  8 October 2016, 08:52:07
+ * Last Modified: Sunday  9 October 2016, 12:27:55
  */
 
 #include "dvbctrl.h"
@@ -39,3 +39,4 @@ void freeAdaptorStatus(struct AdaptorStatus *AS);
 void freeFilterStatus(struct FilterStatus *FI);
 void logAdaptorStatus(struct AdaptorStatus *AS);
 void logFilterStatus(struct FilterStatus *FS);
+int streamNewProgram(char *fn, char *cname);

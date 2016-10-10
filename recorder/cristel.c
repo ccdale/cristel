@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Sunday  9 October 2016, 10:03:45
+ * Last Modified: Sunday  9 October 2016, 10:19:43
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -344,7 +344,6 @@ void setDefaultConfig(void)/*{{{*/
 void mainLoop(sqlite3 *db)/*{{{*/
 {
     int then,wait=86400;
-    char *howlong=NULL;
 
     do{
         if(timetodie!=0){
@@ -355,14 +354,10 @@ void mainLoop(sqlite3 *db)/*{{{*/
         if(then<wait){
             wait=then;
         }
-        howlong=hms(wait);
-        if(howlong){
-            DEBUG("Sleeping for %d seconds (%s)",wait,howlong);
-            free(howlong);
-            howlong=NULL;
-        }else{
-            DEBUG("Sleeping for %d seconds",wait);
-        }
+        /* testing record */
+        then=recordProgram();
+        /* testing record end */
+        DEBUG("Sleeping for %d seconds",wait);
         alarm(wait); /* goto sleep for wait time */
         pause();
     }
