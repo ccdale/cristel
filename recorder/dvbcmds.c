@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Thursday 13 October 2016, 23:50:49
+ * Last Modified: Friday 14 October 2016, 00:10:36
  */
 
 #include "dvbcmds.h"
@@ -361,7 +361,6 @@ int streamNewProgram(char *fn, char *cname)/* {{{1 */
     int c;
     int ret=1;
     char *mrl=NULL;
-    long fnfz;
 
     c=2;
     for(adaptor=0;adaptor<c;adaptor++){
@@ -373,12 +372,14 @@ int streamNewProgram(char *fn, char *cname)/* {{{1 */
         WARN("streamNewProgram failed to find free filter on any adaptor");
     }else{
         if((c=setsf(adaptor,freefilter,cname))==0){
+            currentprogram->filter=freefilter;
+            currentprogram->fn=strdup(fn);
             mrl=fitstring("file://%s",fn);
             if(mrl){
                 if((c=setsfmrl(adaptor,freefilter,mrl))==0){
                     sleep(1);
-                    fnfz=filesize(fn);
-                    if(fnfz>0){
+                    currentprogram->fnfz=filesize(fn);
+                    if(currentprogram->fnfz>0){
                         ret=0;
                         INFO("streamNewProgram: recording %s to %s",cname,fn);
                         /* DEBUG("streamNewProgram: recording %s to %s",cname,fn); */

@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Friday 14 October 2016, 00:06:00
+ * Last Modified: Friday 14 October 2016, 00:22:15
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -313,7 +313,9 @@ void updateRecordProgram(char *status)/* {{{1 */
     int rc=0;
 
     sql=fitstring("update schedule set record='%s' where id=%d",status,currentprogram->id);
-    rc=sqlexec(db,sql,fillProgram);
+    rc=sqlexec(db,sql,NULL);
     free(sql);
-    sql=fitstring("insert into record
+    sql=fitstring("insert into recording (source,cname,event,muxid,start,end,title,description,progid,seriesid,adaptor,filepath) values ('%s','%s',%d,%d,%d,%d,'%s','%s','%s','%s',%d,'%s')",currentprogram->source,currentprogram->cname,currentprogram->event,currentprogram->muxid,currentprogram->start,currentprogram->end,currentprogram->title,currentprogram->description,currentprogram->progid,currentprogram->seriesid,currentprogram->adaptor,currentprogram->fn);
+    rc=sqlexec(db,sql,NULL);
+    free(sql);
 }/* }}} */
