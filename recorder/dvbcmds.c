@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Monday 10 October 2016, 21:05:25
+ * Last Modified: Thursday 13 October 2016, 23:50:49
  */
 
 #include "dvbcmds.h"
@@ -48,7 +48,9 @@ char * getsf(int adaptornum,int filternum)/*{{{*/
         nl=dvbcmd(cmd,adaptornum,&line);
         if(nl>0){
             CP=parseColon(line);
-            channel=strdup(CP->val);
+            if(CP->val){
+                channel=strdup(CP->val);
+            }
             if(CP->tmp){
                 free(CP->tmp);
             }
@@ -359,6 +361,7 @@ int streamNewProgram(char *fn, char *cname)/* {{{1 */
     int c;
     int ret=1;
     char *mrl=NULL;
+    long fnfz;
 
     c=2;
     for(adaptor=0;adaptor<c;adaptor++){
@@ -373,7 +376,13 @@ int streamNewProgram(char *fn, char *cname)/* {{{1 */
             mrl=fitstring("file://%s",fn);
             if(mrl){
                 if((c=setsfmrl(adaptor,freefilter,mrl))==0){
-                    ret=0;
+                    sleep(1);
+                    fnfz=filesize(fn);
+                    if(fnfz>0){
+                        ret=0;
+                        INFO("streamNewProgram: recording %s to %s",cname,fn);
+                        /* DEBUG("streamNewProgram: recording %s to %s",cname,fn); */
+                    }
                 }else{
                     WARN("streamNewProgram: failed to set mrl on adaptor: %d with filter: %d of: %s",adaptor,freefilter,mrl);
                 }

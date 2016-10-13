@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:07:48
- * Last Modified: Sunday  9 October 2016, 10:45:50
+ * Last Modified: Monday 10 October 2016, 21:33:37
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -310,10 +310,15 @@ struct ColonParse *parseColon(char *line)/*{{{*/
     CP=xmalloc(sizeof(struct ColonParse));
 
     word=strtok_r(line,wordtok,&wordsave);
-    CP->tmp=strdup(word);
-    CP->key=trim(CP->tmp);
-    word=strtok_r(NULL,wordtok,&wordsave);
-    CP->val=lefttrim(righttrim(trim(word),'"'),'"');
+    if(word){
+        CP->tmp=strdup(word);
+        CP->key=trim(CP->tmp);
+        word=strtok_r(NULL,wordtok,&wordsave);
+        CP->val=lefttrim(righttrim(trim(word),'"'),'"');
+    }else{
+        CP->key=NULL;
+        CP->val=NULL;
+    }
     return CP;
 }/*}}}*/
 void updateServiceInfo(struct ServiceInfo *SI,char *key,char *val)/*{{{*/

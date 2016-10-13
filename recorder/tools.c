@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Sunday  9 October 2016, 09:30:16
+ * Last Modified: Monday 10 October 2016, 21:24:45
  */
 
 #include "tools.h"
@@ -162,15 +162,15 @@ char *replaceSpaces(char *str)/*{{{*/
     int status;
 
     if((slen=strlen(str))>0){
-        fnstr=xcalloc(sizeof(char),++slen);
+        fnstr=xcalloc(sizeof(char),slen+1);
         if(pipe(outpipe)<0){
-            WARN("sensible filename failed for '%s' at create out pipe",str);
+            WARN("replaceSpaces failed for '%s' at create out pipe",str);
         }
         if(pipe(inpipe)<0){
-            WARN("sensible filename failed for '%s' at create in pipe",str);
+            WARN("replaceSpaces failed for '%s' at create in pipe",str);
         }
         if((cpid=fork())<0){
-            WARN("sensible filename failed to fork for '%s'",str);
+            WARN("replaceSpaces failed to fork for '%s'",str);
             close(outpipe[0]);
             close(outpipe[1]);
             close(inpipe[0]);
@@ -180,10 +180,10 @@ char *replaceSpaces(char *str)/*{{{*/
             close(inpipe[1]); /* don't need in pipe write end */
             close(outpipe[0]); /* nor outpipe's read end */
             if(dup2(inpipe[0],STDIN_FILENO) < 0){
-                CCAE(1,"sensible filename failed to duplicate stdin for forked process");
+                CCAE(1,"replaceSpaces failed to duplicate stdin for forked process");
             }
             if(dup2(outpipe[1],STDOUT_FILENO) < 0){
-                CCAE(1,"sensible filename failed to duplicate stdout for forked process");
+                CCAE(1,"replaceSpaces failed to duplicate stdout for forked process");
             }
             /* convert spaces to underscores */
             execlp("/usr/bin/tr","/usr/bin/tr","[ ]","_",NULL);
@@ -199,12 +199,12 @@ char *replaceSpaces(char *str)/*{{{*/
             close(inpipe[1]);
             /* DEBUG("reading from tr into fnstr");*/
             rlen=read(outpipe[0],fnstr,slen);
+            INFO("replacespaces: asked for %d, read %d",slen,rlen);
             close(outpipe[0]);
             /* DEBUG("read %d bytes from tr",rlen);*/
-            /* DEBUG("adding terminating zero");*/
-            tmp=fnstr+rlen;
-            *tmp='\0';
-            /* DEBUG("read: '%s'",fnstr);*/
+            INFO("replaceSpaces: adding terminating zero");
+            fnstr[slen]='\0';
+            INFO("replaceSpaces: read: '%s'",fnstr);
             /* DEBUG("Parent will now wait for tr process to finish");*/
             wait(&status);
         }
