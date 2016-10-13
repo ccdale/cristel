@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Saturday  8 October 2016, 13:34:35
+ * Last Modified: Friday 14 October 2016, 00:06:00
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -263,6 +263,8 @@ void resetProgram(void)/* {{{1 */
     currentprogram->start=0;
     currentprogram->end=0;
     currentprogram->adaptor=0;
+    currentprogram->filter=0;
+    currentprogram->fnfz=0;
     currentprogram->source=NULL;
     currentprogram->cname=NULL;
     currentprogram->title=NULL;
@@ -270,6 +272,7 @@ void resetProgram(void)/* {{{1 */
     currentprogram->progid=NULL;
     currentprogram->seriesid=NULL;
     currentprogram->record=NULL;
+    currentprogram->fn=NULL;
 }/* }}} */
 void resetSingle(void)/* {{{1 */
 {
@@ -303,4 +306,14 @@ int sqlexec(sqlite3 *db, char *sql, void *callback)/* {{{1 */
         return rc;
     }
     return 0;
+}/* }}} */
+void updateRecordProgram(char *status)/* {{{1 */
+{
+    char *sql;
+    int rc=0;
+
+    sql=fitstring("update schedule set record='%s' where id=%d",status,currentprogram->id);
+    rc=sqlexec(db,sql,fillProgram);
+    free(sql);
+    sql=fitstring("insert into record
 }/* }}} */

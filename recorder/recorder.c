@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Monday 10 October 2016, 21:03:41
+ * Last Modified: Thursday 13 October 2016, 23:56:46
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -98,12 +98,19 @@ int recordProgram(void)/* {{{1 */
     char *fn=NULL;
     char *tfn=NULL;
     int ret=1;
+    char rstatus[]="y";
 
     tfn=sensibleFilename(currentprogram->title);
     if(tfn){
         fn=concatFileParts(4,configValue("recpath"),"/",tfn,".ts");
         if(fn){
-            ret=streamNewProgram(fn,currentprogram->cname);
+            if((ret=streamNewProgram(fn,currentprogram->cname))==0){
+                rstatus[0]="r";
+            }else{
+                WARN("recordProgram: failed to start new recording on %s to %s",currentprogram->cname,fn);
+                rstatus[0]="f";
+            }
+            updateRecordProgram(rstatus);
             free(fn);
         }else{
             WARN("recordProgram: failed to build filename from recpath: %s and %s",configValue("recpath"),tfn);

@@ -3,7 +3,7 @@
  *
  * sql.h
  *
- * Last Modified: Saturday  8 October 2016, 13:21:35
+ * Last Modified: Friday 14 October 2016, 00:04:44
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -37,6 +37,8 @@ struct Program{
     int start;
     int end;
     int adaptor;
+    int filter;
+    long fnfz;
     char *source;
     char *cname;
     char *title;
@@ -44,6 +46,7 @@ struct Program{
     char *progid;
     char *seriesid;
     char *record;
+    char *fn;
 };
 struct Single{
     char *colname;
@@ -65,3 +68,4 @@ void resetProgram(void);
 void resetSingle(void);
 int returnSingle(void *unused, int argc, char **argv, char **colname);
 int sqlexec(sqlite3 *db, char *sql, void *callback);
+void updateRecordProgram(char *status);
