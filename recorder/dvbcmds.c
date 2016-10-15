@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Friday 14 October 2016, 00:10:36
+ * Last Modified: Saturday 15 October 2016, 09:35:37
  */
 
 #include "dvbcmds.h"
@@ -67,10 +67,7 @@ char * getsfmrl(int adaptornum,char *sfname)/*{{{*/
     char *mrl;
     int len;
 
-    len=snprintf(cmd,0,"getsfmrl %s",sfname);
-    len++;
-    cmd=xmalloc(len);
-    len=snprintf(cmd,len,"getsfmrl %s",sfname);
+    cmd=fitstring("getsfmrl %s",sfname);
     mrl=dvbcommand(cmd,adaptornum);
     free(cmd);
     return mrl;
@@ -147,6 +144,20 @@ int setsfmrl(int adaptornum, int filternum, char *mrl)/* {{{1 */
 }/* }}} */
 
 /* helper commands */
+char *getmrl(int adaptornum,int filternum)/* {{{1 */
+{
+    char *cmd=NULL;
+    char *mrl;
+
+    if(filternum==0){
+        cmd=fitstring("%s","getmrl");
+    }else{
+        cmd=fitstring("getsfmrl dvb%d",filternum);
+    }
+    mrl=dvbcommand(cmd,adaptornum);
+    free(cmd);
+    return mrl;
+}/* }}} */
 int getsfmux(int adaptornum)/*{{{*/
 {
     char *channel=NULL;
@@ -284,15 +295,9 @@ void fillFilterStatus(int adaptornum,struct FilterStatus *FS,int num)/*{{{*/
     int len;
 
     if(num==0){
-        len=snprintf(name,0,"<Primary>");
-        len++;
-        name=xmalloc(len);
-        len=snprintf(name,len,"<Primary>");
+        name=fitstring("%s","<Primary>");
     }else{
-        len=snprintf(name,0,"dvb%d",num);
-        len++;
-        name=xmalloc(len);
-        len=snprintf(name,len,"dvb%d",num);
+        name=fitstring("dvb%d",num);
     }
     FS->name=name;
     FS->num=num;
