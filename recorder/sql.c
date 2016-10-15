@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Saturday 15 October 2016, 10:16:53
+ * Last Modified: Saturday 15 October 2016, 10:20:36
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -362,6 +362,9 @@ void updateRecorded(sqlite3 *db)/* {{{1 */
     char *sql;
 
     sql=fitstring("insert into recorded (source,cname,event,muxid,start,end,title,description,progid,seriesid,adaptor,filepath) values ('%s','%s',%d,%d,%d,%d,'%s','%s','%s','%s',%d,'%s')",currentprogram->source,currentprogram->cname,currentprogram->event,currentprogram->muxid,currentprogram->start,currentprogram->end,currentprogram->title,currentprogram->description,currentprogram->progid,currentprogram->seriesid,currentprogram->adaptor,currentprogram->fn);
+    sqlexec(db,sql,NULL);
+    free(sql);
+    sql=fitstring("delete from recording where id = %d",currentprogram->id);
     sqlexec(db,sql,NULL);
     free(sql);
 }/* }}} */
