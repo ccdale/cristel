@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Saturday 15 October 2016, 10:19:09
+ * Last Modified: Saturday 15 October 2016, 10:24:41
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -136,7 +136,7 @@ int recordProgram(sqlite3 *db)/* {{{1 */
     if(tfn){
         fn=concatFileParts(4,configValue("recpath"),"/",tfn,".ts");
         if(fn){
-            if((ret=streamNewProgram(fn,currentprogram->cname))==0){
+            if((ret=streamNewProgram(fn,currentprogram->cname,currentprogram))==0){
                 rstatus[0]="r";
             }else{
                 WARN("recordProgram: failed to start new recording on %s to %s",currentprogram->cname,fn);

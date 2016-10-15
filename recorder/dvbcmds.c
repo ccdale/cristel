@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Saturday 15 October 2016, 09:54:17
+ * Last Modified: Saturday 15 October 2016, 10:25:49
  */
 
 #include "dvbcmds.h"
@@ -354,7 +354,7 @@ void logFilterStatus(struct FilterStatus *FS)/*{{{*/
         INFO("  FS: mrl not set");
     }
 }/*}}}*/
-int streamNewProgram(char *fn, char *cname)/* {{{1 */
+int streamNewProgram(char *fn,struct Program *CP)/* {{{1 */
 {
     int adaptor;
     int freefilter;
@@ -364,25 +364,25 @@ int streamNewProgram(char *fn, char *cname)/* {{{1 */
 
     c=2;
     for(adaptor=0;adaptor<c;adaptor++){
-        if((freefilter=safeToRecord(adaptor,cname))!=-1){
+        if((freefilter=safeToRecord(adaptor,CP->cname))!=-1){
             break;
         }
     }
     if(freefilter==-1){
         WARN("streamNewProgram failed to find free filter on any adaptor");
     }else{
-        if((c=setsf(adaptor,freefilter,cname))==0){
-            currentprogram->filter=freefilter;
-            currentprogram->fn=strdup(fn);
+        if((c=setsf(adaptor,freefilter,CP->cname))==0){
+            CP->filter=freefilter;
+            CP->fn=strdup(fn);
             mrl=fitstring("file://%s",fn);
             if(mrl){
                 if((c=setsfmrl(adaptor,freefilter,mrl))==0){
                     sleep(1);
-                    currentprogram->fnfz=filesize(fn);
-                    if(currentprogram->fnfz>0){
+                    CP->fnfz=filesize(fn);
+                    if(CP->fnfz>0){
                         ret=0;
-                        INFO("streamNewProgram: recording %s to %s",cname,fn);
-                        /* DEBUG("streamNewProgram: recording %s to %s",cname,fn); */
+                        INFO("streamNewProgram: recording %s to %s",CP->cname,fn);
+                        /* DEBUG("streamNewProgram: recording %s to %s",CP->cname,fn); */
                     }
                 }else{
                     WARN("streamNewProgram: failed to set mrl on adaptor: %d with filter: %d of: %s",adaptor,freefilter,mrl);
@@ -392,7 +392,7 @@ int streamNewProgram(char *fn, char *cname)/* {{{1 */
                 WARN("streamNewProgram: failed to allocate memory for mrl");
             }
         }else{
-            WARN("streamNewProgram: failed to tune adaptor %d with filter %d to channel %s",adaptor,freefilter,cname);
+            WARN("streamNewProgram: failed to tune adaptor %d with filter %d to channel %s",adaptor,freefilter,CP->cname);
         }
     }
     return ret;

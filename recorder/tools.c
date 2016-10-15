@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Monday 10 October 2016, 21:24:45
+ * Last Modified: Saturday 15 October 2016, 10:36:25
  */
 
 #include "tools.h"
@@ -156,7 +156,6 @@ char *replaceSpaces(char *str)/*{{{*/
     int outpipe[2];
     int inpipe[2];
     char *fnstr=NULL;
-    char *tmp;
     int slen,rlen;
     int cpid;
     int status;
