@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Saturday 15 October 2016, 11:47:43
+ * Last Modified: Saturday 15 October 2016, 17:06:40
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -198,7 +198,8 @@ int getNextToRecord(sqlite3 *db)/* {{{1 */
     numr=countFutureRecordings(db);
     if(numr>0){
         now=time(NULL);
-        sql=fitstring("select * from schedule where record='y' and start > %ld order by start asc limit 1",now);
+        sql=fitstring("select * from schedule where record='y' and end > %ld and start < %ld",now,now-30);
+        /*sql=fitstring("select * from schedule where record='y' and start > %ld order by start asc limit 1",now);*/
         rc=sqlexec(db,sql,fillProgram);
         free(sql);
     }
