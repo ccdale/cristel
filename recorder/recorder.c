@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Saturday 15 October 2016, 10:37:59
+ * Last Modified: Saturday 15 October 2016, 10:38:40
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -27,7 +27,7 @@
 
 int checkNextRecordEnd(sqlite3 *db)/* {{{1 */
 {
-    int then,x;
+    int then;
 
     then=nextToEndI(db);
     if(then<1){
