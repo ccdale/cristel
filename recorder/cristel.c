@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Saturday 15 October 2016, 11:14:52
+ * Last Modified: Saturday 15 October 2016, 18:19:14
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -260,7 +260,6 @@ void startDvbStreamer(int adaptor)/*{{{*/
     char adap0[]="0";
     char adap1[]="1";
     int pid;
-    int len;
 
     DBG("forking dvbstreamer");
     pid=fork();
@@ -292,21 +291,17 @@ void stopDvbStreamer(int adaptor)/*{{{*/
 {
     char *pidfile;
     char *env;
-    int len;
     int pid=0;
 
     /*
      * attempts to stop the dvbstreamer process
      */
     env=getenv("HOME");
-    len=snprintf(pidfile,0,"%s/.dvbstreamer/dvbstreamer-%d.pid",env,adaptor);
-    len++;
-    pidfile=xmalloc(len);
-    len=snprintf(pidfile,len,"%s/.dvbstreamer/dvbstreamer-%d.pid",env,adaptor);
-    DBGL("reading %s for pid",pidfile);
+    pidfile=fitstring("%s/.dvbstreamer/dvbstreamer-%d.pid",env,adaptor);
+    DEBUG("reading %s for pid",pidfile);
     pid=readPidFile(pidfile);
     if(pid>0){
-        DBGL("Sending SIGTERM to dvbstreamer adaptor %d, pid: %d",adaptor,pid);
+        DEBUG("Sending SIGTERM to dvbstreamer adaptor %d, pid: %d",adaptor,pid);
         kill((pid_t)pid,SIGTERM);
     }
     free(pidfile);
