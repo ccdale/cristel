@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Saturday 15 October 2016, 10:38:40
+ * Last Modified: Saturday 15 October 2016, 10:39:23
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -45,7 +45,7 @@ int checkNextRecordStart(sqlite3 *db)/* {{{1 */
     }else{
         if(then<1){
             INFO("Preparing to record %s",currentprogram->title);
-            x=recordProgram();
+            x=recordProgram(db);
             DEBUG("recordProgram returned %d",x);
             then=INT_MAX;
         }
