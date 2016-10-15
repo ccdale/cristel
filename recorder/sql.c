@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Friday 14 October 2016, 00:22:15
+ * Last Modified: Saturday 15 October 2016, 08:36:55
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -24,6 +24,30 @@
  */
 
 #include "sql.h"
+int countCurrentRecordings(sqlite3 *db)/* {{{1 */
+{
+    char *sql;
+    int rc=0;
+    time_t now;
+    int numr=0;
+
+    resetSingle();
+    now=time(NULL);
+    sql=fitstring("select count(*) as xcount from recording where end > %ld",now);
+    rc=sqlexec(db,sql,returnSingle);
+    free(sql);
+    if(rc==0){
+        numr=atoi(single->val);
+    }
+    if(numr==0){
+        INFO("Not currently recording");
+    }else if(numr==1){
+        INFO("Currently recording 1 program");
+    }else{
+        INFO("Currently recording %d programs.",numr);
+    }
+    return numr;
+}/* }}} */
 int countFutureRecordings(sqlite3 *db)/* {{{1 */
 {
     char *sql;
@@ -147,6 +171,21 @@ void freeProgram(void)/* {{{1 */
         }
         free(single);
     }
+}/* }}} */
+int getNextToEnd(sqlite3 *db)/* {{{1 */
+{
+    char *sql;
+    int rc=0;
+    int numr;
+
+    resetProgram();
+    numr=countCurrentRecordings(db);
+    if(numr>0){
+        sql=fitstring("select * from recording order by end asc limit 1",now);
+        rc=sqlexec(db,sql,fillProgram);
+        free(sql);
+    }
+    return rc;
 }/* }}} */
 int getNextToRecord(sqlite3 *db)/* {{{1 */
 {
