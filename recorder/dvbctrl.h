@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:09:19
- * Last Modified: Sunday  9 October 2016, 10:38:50
+ * Last Modified: Saturday 15 October 2016, 11:07:48
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -30,14 +30,6 @@
 #define DVBCTRL_H
 
 #include "defs.h"
-#include "macros.h"
-#include "configfile.h"
-#include "tools.h"
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <string.h>
 
 struct StreamerData {
     FILE *socketfp;
@@ -76,7 +68,6 @@ struct AdaptorStatus {
     int mux;
     struct FilterStatus **FS;
 };
-#endif
 
 void setupConnect(int adapternum);
 void closeConnect();
@@ -96,3 +87,4 @@ void updateServiceInfo(struct ServiceInfo *SI,char *key,char *val);
 struct ServiceInfo *getServiceInfo(char *service);
 char * dvbcommand(char *cmd,int adaptornum);
 int dvbcmd(char *cmd,int adaptornum,char **output);
+#endif

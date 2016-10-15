@@ -3,7 +3,7 @@
  *
  * schedule.h
  *
- * Last Modified: Friday  7 October 2016, 17:07:05
+ * Last Modified: Saturday 15 October 2016, 11:08:30
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -26,9 +26,6 @@
 #ifndef SCHEDULE_H
 #define SCHEDULE_H
 #include "defs.h"
-#include "macros.h"
-#include "tools.h"
-#include "configfile.h"
 
-#endif
 void getepg(void);
+#endif

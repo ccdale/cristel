@@ -4,7 +4,7 @@
  * cristel.h
  * 
  * Started: Thursday 24 July 2014, 13:07:18
- * Last Modified: Saturday  8 October 2016, 08:41:34
+ * Last Modified: Saturday 15 October 2016, 11:14:38
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -24,24 +24,15 @@
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/types.h>
+#ifndef CRISTEL_H
+#define CRISTEL_H
+
 #include "defs.h"
-#include <locale.h>
-#include "macros.h"
-#include "tools.h"
-#include "configfile.h"
-#include <argtable2.h>
-#include "dvbctrl.h"
-#include "dvbcmds.h"
-#include "sql.h"
-#include "recorder.h"
 
 /* globals */
 struct ConfigItem *configuration;
 struct Program *currentprogram;
 struct Single *single;
-int llevel=6;
-int timetodie=0;
 
 char *argprocessing(int argc,char **argv);
 void catchsignal(int sig);
@@ -51,3 +42,5 @@ void startDvbStreamer(int adaptor);
 void stopDvbStreamer(int adaptor);
 void mainLoop(sqlite3 *db);
 int main(int argc,char **argv);
+
+#endif

@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Saturday 15 October 2016, 10:06:03
+ * Last Modified: Saturday 15 October 2016, 11:14:52
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -25,6 +25,9 @@
  */
 
 #include "cristel.h"
+
+int llevel=6;
+int timetodie=0;
 
 char *argprocessing(int argc,char **argv)/* {{{ */
 {

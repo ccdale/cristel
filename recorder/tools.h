@@ -9,11 +9,12 @@
  * Started: Wednesday 21 November 2012, 12:44:26
  * Version: 0.00
  * Revision: $Id: tools.h 46 2013-02-15 07:08:18Z chris.charles.allison@gmail.com $
- * Last Modified: Sunday  9 October 2016, 09:21:00
+ * Last Modified: Saturday 15 October 2016, 11:08:55
  */
 
+#ifndef TOOLS_H
+#define TOOLS_H
 #include "defs.h"
-#include "macros.h"
 
 void *xmalloc(size_t size);
 void *xcalloc(size_t nmemb, size_t size);
@@ -43,3 +44,4 @@ char* lefttrim(char *string, char junk);
 char *righttrim(char *string, char junk);
 int readPidFile(char *fn);
 int numLines(char *lines);
+#endif

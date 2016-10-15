@@ -7,17 +7,12 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:38:36
- * Last Modified: Saturday 15 October 2016, 10:34:34
+ * Last Modified: Saturday 15 October 2016, 11:06:46
  */
 
 #ifndef DVBCMDS_H
 #define DVBCMDS_H
-#include "dvbctrl.h"
 #include "defs.h"
-#include "macros.h"
-#include "tools.h"
-#include "sql.c"
-#endif
 
 /*
 extern char * dvbcommand(char *cmd,int adaptornum);
@@ -46,3 +41,4 @@ void logFilterStatus(struct FilterStatus *FS);
 int streamNewProgram(char *fn, struct Program *CP);
 char *getmrl(int adaptornum,int filternum);
 int findFilterForFile(int adaptornum,char *fn);
+#endif

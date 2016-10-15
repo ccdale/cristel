@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Saturday 15 October 2016, 10:25:49
+ * Last Modified: Saturday 15 October 2016, 11:15:24
  */
 
 #include "dvbcmds.h"
@@ -65,7 +65,6 @@ char * getsfmrl(int adaptornum,char *sfname)/*{{{*/
 {
     char *cmd=NULL;
     char *mrl;
-    int len;
 
     cmd=fitstring("getsfmrl %s",sfname);
     mrl=dvbcommand(cmd,adaptornum);
@@ -287,7 +286,6 @@ struct FilterStatus **newFilterStatusArray(int numfilters)/*{{{*/
 void fillFilterStatus(int adaptornum,struct FilterStatus *FS,int num)/*{{{*/
 {
     char *name=NULL;
-    int len;
 
     if(num==0){
         name=fitstring("%s","<Primary>");
@@ -401,7 +399,7 @@ int findFilterForFile(int adaptornum,char *fn)/* {{{1 */
 {
     struct AdaptorStatus *AS;
     int ret=-1;
-    int c,x;
+    int x;
     char *cmp;
 
     AS=adaptorStatus(adaptornum);

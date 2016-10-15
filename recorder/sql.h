@@ -3,7 +3,7 @@
  *
  * sql.h
  *
- * Last Modified: Saturday 15 October 2016, 10:14:03
+ * Last Modified: Saturday 15 October 2016, 11:08:44
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -26,9 +26,6 @@
 #ifndef SQL_H
 #define SQL_H
 #include "defs.h"
-#include "macros.h"
-#include "tools.h"
-#include "configfile.h"
 
 struct Program{
     int id;
@@ -52,7 +49,6 @@ struct Single{
     char *colname;
     char *val;
 };
-#endif
 
 extern struct Program *currentprogram;
 extern struct Single *single;
@@ -72,3 +68,4 @@ int returnSingle(void *unused, int argc, char **argv, char **colname);
 int sqlexec(sqlite3 *db, char *sql, void *callback);
 void updateRecordProgram(sqlite3 *db,char *status);
 void updateRecorded(sqlite3 *db);
+#endif

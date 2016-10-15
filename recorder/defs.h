@@ -4,7 +4,7 @@
  * defs.h
  *
  * Started: Sunday 23 December 2012, 19:43:27
- * Last Modified: Wednesday  5 October 2016, 09:21:16
+ * Last Modified: Saturday 15 October 2016, 11:12:52
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -24,6 +24,9 @@
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DEFS_H
+#define DEFS_H
+
 #define _XOPEN_SOURCE 700
 #include <stdio.h>
 #include <syslog.h>
@@ -36,6 +39,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <regex.h>
+#include <locale.h>
 #include <time.h>
 #include <signal.h>
 #include <fcntl.h>
@@ -48,6 +52,18 @@
 #include <sys/wait.h>
 #include <pwd.h>
 #include <sqlite3.h>
+#include <argtable2.h>
+
+#include "dvbctrl.h"
+#include "sql.h"
+#include "cristel.h"
+#include "configfile.h"
+#include "dvbcmds.h"
+#include "globals.h"
+#include "macros.h"
+#include "recorder.h"
+#include "schedule.h"
+#include "tools.h"
 
 #define PROGNAME "cristel"
 #define PROGVERSION "0.01"
@@ -76,3 +92,4 @@
 #define MAX_LINE_LENGTH 256
 #define RCV_BUFFER_LENGTH 8192
 
+#endif

@@ -3,7 +3,7 @@
  *
  * recorder.h
  *
- * Last Modified: Saturday 15 October 2016, 10:10:24
+ * Last Modified: Saturday 15 October 2016, 11:08:17
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -26,12 +26,6 @@
 #ifndef RECORDER_H
 #define RECORDER_H
 #include "defs.h"
-#include "macros.h"
-#include "tools.h"
-#include "configfile.h"
-#include "dvbcmds.h"
-#include "sql.h"
-#endif
 
 extern struct Program *currentprogram;
 
@@ -42,3 +36,4 @@ int nextToRecordI(sqlite3 *db);
 int recordProgram(sqlite3 *db);
 int nextToEndI(sqlite3 *db);
 int endRecording(sqlite3 *db);
+#endif

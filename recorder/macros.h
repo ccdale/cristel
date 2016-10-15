@@ -4,7 +4,7 @@
  * macros.h
  *
  * Started: Sunday 23 December 2012, 19:43:14
- * Last Modified: Saturday  5 September 2015, 09:07:45
+ * Last Modified: Saturday 15 October 2016, 10:51:49
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -24,6 +24,8 @@
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef MACROS_H
+#define MACROS_H
 extern int llevel;
 
 #define CCA_ERR_CONT(...) syslog(LOG_ERR,__VA_ARGS__)
@@ -37,6 +39,8 @@ extern int llevel;
 #define ERROR(...) if(llevel>=3){ syslog(LOG_ERR,__VA_ARGS__);}
 
 #define NDEBUG
+
+#endif
 
 #ifndef NDEBUG
 #define WHERESTR  "[file %s, line %d]: "

@@ -4,7 +4,7 @@
  * configfile.h
  *
  * Started: Monday 24 December 2012, 13:11:56
- * Last Modified: Friday 25 July 2014, 08:55:27
+ * Last Modified: Saturday 15 October 2016, 11:06:25
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -27,18 +27,12 @@
 #define CCA_CONFIGFILE_H
 
 #include "defs.h"
-#include "macros.h"
-#include "tools.h"
-
-#include "globals.h"
 
 struct ConfigItem{
     char *key;
     char *value;
     struct ConfigItem *next;
 };
-
-#endif
 
 int initConfig( void );
 void getConfigFromFile(char *filename);
@@ -51,3 +45,5 @@ struct ConfigItem *searchConfigP(char *key);
 char *configValueDup(char *key);
 char *configValue(char *key);
 void printConfig( void );
+
+#endif

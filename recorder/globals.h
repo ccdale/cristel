@@ -4,7 +4,7 @@
  * globals.h
  *
  * Started: Friday 28 December 2012, 22:09:57
- * Last Modified: Wednesday 31 December 2014, 10:09:03
+ * Last Modified: Saturday 15 October 2016, 10:50:34
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -24,4 +24,7 @@
  * along with cristel.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef GLOBALS_H
+#define GLOBALS_H
 extern struct ConfigItem *configuration;
+#endif
