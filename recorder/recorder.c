@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Saturday 15 October 2016, 10:11:10
+ * Last Modified: Saturday 15 October 2016, 10:19:09
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -168,6 +168,7 @@ int endRecording(sqlite3 *db)/* {{{1 */
                 WARN("Failed to stop recording of %s from %s on adaptor %d at filter %d",currentprogram->title,currentprogram->cname,currentprogram->adaptor,fnum);
             }
         }
+        updateRecorded(db);
     }
     return ret;
 }/* }}} */
