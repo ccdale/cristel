@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Saturday 15 October 2016, 10:40:54
+ * Last Modified: Saturday 15 October 2016, 10:41:41
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -157,6 +157,7 @@ int endRecording(sqlite3 *db)/* {{{1 */
 {
     int fnum;
     int ret=1;
+    int x;
 
     if(currentprogram->fn){
         fnum=findFilterForFile(currentprogram->adaptor,currentprogram->fn);
