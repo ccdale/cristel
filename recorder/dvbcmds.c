@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Saturday 15 October 2016, 09:39:39
+ * Last Modified: Saturday 15 October 2016, 09:54:17
  */
 
 #include "dvbcmds.h"
@@ -394,6 +394,29 @@ int streamNewProgram(char *fn, char *cname)/* {{{1 */
         }else{
             WARN("streamNewProgram: failed to tune adaptor %d with filter %d to channel %s",adaptor,freefilter,cname);
         }
+    }
+    return ret;
+}/* }}} */
+int findFilterForFile(int adaptornum,char *fn)/* {{{1 */
+{
+    struct AdaptorStatus *AS;
+    int ret=-1;
+    int c,x;
+    char *cmp;
+
+    AS=adaptorStatus(adaptornum);
+    logAdaptorStatus(AS);
+    if(AS->recording!=0){
+        cmp=fitstring("file://%s",fn);
+        for(x=0;x<AS->numfilters;x++){
+            DEBUG("findFilterForFile: comparing %s with %s",fn,AS->FS[x]->mrl);
+            if(strcmp(cmp,AS->FS[x]->mrl)==0){
+                ret=x;
+                DEBUG("found %s at filter %d on adaptor %d",fn,x,adaptornum);
+                break;
+            }
+        }
+        free(cmp);
     }
     return ret;
 }/* }}} */
