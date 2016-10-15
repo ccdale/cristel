@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Saturday 15 October 2016, 10:41:41
+ * Last Modified: Saturday 15 October 2016, 10:42:36
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -34,6 +34,7 @@ int checkNextRecordEnd(sqlite3 *db)/* {{{1 */
         INFO("Stopping current recording of '%s' from '%s'",currentprogram->title,currentprogram->cname);
         endRecording(db);
     }
+    return 0;
 }/* }}} */
 int checkNextRecordStart(sqlite3 *db)/* {{{1 */
 {
