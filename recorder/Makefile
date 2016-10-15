@@ -28,7 +28,7 @@ cristel.d: cristel.c
 	        ./depend.sh $(CFLAGS) cristel.c >cristel.d
 
 cristel.o: cristel.c defs.h macros.h
-	        $(CC) -o cristel.o -c cristel.c
+	        $(CC) $(CFLAGS) -o cristel.o -c cristel.c
 
 clean:
 	        -rm -f $(DOBJ) $(OBJ) $(BINNAME)

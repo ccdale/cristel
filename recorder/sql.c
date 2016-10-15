@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Saturday 15 October 2016, 17:06:40
+ * Last Modified: Saturday 15 October 2016, 18:53:31
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -207,9 +207,9 @@ int getNextToRecord(sqlite3 *db)/* {{{1 */
 }/* }}} */
 void initProgram(void)/* {{{1 */
 {
-    currentprogram=xmalloc(sizeof(struct Program));
+    currentprogram=xcalloc(sizeof(struct Program),1);
     resetProgram();
-    single=xmalloc(sizeof(struct Single));
+    single=xcalloc(sizeof(struct Single),1);
     resetSingle();
 }/* }}} */
 void logSingle(void)/*{{{*/

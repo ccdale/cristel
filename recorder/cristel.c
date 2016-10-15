@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Saturday 15 October 2016, 18:41:21
+ * Last Modified: Saturday 15 October 2016, 18:55:26
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -144,7 +144,7 @@ void daemonize(char *conffile)/* {{{1 */
     if (i>0) 
     {
         DEBUG("parent exiting after fork and 10s sleep");
-        sleep(10);
+        /*sleep(10);*/
         exit(0);
     } /* parent exits */
     /* child (daemon) continues */
