@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Saturday 15 October 2016, 10:20:36
+ * Last Modified: Saturday 15 October 2016, 11:47:43
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -304,18 +304,48 @@ void resetProgram(void)/* {{{1 */
     currentprogram->adaptor=0;
     currentprogram->filter=0;
     currentprogram->fnfz=0;
+    if(currentprogram->source){
+        free(currentprogram->source);
+    }
     currentprogram->source=NULL;
+    if(currentprogram->cname){
+        free(currentprogram->cname);
+    }
     currentprogram->cname=NULL;
+    if(currentprogram->title){
+        free(currentprogram->title);
+    }
     currentprogram->title=NULL;
+    if(currentprogram->description){
+        free(currentprogram->description);
+    }
     currentprogram->description=NULL;
+    if(currentprogram->progid){
+        free(currentprogram->progid);
+    }
     currentprogram->progid=NULL;
+    if(currentprogram->seriesid){
+        free(currentprogram->seriesid);
+    }
     currentprogram->seriesid=NULL;
+    if(currentprogram->record){
+        free(currentprogram->record);
+    }
     currentprogram->record=NULL;
+    if(currentprogram->fn){
+        free(currentprogram->fn);
+    }
     currentprogram->fn=NULL;
 }/* }}} */
 void resetSingle(void)/* {{{1 */
 {
+    if(single->colname){
+        free(single->colname);
+    }
     single->colname=NULL;
+    if(single->val){
+        free(single->val);
+    }
     single->val=NULL;
 }/* }}} */
 int returnSingle(void *unused, int argc, char **argv, char **colname)/* {{{1 */
