@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Saturday 15 October 2016, 08:36:55
+ * Last Modified: Saturday 15 October 2016, 10:07:23
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -181,7 +181,7 @@ int getNextToEnd(sqlite3 *db)/* {{{1 */
     resetProgram();
     numr=countCurrentRecordings(db);
     if(numr>0){
-        sql=fitstring("select * from recording order by end asc limit 1",now);
+        sql=fitstring("select * from recording order by end asc limit 1");
         rc=sqlexec(db,sql,fillProgram);
         free(sql);
     }
