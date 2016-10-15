@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Saturday 15 October 2016, 09:10:07
+ * Last Modified: Saturday 15 October 2016, 10:04:33
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -28,6 +28,12 @@
 int checkNextRecordEnd(sqlite3 *db)/* {{{1 */
 {
     int then,x;
+
+    then=nextToEndI(db);
+    if(then<1){
+        INFO("Stopping current recording of '%s' from '%s'",currentprogram->title,currentprogram->cname);
+        endRecording();
+    }
 }/* }}} */
 int checkNextRecordStart(sqlite3 *db)/* {{{1 */
 {
@@ -95,6 +101,7 @@ int nextToEndI(sqlite3 *db)/* {{{1 */
             INFO("Current recording of '%s' ends NOW.",currentprogram->title);
         }
     }
+    return togo;
 }/* }}} */
 int nextToRecordI(sqlite3 *db)/* {{{1 */
 {
@@ -143,6 +150,24 @@ int recordProgram(void)/* {{{1 */
         free(tfn);
     }else{
         WARN("recordProgram: failed to allocate memory for filename for title: %s",currentprogram->title);
+    }
+    return ret;
+}/* }}} */
+int endRecording(void)/* {{{1 */
+{
+    int fnum;
+    int ret=1;
+
+    if(currentprogram->fn){
+        fnum=findFilterForFile(currentprogram->adaptor,currentprogram->fn);
+        if(fnum>-1){
+            if(x=setsfmrl(currentprogram->adaptor,fnum,"null://")==0){
+                INFO("Stopped recording of %s from %s on adaptor %d",currentprogram->title,currentprogram->cname,currentprogram->adaptor);
+                ret=0;
+            }else{
+                WARN("Failed to stop recording of %s from %s on adaptor %d at filter %d",currentprogram->title,currentprogram->cname,currentprogram->adaptor,fnum);
+            }
+        }
     }
     return ret;
 }/* }}} */
