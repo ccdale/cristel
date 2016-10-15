@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Saturday 15 October 2016, 10:42:36
+ * Last Modified: Saturday 15 October 2016, 11:34:03
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -33,8 +33,9 @@ int checkNextRecordEnd(sqlite3 *db)/* {{{1 */
     if(then<1){
         INFO("Stopping current recording of '%s' from '%s'",currentprogram->title,currentprogram->cname);
         endRecording(db);
+        then=INT_MAX;
     }
-    return 0;
+    return then;
 }/* }}} */
 int checkNextRecordStart(sqlite3 *db)/* {{{1 */
 {
@@ -131,19 +132,22 @@ int recordProgram(sqlite3 *db)/* {{{1 */
     char *fn=NULL;
     char *tfn=NULL;
     int ret=1;
-    char rstatus[]="y";
+    char *rstatus;
 
     tfn=sensibleFilename(currentprogram->title);
     if(tfn){
         fn=concatFileParts(4,configValue("recpath"),"/",tfn,".ts");
         if(fn){
             if((ret=streamNewProgram(fn,currentprogram))==0){
-                rstatus[0]="r";
+                rstatus=fitstring("r");
+                /* rstatus[0]="r";*/
             }else{
                 WARN("recordProgram: failed to start new recording on %s to %s",currentprogram->cname,fn);
-                rstatus[0]="f";
+                rstatus=fitstring("f");
+                /* rstatus[0]="f";*/
             }
             updateRecordProgram(db,rstatus);
+            free(rstatus);
             free(fn);
         }else{
             WARN("recordProgram: failed to build filename from recpath: %s and %s",configValue("recpath"),tfn);
@@ -163,7 +167,7 @@ int endRecording(sqlite3 *db)/* {{{1 */
     if(currentprogram->fn){
         fnum=findFilterForFile(currentprogram->adaptor,currentprogram->fn);
         if(fnum>-1){
-            if(x=setsfmrl(currentprogram->adaptor,fnum,"null://")==0){
+            if((x=setsfmrl(currentprogram->adaptor,fnum,"null://"))==0){
                 INFO("Stopped recording of %s from %s on adaptor %d",currentprogram->title,currentprogram->cname,currentprogram->adaptor);
                 ret=0;
             }else{

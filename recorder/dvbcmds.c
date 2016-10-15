@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Saturday 15 October 2016, 11:15:24
+ * Last Modified: Saturday 15 October 2016, 11:29:11
  */
 
 #include "dvbcmds.h"
@@ -198,18 +198,18 @@ int selectlcn(int adaptornum,int channelnum)/*{{{*/
     free(cmd);
     return ret;
 }/*}}}*/
-int findfreefilter(struct AdaptorStatus *AS)/*{{{*/
+int findfreefilter(struct AdaptorStatus *AX)/*{{{*/
 {
     int ff=-1;
     int cn;
     struct FilterStatus **FS;
 
-    if(AS->recording==AS->numfilters){
-        ff=AS->numfilters+1;
-        ff=addsf(AS->adaptornum,ff);
+    if(AX->recording==AX->numfilters){
+        ff=AX->numfilters+1;
+        ff=addsf(AX->adaptornum,ff);
     }else{
-        FS=AS->FS;
-        for(cn=0;cn<AS->numfilters;cn++){
+        FS=AX->FS;
+        for(cn=0;cn<AX->numfilters;cn++){
             if(strcmp(FS[cn]->mrl,"null://")==0){
                 ff=cn;
                 break;

@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:38:36
- * Last Modified: Saturday 15 October 2016, 11:06:46
+ * Last Modified: Saturday 15 October 2016, 11:29:45
  */
 
 #ifndef DVBCMDS_H
@@ -29,16 +29,17 @@ int setsf(int adaptornum,int filternum,char *cname);
 int getsfmux(int adaptornum);
 int muxforchannel(char *channel);
 int selectlcn(int adaptornum,int channelnum);
-int findfreefilter(struct AdaptorStatus *AS);
 int safeToRecord(int adaptornum,char *channel);
 struct AdaptorStatus *adaptorStatus(int adaptornum);
 struct FilterStatus **newFilterStatusArray(int numfilters);
 void fillFilterStatus(int adaptornum,struct FilterStatus *FS,int num);
 void freeAdaptorStatus(struct AdaptorStatus *AS);
+int findfreefilter(struct AdaptorStatus *AX);
 void freeFilterStatus(struct FilterStatus *FI);
 void logAdaptorStatus(struct AdaptorStatus *AS);
 void logFilterStatus(struct FilterStatus *FS);
 int streamNewProgram(char *fn, struct Program *CP);
 char *getmrl(int adaptornum,int filternum);
 int findFilterForFile(int adaptornum,char *fn);
+int setsfmrl(int adaptornum, int filternum, char *mrl);
 #endif
