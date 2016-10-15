@@ -4,7 +4,7 @@
  * defs.h
  *
  * Started: Sunday 23 December 2012, 19:43:27
- * Last Modified: Saturday 15 October 2016, 11:12:52
+ * Last Modified: Saturday 15 October 2016, 17:24:31
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -62,7 +62,6 @@
 #include "globals.h"
 #include "macros.h"
 #include "recorder.h"
-#include "schedule.h"
 #include "tools.h"
 
 #define PROGNAME "cristel"
