@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Friday 14 October 2016, 00:07:47
+ * Last Modified: Saturday 15 October 2016, 09:10:07
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -25,6 +25,10 @@
 
 #include "recorder.h"
 
+int checkNextRecordEnd(sqlite3 *db)/* {{{1 */
+{
+    int then,x;
+}/* }}} */
 int checkNextRecordStart(sqlite3 *db)/* {{{1 */
 {
     int then,x;
@@ -71,6 +75,27 @@ char *filenameFromTitle(char *title)/* {{{1 */
     }
     return path;
 }/* }}} */
+int nextToEndI(sqlite3 *db)/* {{{1 */
+{
+    int togo=INT_MAX;
+    struct tm *tim;
+    char *howlong;
+    time_t then;
+
+    getNextToEnd(db);
+    if(currentprogram->end){
+        then=currentprogram->end;
+        tim=localtime(&then);
+        togo=currentprogram->end - time(NULL);
+        if(togo>0){
+            howlong=hms(togo);
+            INFO("Current recording of '%s' will end in %s at %.2d:%.2d",currentprogram->title,howlong,tim->tm_hour,tim->tm_min);
+            free(howlong);
+        }else{
+            INFO("Current recording of '%s' ends NOW.",currentprogram->title);
+        }
+    }
+}/* }}} */
 int nextToRecordI(sqlite3 *db)/* {{{1 */
 {
     int togo=INT_MAX;
@@ -85,10 +110,10 @@ int nextToRecordI(sqlite3 *db)/* {{{1 */
         togo=currentprogram->start - time(NULL);
         if(togo>0){
             howlong=hms(togo);
-            INFO("Next Recording: '%s' at %.2d:%.2d in %s",currentprogram->title,tim->tm_hour,tim->tm_min,howlong);
+            INFO("Next Recording of '%s' from '%s' starts in %s at %.2d:%.2d.",currentprogram->title,currentprogram->cname,howlong,tim->tm_hour,tim->tm_min);
             free(howlong);
         }else{
-            INFO("Next Recording: '%s' at %.2d:%.2d - NOW",currentprogram->title,tim->tm_hour,tim->tm_min);
+            INFO("Next Recording of '%s' from '%s' starts NOW.",currentprogram->title,currentprogram->cname);
         }
     }
     return togo;
