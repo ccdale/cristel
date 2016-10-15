@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Sunday  9 October 2016, 10:19:43
+ * Last Modified: Saturday 15 October 2016, 10:06:03
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -354,8 +354,12 @@ void mainLoop(sqlite3 *db)/*{{{*/
         if(then<wait){
             wait=then;
         }
+        then=checkNextRecordEnd(db);
+        if(then<wait){
+            wait=then;
+        }
         /* testing record */
-        then=recordProgram();
+        /* then=recordProgram(); */
         /* testing record end */
         DEBUG("Sleeping for %d seconds",wait);
         alarm(wait); /* goto sleep for wait time */
