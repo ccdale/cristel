@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Saturday 15 October 2016, 09:35:37
+ * Last Modified: Saturday 15 October 2016, 09:39:39
  */
 
 #include "dvbcmds.h"
@@ -76,13 +76,9 @@ int addsf(int adaptornum,int filternum)/*{{{*/
 {
     char *cmd=NULL;
     char *junk;
-    int len;
 
+    cmd=fitstring("addsf dvb%d null://",filternum);
     junk=xmalloc(MAX_MSG_LEN);
-    len=snprintf(cmd,0,"addsf dvb%d null://",filternum);
-    len++;
-    cmd=xmalloc(len);
-    len=snprintf(cmd,len,"addsf dvb%d null://",filternum);
     junk=dvbcommand(cmd,adaptornum);
     free(cmd);
     free(junk);
@@ -187,8 +183,7 @@ int selectlcn(int adaptornum,int channelnum)/*{{{*/
     struct ColonParse *CP;
     int ret=0;
 
-    cmd=xmalloc(MAX_MSG_LEN);
-    len=snprintf(cmd,MAX_MSG_LEN,"selectlcn %d",channelnum);
+    cmd=fitstring("selectlcn %d",channelnum);
     line=dvbcommand(cmd,adaptornum);
     len=strlen(line);
     if(len){
