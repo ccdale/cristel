@@ -3,7 +3,7 @@
  *
  * sql.h
  *
- * Last Modified: Saturday 15 October 2016, 08:25:29
+ * Last Modified: Saturday 15 October 2016, 10:14:03
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -70,4 +70,5 @@ void resetProgram(void);
 void resetSingle(void);
 int returnSingle(void *unused, int argc, char **argv, char **colname);
 int sqlexec(sqlite3 *db, char *sql, void *callback);
-void updateRecordProgram(char *status);
+void updateRecordProgram(sqlite3 *db,char *status);
+void updateRecorded(sqlite3 *db);

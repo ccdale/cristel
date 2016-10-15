@@ -3,7 +3,7 @@
  *
  * recorder.h
  *
- * Last Modified: Saturday 15 October 2016, 08:16:51
+ * Last Modified: Saturday 15 October 2016, 10:10:24
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -39,4 +39,6 @@ int checkNextRecordEnd(sqlite3 *db);
 int checkNextRecordStart(sqlite3 *db);
 char *filenameFromTitle(char *title);
 int nextToRecordI(sqlite3 *db);
-int recordProgram(void);
+int recordProgram(sqlite3 *db);
+int nextToEndI(sqlite3 *db);
+int endRecording(sqlite3 *db);

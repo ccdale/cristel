@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Saturday 15 October 2016, 10:04:33
+ * Last Modified: Saturday 15 October 2016, 10:11:10
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -125,7 +125,7 @@ int nextToRecordI(sqlite3 *db)/* {{{1 */
     }
     return togo;
 }/* }}} */
-int recordProgram(void)/* {{{1 */
+int recordProgram(sqlite3 *db)/* {{{1 */
 {
     char *fn=NULL;
     char *tfn=NULL;
@@ -142,7 +142,7 @@ int recordProgram(void)/* {{{1 */
                 WARN("recordProgram: failed to start new recording on %s to %s",currentprogram->cname,fn);
                 rstatus[0]="f";
             }
-            updateRecordProgram(rstatus);
+            updateRecordProgram(db,rstatus);
             free(fn);
         }else{
             WARN("recordProgram: failed to build filename from recpath: %s and %s",configValue("recpath"),tfn);
@@ -153,7 +153,7 @@ int recordProgram(void)/* {{{1 */
     }
     return ret;
 }/* }}} */
-int endRecording(void)/* {{{1 */
+int endRecording(sqlite3 *db)/* {{{1 */
 {
     int fnum;
     int ret=1;
