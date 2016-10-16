@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Sunday 16 October 2016, 11:58:26
+ * Last Modified: Sunday 16 October 2016, 12:00:19
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -205,7 +205,7 @@ int getNextToRecord(sqlite3 *db)/* {{{1 */
     }
     return rc;
 }/* }}} */
-int getImminentRecord(sqlite3 db)/* {{{1 */
+int getImminentRecord(sqlite3 *db)/* {{{1 */
 {
     char *sql;
     int rc=0;
