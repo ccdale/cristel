@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Saturday 15 October 2016, 18:53:31
+ * Last Modified: Sunday 16 October 2016, 11:58:26
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -57,7 +57,7 @@ int countFutureRecordings(sqlite3 *db)/* {{{1 */
 
     resetSingle();
     now=time(NULL);
-    sql=fitstring("select count(*) as xcount from schedule where record='y' and start > %ld",now);
+    sql=fitstring("select count(*) as xcount from schedule where record='y' and end > %ld",now+30);
     rc=sqlexec(db,sql,returnSingle);
     free(sql);
     if(rc==0){
@@ -198,8 +198,26 @@ int getNextToRecord(sqlite3 *db)/* {{{1 */
     numr=countFutureRecordings(db);
     if(numr>0){
         now=time(NULL);
-        sql=fitstring("select * from schedule where record='y' and end > %ld and start < %ld",now,now-30);
+        sql=fitstring("select * from schedule where record='y' and end > %ld and start <= %ld order by start asc limit 1",now,now+30);
         /*sql=fitstring("select * from schedule where record='y' and start > %ld order by start asc limit 1",now);*/
+        rc=sqlexec(db,sql,fillProgram);
+        free(sql);
+    }
+    return rc;
+}/* }}} */
+int getImminentRecord(sqlite3 db)/* {{{1 */
+{
+    char *sql;
+    int rc=0;
+    time_t now;
+    int numr;
+
+    resetProgram();
+    numr=countFutureRecordings(db);
+    if(numr>0){
+        now=time(NULL);
+        /* sql=fitstring("select * from schedule where record='y' and end > %ld and start < %ld",now,now-30); */
+        sql=fitstring("select * from schedule where record='y' and start > %ld order by start asc limit 1",now);
         rc=sqlexec(db,sql,fillProgram);
         free(sql);
     }

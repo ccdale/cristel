@@ -3,7 +3,7 @@
  *
  * sql.h
  *
- * Last Modified: Saturday 15 October 2016, 11:08:44
+ * Last Modified: Sunday 16 October 2016, 11:45:20
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -68,4 +68,5 @@ int returnSingle(void *unused, int argc, char **argv, char **colname);
 int sqlexec(sqlite3 *db, char *sql, void *callback);
 void updateRecordProgram(sqlite3 *db,char *status);
 void updateRecorded(sqlite3 *db);
+int getImminentRecord(sqlite3 db);
 #endif
