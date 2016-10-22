@@ -7,6 +7,7 @@ import sys
 import signal
 import daemon
 import lockfile
+import signal
 
 # setup the cristel lib directory
 cristel_lib_dir = os.path.realpath(os.path.join(os.path.dirname(sys.argv[0]), '../lib/python'))
@@ -28,3 +29,9 @@ if __name__ == '__main__':
     sch=Schedule(log)
     log.debug("updating schedule")
     sch.makeschedule()
+    with file("/home/chris/cristel.pid") as f:
+      try:
+        pid=f.read()
+        os.kill(pid,signal.SIGUSR1)
+      except:
+        log.warn("cristel pid file not readable or not found")

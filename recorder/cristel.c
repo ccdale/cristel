@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Saturday 15 October 2016, 18:55:26
+ * Last Modified: Saturday 22 October 2016, 10:54:11
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -157,8 +157,8 @@ void daemonize(char *conffile)/* {{{1 */
     close(STDERR_FILENO);
     DBG("redirecting standard i/o to /dev/null");
     i=open("/dev/null",O_RDWR); dup(i); dup(i); /* handle standard I/O */
-    DBG("setting umask to 027");
-    umask(027); /* set newly created file permissions */
+    DBG("setting umask to 022");
+    umask(022); /* set newly created file permissions */
 
     if((ret=initConfig())==0){
         DBG("setting default config");
