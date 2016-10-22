@@ -35,7 +35,8 @@ class Schedule(CristelLog):
     def __init__(self,log=None):
         # super(Schedule,self).__init__()
         self.logg=log
-        appdir=os.path.expanduser("~/.epgdb")
+        # appdir=os.path.expanduser("~/.epgdb")
+        appdir="/home/chris/.epgdb"
         eitdb=os.path.join(appdir,"database.db")
         scheddb=os.path.join(appdir,"cristel.db")
         self.debug("starting eit db at %s" % eitdb)
