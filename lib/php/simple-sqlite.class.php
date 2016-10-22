@@ -6,7 +6,7 @@
  * simple-sqlite.class.php
  *
  * Started: Sunday  2 August 2015, 12:29:49
- * Last Modified: Sunday 23 August 2015, 11:30:50
+ * Last Modified: Saturday 22 October 2016, 10:31:50
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -99,6 +99,17 @@ class SSql extends Base
         }
         return $ret;
     } // }}}
+    public function updateQuery($sql="")/*{{{*/
+    {
+        /*
+         * returns the number of rows updated or false for update queries
+         */
+        $ret=$this->query($sql);
+        if($ret){
+            $ret=$this->db->changes();
+        }
+        return $ret;
+    }/*}}}*/
     public function deleteQuery($sql="")/*{{{*/
     {
         /*
@@ -159,7 +170,7 @@ class SSql extends Base
             $this->debug("record already exists ($sql)");
             $ret=true;
         }else{
-            $this->debug("record doesn't exist, inserting");
+            $this->debug("record doesn't exist, inserting :$sqli:");
             $iid=$this->insertQuery($sqli);
             $ret=$iid;
         }
