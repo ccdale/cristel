@@ -6,7 +6,7 @@
  * index.php
  *
  * Started: Sunday 16 August 2015, 02:21:57
- * Last Modified: Saturday  8 October 2016, 14:33:44
+ * Last Modified: Saturday 22 October 2016, 10:34:25
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -51,8 +51,8 @@ function doGrid()/*{{{*/
     $op=$g->build();
     return $op;
 }/*}}}*/
-$logg=new Logging(false,"CPHP",0,LOG_DEBUG);
-// $logg=new Logging(false,"CPHP",0,LOG_INFO);
+/* $logg=new Logging(false,"CPHP",0,LOG_DEBUG); */
+$logg=new Logging(false,"CPHP",0,LOG_INFO);
 $b=new Base($logg);
 $homedir="/home/chris";
 $datadir=$b->unixpath($homedir) . ".epgdb";
@@ -60,7 +60,8 @@ $cristeldbfn=$b->unixpath($datadir) . "cristel.db";
 $epgdbfn=$b->unixpath($datadir) . "database.db";
 
 $cdb=new SSql($cristeldbfn,$logg);
-$iid=$cdb->insertCheck("Data",array('key'=>'timestamp','val'=>time()));
+/* $iid=$cdb->insertCheck("Data",array('key'=>'timestamp','val'=>time())); */
+$changed=$cdb->updateQuery("update Data set val=" . time() . " where key='timestamp'");
 $edb=new SSql($epgdbfn,$logg);
 
 $eventkeys=array("start","end","source","duration","logicalid","progid","description","seriesid","title");
@@ -79,18 +80,19 @@ if(false!==($event=GP("event",true))){
     $op=$cp->build();
 }elseif(false!=($partsearch=GP("partsearch",true))){
     list($type,$value)=explode(":",$partsearch,2);
+    $logg->info("list type: partsearch: ($partsearch), type: ($type), value: ($value)");
     $fieldarr=array("search"=>$value);
     switch($type){
-    case "prog":
-        $logg->debug("record request for programid $value");
+    case "progid":
+        $logg->info("record request for programid $value");
         $fieldarr["type"]="p";
         break;
-    case "series":
-        $logg->debug("record request for seriesid $value");
+    case "seriesid":
+        $logg->info("record request for seriesid $value");
         $fieldarr["type"]="s";
         break;
     case "title":
-        $logg->debug("record request for title $value");
+        $logg->info("record request for title $value");
         $fieldarr["type"]="t";
         break;
     }
@@ -100,6 +102,7 @@ if(false!==($event=GP("event",true))){
     }else{
         $logg->warning("failed to insert record request for type: $type, search: $value");
     }
+    exec("/home/chris/src/cristel/bin/updatecristel.py");
     $op=doGrid();
 }elseif(false!=($likesearch=GP("liketitlesearch",true)) && strlen($likesearch)){
     $logg->debug("request for like search: $likesearch");
