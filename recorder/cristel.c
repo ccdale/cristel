@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Saturday 22 October 2016, 10:54:11
+ * Last Modified: Saturday 22 October 2016, 10:57:25
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -158,7 +158,7 @@ void daemonize(char *conffile)/* {{{1 */
     DBG("redirecting standard i/o to /dev/null");
     i=open("/dev/null",O_RDWR); dup(i); dup(i); /* handle standard I/O */
     DBG("setting umask to 022");
-    umask(022); /* set newly created file permissions */
+    umask(022); /* set newly created file permissions rwxr--r-- */
 
     if((ret=initConfig())==0){
         DBG("setting default config");
@@ -193,7 +193,7 @@ void daemonize(char *conffile)/* {{{1 */
         CCAE(1,"lock file %s exists, exiting",CCA_LOCK_FILE);
     }
     DBG("Creating lock file");
-    lfp=open(CCA_LOCK_FILE,O_RDWR|O_CREAT,0640);
+    lfp=open(CCA_LOCK_FILE,O_RDWR|O_CREAT,0644);
     if (lfp<0) {
         CCAE(1,"Failed to create lock file, exiting.");
     } /* can not open */
