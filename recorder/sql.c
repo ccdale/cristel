@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Sunday 23 October 2016, 11:28:34
+ * Last Modified: Sunday 23 October 2016, 12:08:21
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -125,6 +125,10 @@ int fillProgram(void *NotUsed, int argc, char **argv, char **ColName)/*{{{*/
             /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
             currentprogram->record=strdup(argv[x]);
             /* DEBUG("Check: %s", currentprogram->record);*/
+        }else if((strcmp(ColName[x],"filepath")==0) && (argv[x]!=NULL)){
+            /* DEBUG("Setting %s to %s",ColName[x],argv[x]);*/
+            currentprogram->fn=strdup(argv[x]);
+            /* DEBUG("Check: %s", currentprogram->fn);*/
         }else{
             if(argv[x]==NULL){
                 DEBUG("Column %s is NULL",ColName[x]);
