@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Sunday 23 October 2016, 11:15:38
+ * Last Modified: Sunday 23 October 2016, 11:28:34
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -415,29 +415,33 @@ void updateRecordProgram(sqlite3 *db,char *status)/* {{{1 */
     sql=fitstring("insert into recording (source,cname,event,muxid,start,end,title,description,progid,seriesid,adaptor,filepath) values (\"%s\",\"%s\",%d,%d,%d,%d,\"%s\",\"%s\",\"%s\",\"%s\",%d,\"%s\")",currentprogram->source,cname,currentprogram->event,currentprogram->muxid,currentprogram->start,currentprogram->end,title,description,progid,seriesid,currentprogram->adaptor,currentprogram->fn);
     sqlexec(db,sql,NULL);
     xfree(sql);
-    if(cname){
-        xfree(cname);
-    }
-    if(title){
-        xfree(title);
-    }
-    if(description){
-        xfree(description);
-    }
-    if(progid){
-        xfree(progid);
-    }
-    if(seriesid){
-        xfree(seriesid);
-    }
+    xfree(cname);
+    xfree(title);
+    xfree(description);
+    xfree(progid);
+    xfree(seriesid);
 }/* }}} */
 void updateRecorded(sqlite3 *db)/* {{{1 */
 {
     char *sql;
+    char *cname;
+    char *title;
+    char *description;
+    char *progid;
+    char *seriesid;
 
-    sql=fitstring("insert into recorded (source,cname,event,muxid,start,end,title,description,progid,seriesid,adaptor,filepath) values (\"%s\",\"%s\",%d,%d,%d,%d,\"%s\",\"%s\",\"%s\",\"%s\",%d,\"%s\")",currentprogram->source,currentprogram->cname,currentprogram->event,currentprogram->muxid,currentprogram->start,currentprogram->end,currentprogram->title,currentprogram->description,currentprogram->progid,currentprogram->seriesid,currentprogram->adaptor,currentprogram->fn);
+    cname=escapestr(currentprogram->cname);
+    title=escapestr(currentprogram->title);
+    description=escapestr(currentprogram->description);
+    progid=escapestr(currentprogram->progid);
+    seriesid=escapestr(currentprogram->seriesid);
+    sql=fitstring("insert into recorded (source,cname,event,muxid,start,end,title,description,progid,seriesid,adaptor,filepath) values (\"%s\",\"%s\",%d,%d,%d,%d,\"%s\",\"%s\",\"%s\",\"%s\",%d,\"%s\")",currentprogram->source,cname,currentprogram->event,currentprogram->muxid,currentprogram->start,currentprogram->end,title,description,progid,seriesid,currentprogram->adaptor,currentprogram->fn);
     sqlexec(db,sql,NULL);
     xfree(sql);
+    xfree(cname);
+    xfree(title);
+    xfree(description);
+    xfree(progid);
     sql=fitstring("delete from recording where id = %d",currentprogram->id);
     sqlexec(db,sql,NULL);
     xfree(sql);
