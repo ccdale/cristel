@@ -1,0 +1,5 @@
+#!/bin/bash
+pidfn=/var/tmp/cristel.pid
+if [ -f $pidfn ]; then
+  kill $(cat $pidfn)
+fi
