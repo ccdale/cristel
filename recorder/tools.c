@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Sunday 23 October 2016, 11:16:32
+ * Last Modified: Sunday 23 October 2016, 12:41:23
  */
 
 #include "tools.h"
@@ -148,7 +148,7 @@ int filenumberFromFilename(char *filename)/* {{{1 */
 }/* }}} */
 char *sensibleFilename(char *str)/* {{{1 */
 {
-    char *fnstr,*tmpstr;
+    char *fnstr=NULL,*tmpstr;
     tmpstr=replaceSpaces(str);
     if(tmpstr){
         /* DEBUG("replaceSpaces has returned: '%s'",tmpstr);*/
@@ -205,10 +205,10 @@ char *replaceSpaces(char *str)/*{{{*/
             close(inpipe[1]);
             /* DEBUG("reading from tr into fnstr");*/
             rlen=read(outpipe[0],fnstr,slen);
-            INFO("replacespaces: asked for %d, read %d",slen,rlen);
+            DEBUG("replacespaces: asked for %d, read %d",slen,rlen);
             close(outpipe[0]);
             /* DEBUG("read %d bytes from tr",rlen);*/
-            INFO("replaceSpaces: adding terminating zero");
+            DEBUG("replaceSpaces: adding terminating zero");
             fnstr[slen]='\0';
             INFO("replaceSpaces: read: '%s'",fnstr);
             /* DEBUG("Parent will now wait for tr process to finish");*/
