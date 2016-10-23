@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Sunday 23 October 2016, 11:11:57
+ * Last Modified: Sunday 23 October 2016, 11:15:38
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -401,7 +401,7 @@ void updateRecordProgram(sqlite3 *db,char *status)/* {{{1 */
     char *cname;
     char *title;
     char *description;
-    char *prodid;
+    char *progid;
     char *seriesid;
 
     sql=fitstring("update schedule set record='%s' where id=%d",status,currentprogram->id);
@@ -424,8 +424,8 @@ void updateRecordProgram(sqlite3 *db,char *status)/* {{{1 */
     if(description){
         xfree(description);
     }
-    if(prodid){
-        xfree(prodid);
+    if(progid){
+        xfree(progid);
     }
     if(seriesid){
         xfree(seriesid);
