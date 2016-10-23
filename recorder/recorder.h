@@ -3,7 +3,7 @@
  *
  * recorder.h
  *
- * Last Modified: Saturday 15 October 2016, 11:08:17
+ * Last Modified: Sunday 23 October 2016, 12:18:54
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -29,6 +29,7 @@
 
 extern struct Program *currentprogram;
 
+int stopAllRecordings(sqlite3 *db);
 int checkNextRecordEnd(sqlite3 *db);
 int checkNextRecordStart(sqlite3 *db);
 char *filenameFromTitle(char *title);

@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Sunday 23 October 2016, 11:08:04
+ * Last Modified: Sunday 23 October 2016, 12:30:17
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -25,6 +25,23 @@
 
 #include "recorder.h"
 
+int stopAllRecordings(sqlite3 *db)/* {{{1 */
+{
+    int then=0;
+    int iter=0;
+
+    while(then<INT_MAX){
+        then=nextToEndI(db);
+        endRecording(db);
+        then=nextToEndI(db);
+        iter++;
+        if(iter>20){
+            WARN("endless loop in stop all recordings: %d iterations. Breaking out.",iter);
+            break;
+        }
+    }
+    return then;
+}/* }}} */
 int checkNextRecordEnd(sqlite3 *db)/* {{{1 */
 {
     int then;
@@ -33,7 +50,7 @@ int checkNextRecordEnd(sqlite3 *db)/* {{{1 */
     if(then<1){
         INFO("Stopping current recording of '%s' from '%s'",currentprogram->title,currentprogram->cname);
         endRecording(db);
-        then=INT_MAX;
+        then=nextToEndI(db);
     }
     return then;
 }/* }}} */

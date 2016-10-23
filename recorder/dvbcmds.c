@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Sunday 23 October 2016, 11:06:21
+ * Last Modified: Sunday 23 October 2016, 12:24:13
  */
 
 #include "dvbcmds.h"
@@ -126,9 +126,7 @@ int setsfmrl(int adaptornum, int filternum, char *mrl)/* {{{1 */
         if(nl>0){
             DEBUG("setsfmrl: %d lines",nl);
             DEBUG("setsfmrl: output: %s",output);
-            if(output){
-                xfree(output);
-            }
+            xfree(output);
             ret=0;
         }
         xfree(cmd);

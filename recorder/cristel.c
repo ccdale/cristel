@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Sunday 23 October 2016, 11:14:36
+ * Last Modified: Sunday 23 October 2016, 12:29:16
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -366,6 +366,7 @@ void mainLoop(sqlite3 *db)/*{{{*/
         pause();
     }
     while(1);
+    stopAllRecordings(db);
 }/*}}}*/
 int main(int argc,char **argv)/* {{{ */
 {
