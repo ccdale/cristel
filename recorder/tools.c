@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Saturday 15 October 2016, 10:36:25
+ * Last Modified: Sunday 23 October 2016, 10:58:18
  */
 
 #include "tools.h"
@@ -32,6 +32,13 @@ void *xcalloc(size_t nmemb, size_t size)/*{{{*/
     xmem=memset(xmem,0,nmemb*size);
     return xmem;
 }/*}}}*/
+void xfree(void *ptr)/* {{{1 */
+{
+    if(ptr){
+        free(ptr);
+        ptr=NULL:
+    }
+}/* }}} */
 char *hms(int seconds)/* {{{1 */
 {
     int days=0, hours=0, mins=0, secs=0;
@@ -136,7 +143,7 @@ int filenumberFromFilename(char *filename)/* {{{1 */
     token=strtok(NULL,dot);
     /* DBGL("third token: %s",token); */
     ret=atoi(token);
-    free(str);
+    xfree(str);
     return ret;
 }/* }}} */
 char *sensibleFilename(char *str)/* {{{1 */
@@ -147,7 +154,7 @@ char *sensibleFilename(char *str)/* {{{1 */
         /* DEBUG("replaceSpaces has returned: '%s'",tmpstr);*/
         fnstr=sensibleChars(tmpstr);
         /* DEBUG("sensibleChars has returned: '%s'",fnstr);*/
-        free(tmpstr);
+        xfree(tmpstr);
     }
     return fnstr;
 }/* }}} */
@@ -295,7 +302,7 @@ char *escapestr(char *str)/* {{{1 */
         titer='\0';
         if((op=xmalloc(++current))){
             strcpy(op,top);
-            free(top);
+            xfree(top);
         }else{
             CCAE(1,"cannot allocate memory for output escaped string: %s",top);
         }
@@ -369,7 +376,7 @@ long filesize(char *filename)/* {{{1 */
         DEBUG("file does not exist: %s",filename);
     }
     /* syslog(LOG_DEBUG,"freeing stat buffer"); */
-    free(statbuf);
+    xfree(statbuf);
     /* syslog(LOG_DEBUG,"returning from filesize: %ld",fsize); */
     return fsize;
 }/* }}} */
@@ -384,8 +391,7 @@ char *newstringpointer(char *str)/* {{{1 */
     junk=strcpy(nsp,str);
     if(junk!=nsp){
         syslog(LOG_ERR,"failure in copying string.");
-        free(nsp);
-        nsp=NULL;
+        xfree(nsp);
     }
     return nsp;
 }/* }}} */
@@ -506,7 +512,7 @@ int readPidFile(char *fn)/*{{{*/
             fclose(fp);
         }
     }
-    free(buf);
+    xfree(buf);
     return pid;
 }/*}}}*/
 int numLines(char *lines)/*{{{*/
@@ -527,6 +533,6 @@ int numLines(char *lines)/*{{{*/
             token=strtok(NULL,tok);
         }
     }
-    free(hlines);
+    xfree(hlines);
     return nlines;
 }/*}}}*/

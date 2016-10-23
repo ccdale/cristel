@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Sunday 23 October 2016, 10:47:40
+ * Last Modified: Sunday 23 October 2016, 10:55:31
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -398,13 +398,29 @@ int sqlexec(sqlite3 *db, char *sql, void *callback)/* {{{1 */
 void updateRecordProgram(sqlite3 *db,char *status)/* {{{1 */
 {
     char *sql;
+    char *cname;
+    char *title;
+    char *description;
+    char *prodid;
+    char *seriesid;
 
     sql=fitstring("update schedule set record='%s' where id=%d",status,currentprogram->id);
     sqlexec(db,sql,NULL);
     free(sql);
-    sql=fitstring("insert into recording (source,cname,event,muxid,start,end,title,description,progid,seriesid,adaptor,filepath) values (\"%s\",\"%s\",%d,%d,%d,%d,\"%s\",\"%s\",\"%s\",\"%s\",%d,\"%s\")",currentprogram->source,currentprogram->cname,currentprogram->event,currentprogram->muxid,currentprogram->start,currentprogram->end,currentprogram->title,currentprogram->description,currentprogram->progid,currentprogram->seriesid,currentprogram->adaptor,currentprogram->fn);
+    cname=escapestr(currentprogram->cname);
+    title=escapestr(currentprogram->title);
+    description=escapestr(currentprogram->description);
+    progid=escapestr(currentprogram->progid);
+    seriesid=escapestr(currentprogram->seriesid);
+    sql=fitstring("insert into recording (source,cname,event,muxid,start,end,title,description,progid,seriesid,adaptor,filepath) values (\"%s\",\"%s\",%d,%d,%d,%d,\"%s\",\"%s\",\"%s\",\"%s\",%d,\"%s\")",currentprogram->source,cname,currentprogram->event,currentprogram->muxid,currentprogram->start,currentprogram->end,title,description,progid,seriesid,currentprogram->adaptor,currentprogram->fn);
     sqlexec(db,sql,NULL);
     free(sql);
+    if(cname){
+        free(cname);
+    }
+    if(title){
+        free(title);
+    }
 }/* }}} */
 void updateRecorded(sqlite3 *db)/* {{{1 */
 {
