@@ -4,7 +4,7 @@
  * defs.h
  *
  * Started: Sunday 23 December 2012, 19:43:27
- * Last Modified: Saturday 15 October 2016, 17:24:31
+ * Last Modified: Saturday 22 October 2016, 11:09:10
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -72,7 +72,7 @@
 #define PROGCONF "/home/chris/src/cristel/recorder/"PROGNAME".conf"
 
 #define CCA_HOME "/"
-#define CCA_LOCK_FILE "/home/chris/"PROGNAME".pid"
+#define CCA_LOCK_FILE "/var/tmp/"PROGNAME".pid"
 #define MAX_MSG_LEN 4096
 
 #define CCA_DEFAULT_USERNAME "chris"

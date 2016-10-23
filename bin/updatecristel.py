@@ -29,9 +29,3 @@ if __name__ == '__main__':
     sch=Schedule(log)
     log.debug("updating schedule")
     sch.makeschedule()
-    with file("/home/chris/cristel.pid") as f:
-      try:
-        pid=f.read()
-        os.kill(pid,signal.SIGUSR1)
-      except:
-        log.warn("cristel pid file not readable or not found")

@@ -6,7 +6,7 @@
  * index.php
  *
  * Started: Sunday 16 August 2015, 02:21:57
- * Last Modified: Saturday 22 October 2016, 10:34:25
+ * Last Modified: Sunday 23 October 2016, 10:26:31
  * 
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -27,6 +27,7 @@
  */
 
 date_default_timezone_set("Europe/London");
+$cristelpidfn="/var/tmp/cristel.pid";
 $mypath=dirname(__FILE__);
 /* this file should be in the /path/cristel/www directory, lets check */
 $cristeldir=dirname($mypath);
@@ -50,6 +51,21 @@ function doGrid()/*{{{*/
     $g=new Grid($cdb,$edb,$c->visiblechans(),$logg,$gridstart);
     $op=$g->build();
     return $op;
+}/*}}}*/
+function tellCristel()/*{{{*/
+{
+    global $cristelpidfn,$logg;
+    exec("/home/chris/src/cristel/bin/updatecristel.py");
+    if(file_exists($cristelpidfn)){
+        $cristelpid=file_get_contents($cristelpidfn);
+        exec("/home/chris/src/cristel/bin/cristelkill -s USR1 $cristelpid 2>&1",$killoutput,$killreturn);
+        if($killreturn==0){
+            $logg->info("successfully signalled cristel");
+        }else{
+            $killstr=implode("\n",$killoutput);
+            $logg->warning("failed to signal cristel: output: $killstr");
+        }
+    }
 }/*}}}*/
 /* $logg=new Logging(false,"CPHP",0,LOG_DEBUG); */
 $logg=new Logging(false,"CPHP",0,LOG_INFO);
@@ -99,10 +115,10 @@ if(false!==($event=GP("event",true))){
     $iid=$cdb->insertCheck("rsearch",$fieldarr);
     if($iid){
         $logg->debug("inserted record request ok type: $type, search: $value");
+        tellCristel();
     }else{
         $logg->warning("failed to insert record request for type: $type, search: $value");
     }
-    exec("/home/chris/src/cristel/bin/updatecristel.py");
     $op=doGrid();
 }elseif(false!=($likesearch=GP("liketitlesearch",true)) && strlen($likesearch)){
     $logg->debug("request for like search: $likesearch");
@@ -110,6 +126,7 @@ if(false!==($event=GP("event",true))){
     $iid=$cdb->insertCheck("rsearch",$fieldarr);
     if($iid){
         $logg->debug("inserted record request ok type: $type, search: $value");
+        tellCristel();
     }else{
         $logg->warning("failed to insert record request for type: $type, search: $value");
     }
@@ -120,6 +137,7 @@ if(false!==($event=GP("event",true))){
     $iid=$cdb->insertCheck("rsearch",$fieldarr);
     if($iid){
         $logg->debug("inserted record request ok type: $type, search: $value");
+        tellCristel();
     }else{
         $logg->warning("failed to insert record request for type: $type, search: $value");
     }
