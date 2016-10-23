@@ -3,7 +3,7 @@
  *
  * sql.c
  *
- * Last Modified: Sunday 23 October 2016, 10:55:31
+ * Last Modified: Sunday 23 October 2016, 11:11:57
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -35,7 +35,7 @@ int countCurrentRecordings(sqlite3 *db)/* {{{1 */
     now=time(NULL);
     sql=fitstring("select count(*) as xcount from recording where end > %ld",now);
     rc=sqlexec(db,sql,returnSingle);
-    free(sql);
+    xfree(sql);
     if(rc==0){
         numr=atoi(single->val);
     }
@@ -59,7 +59,7 @@ int countFutureRecordings(sqlite3 *db)/* {{{1 */
     now=time(NULL);
     sql=fitstring("select count(*) as xcount from schedule where record='y' and end > %ld",now+30);
     rc=sqlexec(db,sql,returnSingle);
-    free(sql);
+    xfree(sql);
     if(rc==0){
         numr=atoi(single->val);
     }
@@ -140,36 +140,36 @@ void freeProgram(void)/* {{{1 */
 {
     if(currentprogram){
         if(currentprogram->source){
-            free(currentprogram->source);
+            xfree(currentprogram->source);
         }
         if(currentprogram->cname){
-            free(currentprogram->cname);
+            xfree(currentprogram->cname);
         }
         if(currentprogram->title){
-            free(currentprogram->title);
+            xfree(currentprogram->title);
         }
         if(currentprogram->description){
-            free(currentprogram->description);
+            xfree(currentprogram->description);
         }
         if(currentprogram->progid){
-            free(currentprogram->progid);
+            xfree(currentprogram->progid);
         }
         if(currentprogram->seriesid){
-            free(currentprogram->seriesid);
+            xfree(currentprogram->seriesid);
         }
         if(currentprogram->record){
-            free(currentprogram->record);
+            xfree(currentprogram->record);
         }
-        free(currentprogram);
+        xfree(currentprogram);
     }
     if(single){
         if(single->colname){
-            free(single->colname);
+            xfree(single->colname);
         }
         if(single->val){
-            free(single->val);
+            xfree(single->val);
         }
-        free(single);
+        xfree(single);
     }
 }/* }}} */
 int getNextToEnd(sqlite3 *db)/* {{{1 */
@@ -183,7 +183,7 @@ int getNextToEnd(sqlite3 *db)/* {{{1 */
     if(numr>0){
         sql=fitstring("select * from recording order by end asc limit 1");
         rc=sqlexec(db,sql,fillProgram);
-        free(sql);
+        xfree(sql);
     }
     return rc;
 }/* }}} */
@@ -201,7 +201,7 @@ int getNextToRecord(sqlite3 *db)/* {{{1 */
          /* sql=fitstring("select * from schedule where record='y' and end > %ld and start <= %ld order by start asc limit 1",now,now+30); */ 
         sql=fitstring("select * from schedule where record='y' and end > %ld order by start asc limit 1",now);
         rc=sqlexec(db,sql,fillProgram);
-        free(sql);
+        xfree(sql);
     }
     return rc;
 }/* }}} */
@@ -219,7 +219,7 @@ int getImminentRecord(sqlite3 *db)/* {{{1 */
         /* sql=fitstring("select * from schedule where record='y' and end > %ld and start < %ld",now,now-30); */
         sql=fitstring("select * from schedule where record='y' and start > %ld order by start asc limit 1",now);
         rc=sqlexec(db,sql,fillProgram);
-        free(sql);
+        xfree(sql);
     }
     return rc;
 }/* }}} */
@@ -324,46 +324,46 @@ void resetProgram(void)/* {{{1 */
     currentprogram->filter=0;
     currentprogram->fnfz=0;
     if(currentprogram->source){
-        free(currentprogram->source);
+        xfree(currentprogram->source);
     }
     currentprogram->source=NULL;
     if(currentprogram->cname){
-        free(currentprogram->cname);
+        xfree(currentprogram->cname);
     }
     currentprogram->cname=NULL;
     if(currentprogram->title){
-        free(currentprogram->title);
+        xfree(currentprogram->title);
     }
     currentprogram->title=NULL;
     if(currentprogram->description){
-        free(currentprogram->description);
+        xfree(currentprogram->description);
     }
     currentprogram->description=NULL;
     if(currentprogram->progid){
-        free(currentprogram->progid);
+        xfree(currentprogram->progid);
     }
     currentprogram->progid=NULL;
     if(currentprogram->seriesid){
-        free(currentprogram->seriesid);
+        xfree(currentprogram->seriesid);
     }
     currentprogram->seriesid=NULL;
     if(currentprogram->record){
-        free(currentprogram->record);
+        xfree(currentprogram->record);
     }
     currentprogram->record=NULL;
     if(currentprogram->fn){
-        free(currentprogram->fn);
+        xfree(currentprogram->fn);
     }
     currentprogram->fn=NULL;
 }/* }}} */
 void resetSingle(void)/* {{{1 */
 {
     if(single->colname){
-        free(single->colname);
+        xfree(single->colname);
     }
     single->colname=NULL;
     if(single->val){
-        free(single->val);
+        xfree(single->val);
     }
     single->val=NULL;
 }/* }}} */
@@ -406,7 +406,7 @@ void updateRecordProgram(sqlite3 *db,char *status)/* {{{1 */
 
     sql=fitstring("update schedule set record='%s' where id=%d",status,currentprogram->id);
     sqlexec(db,sql,NULL);
-    free(sql);
+    xfree(sql);
     cname=escapestr(currentprogram->cname);
     title=escapestr(currentprogram->title);
     description=escapestr(currentprogram->description);
@@ -414,12 +414,21 @@ void updateRecordProgram(sqlite3 *db,char *status)/* {{{1 */
     seriesid=escapestr(currentprogram->seriesid);
     sql=fitstring("insert into recording (source,cname,event,muxid,start,end,title,description,progid,seriesid,adaptor,filepath) values (\"%s\",\"%s\",%d,%d,%d,%d,\"%s\",\"%s\",\"%s\",\"%s\",%d,\"%s\")",currentprogram->source,cname,currentprogram->event,currentprogram->muxid,currentprogram->start,currentprogram->end,title,description,progid,seriesid,currentprogram->adaptor,currentprogram->fn);
     sqlexec(db,sql,NULL);
-    free(sql);
+    xfree(sql);
     if(cname){
-        free(cname);
+        xfree(cname);
     }
     if(title){
-        free(title);
+        xfree(title);
+    }
+    if(description){
+        xfree(description);
+    }
+    if(prodid){
+        xfree(prodid);
+    }
+    if(seriesid){
+        xfree(seriesid);
     }
 }/* }}} */
 void updateRecorded(sqlite3 *db)/* {{{1 */
@@ -428,8 +437,8 @@ void updateRecorded(sqlite3 *db)/* {{{1 */
 
     sql=fitstring("insert into recorded (source,cname,event,muxid,start,end,title,description,progid,seriesid,adaptor,filepath) values (\"%s\",\"%s\",%d,%d,%d,%d,\"%s\",\"%s\",\"%s\",\"%s\",%d,\"%s\")",currentprogram->source,currentprogram->cname,currentprogram->event,currentprogram->muxid,currentprogram->start,currentprogram->end,currentprogram->title,currentprogram->description,currentprogram->progid,currentprogram->seriesid,currentprogram->adaptor,currentprogram->fn);
     sqlexec(db,sql,NULL);
-    free(sql);
+    xfree(sql);
     sql=fitstring("delete from recording where id = %d",currentprogram->id);
     sqlexec(db,sql,NULL);
-    free(sql);
+    xfree(sql);
 }/* }}} */

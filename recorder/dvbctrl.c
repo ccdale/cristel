@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Sunday 27 July 2014, 06:07:48
- * Last Modified: Monday 10 October 2016, 21:33:37
+ * Last Modified: Sunday 23 October 2016, 11:07:42
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -65,20 +65,20 @@ void free_streamer_data(void)/*{{{*/
     /*
     if(SD.ver){
         DEBUG("free SD.ver: %s",SD.ver);
-        free(SD.ver);
+        xfree(SD.ver);
     }
     if(SD.errmsg){
         DEBUG("free SD.errmsg: %s",SD.errmsg);
-        free(SD.errmsg);
+        xfree(SD.errmsg);
     }
     */
     if(SD.line){
         DEBUG("free SD.line: %s",SD.line);
-        free(SD.line);
+        xfree(SD.line);
     }
     if(SD.data){
         DEBUG("free SD.data: %s",SD.data);
-        free(SD.data);
+        xfree(SD.data);
     }
 }/*}}}*/
 int dvbc_connect(int adaptornum)/*{{{*/
@@ -252,15 +252,15 @@ void freeServiceInfo(struct ServiceInfo *SI)/*{{{*/
 {
     if(SI){
         if(SI->name){
-            free(SI->name);
+            xfree(SI->name);
         }
         if(SI->source){
-            free(SI->source);
+            xfree(SI->source);
         }
         if(SI->ID){
-            free(SI->ID);
+            xfree(SI->ID);
         }
-        free(SI);
+        xfree(SI);
     }
 }/*}}}*/
 struct ServiceInfo *serviceInfoParse(char *si)/*{{{*/
@@ -291,9 +291,9 @@ struct ServiceInfo *serviceInfoParse(char *si)/*{{{*/
         CP=parseColon(line);
         updateServiceInfo(SI,CP->key,CP->val);
         if(CP->tmp){
-            free(CP->tmp);
+            xfree(CP->tmp);
         }
-        free(CP);
+        xfree(CP);
         /* next line */
         line=strtok_r(NULL,linetok,&linesave);
     }
@@ -373,8 +373,8 @@ struct ServiceInfo *getServiceInfo(char *service)/*{{{*/
     sprintf(cmd,"serviceinfo '%s'",service);
     si=dvbcommand(cmd,0);
     SI=serviceInfoParse(si);
-    free(si);
-    free(cmd);
+    xfree(si);
+    xfree(cmd);
     return SI;
 }/*}}}*/
 char * dvbcommand(char *cmd,int adaptornum)/*{{{*/

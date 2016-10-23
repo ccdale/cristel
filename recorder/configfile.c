@@ -4,7 +4,7 @@
  * configfile.c
  *
  * Started: Sunday 23 December 2012, 09:47:48
- * Last Modified: Saturday 26 July 2014, 04:42:06
+ * Last Modified: Sunday 23 October 2016, 11:00:48
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -116,7 +116,7 @@ void getConfigFromFile(char *filename)/* {{{1 */
     }else{
         CCA_ERR_EXIT(4,"Cannot open config file for reading.");
     }
-    free(buffer);
+    xfree(buffer);
 }/* }}} */
 struct ConfigItem *addConfig(char *key, char *value)/* {{{1 */
 {
@@ -146,9 +146,9 @@ struct ConfigItem *updateConfig(char *key, char *value)/* {{{1 */
     if(( tc = searchConfigP( key )) == NULL){
         tc=addConfig( key, value);
     }else{
-        free(tc->key);
+        xfree(tc->key);
         tc->key=key;
-        free(tc->value);
+        xfree(tc->value);
         tc->value=value;
     }
     return tc;
@@ -214,9 +214,9 @@ void unlinkConfig(struct ConfigItem *prev, struct ConfigItem *dc)/* {{{1 */
         }else{
             prev->next=dc->next;
         }
-        free(dc->key);
-        free(dc->value);
-        free(dc);
+        xfree(dc->key);
+        xfree(dc->value);
+        xfree(dc);
     }
 }/* }}} */
 void deleteConfig( void )/* {{{1 */
@@ -227,25 +227,25 @@ void deleteConfig( void )/* {{{1 */
         printf("freeing config item %s\n",tc->key);
         configuration=tc->next;
         if(tc->key){
-            free(tc->key);
+            xfree(tc->key);
         }
         if(tc->value){
-            free(tc->value);
+            xfree(tc->value);
         }
         if(tc){
-            free(tc);
+            xfree(tc);
         }
         tc=configuration;
     }
     /* ok, at the last one */
     printf("freeing config item %s\n",configuration->key);
     if(configuration->key){
-        free(configuration->key);
+        xfree(configuration->key);
     }
     if(configuration->value){
-        free(configuration->value);
+        xfree(configuration->value);
     }
-    free(configuration);
+    xfree(configuration);
 }/* }}} */
 struct ConfigItem *searchConfigP(char *key)/* {{{1 */
 {

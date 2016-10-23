@@ -4,7 +4,7 @@
  * cristel.c
  *
  * Started: Thursday 24 July 2014, 13:05:39
- * Last Modified: Saturday 22 October 2016, 10:57:25
+ * Last Modified: Sunday 23 October 2016, 11:03:21
  *
  * Copyright (c) 2014 Chris Allison chris.allison@hotmail.com
  *
@@ -306,7 +306,7 @@ void stopDvbStreamer(int adaptor)/*{{{*/
         DEBUG("Sending SIGTERM to dvbstreamer adaptor %d, pid: %d",adaptor,pid);
         kill((pid_t)pid,SIGTERM);
     }
-    free(pidfile);
+    xfree(pidfile);
 }/*}}}*/
 void setDefaultConfig(void)/*{{{*/
 {
@@ -410,9 +410,9 @@ int main(int argc,char **argv)/* {{{ */
     DEBUG("Closing db %s",dbname);
     sqlite3_close(db);
     if(dbname){
-        free(dbname);
+        xfree(dbname);
     }
-    freeProgram();
+    xfreeProgram();
 
     for(x=0;x<na;x++){
         stopDvbStreamer(x);

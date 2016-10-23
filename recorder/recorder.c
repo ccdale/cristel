@@ -3,7 +3,7 @@
  *
  * recorder.c
  *
- * Last Modified: Saturday 15 October 2016, 11:34:03
+ * Last Modified: Sunday 23 October 2016, 11:08:04
  *
  * Copyright (c) 2016 Chris Allison chris.allison@hotmail.com
  *
@@ -70,12 +70,12 @@ char *filenameFromTitle(char *title)/* {{{1 */
         tim=localtime(&now);
         tmnum=fitstring("%.4d%.2d%.2d%.2d%.2d%.2d",tim->tm_year+1900,tim->tm_mon+1,tim->tm_mday,tim->tm_hour,tim->tm_min,tim->tm_sec);
         if(tmnum==NULL){
-            free(fn);
+            xfree(fn);
             WARN("filenameFromTitle failed to generate a time string");
         }else{
             path=fitstring("%s%s%s%s%s%s",configValue("recpath"),"/",tmnum,"-",fn,".ts");
-            free(tmnum);
-            free(fn);
+            xfree(tmnum);
+            xfree(fn);
             if(path==NULL){
                 WARN("filenameFromTitle failed: couldn't concatFileParts");
             }
@@ -98,7 +98,7 @@ int nextToEndI(sqlite3 *db)/* {{{1 */
         if(togo>0){
             howlong=hms(togo);
             INFO("Current recording of '%s' will end in %s at %.2d:%.2d",currentprogram->title,howlong,tim->tm_hour,tim->tm_min);
-            free(howlong);
+            xfree(howlong);
         }else{
             INFO("Current recording of '%s' ends NOW.",currentprogram->title);
         }
@@ -120,7 +120,7 @@ int nextToRecordI(sqlite3 *db)/* {{{1 */
         if(togo>0){
             howlong=hms(togo);
             INFO("Next Recording of '%s' from '%s' starts in %s at %.2d:%.2d.",currentprogram->title,currentprogram->cname,howlong,tim->tm_hour,tim->tm_min);
-            free(howlong);
+            xfree(howlong);
         }else{
             INFO("Next Recording of '%s' from '%s' starts NOW.",currentprogram->title,currentprogram->cname);
         }
@@ -147,12 +147,12 @@ int recordProgram(sqlite3 *db)/* {{{1 */
                 /* rstatus[0]="f";*/
             }
             updateRecordProgram(db,rstatus);
-            free(rstatus);
-            free(fn);
+            xfree(rstatus);
+            xfree(fn);
         }else{
             WARN("recordProgram: failed to build filename from recpath: %s and %s",configValue("recpath"),tfn);
         }
-        free(tfn);
+        xfree(tfn);
     }else{
         WARN("recordProgram: failed to allocate memory for filename for title: %s",currentprogram->title);
     }

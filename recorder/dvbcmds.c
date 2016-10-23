@@ -7,7 +7,7 @@
  * chris.allison@hotmail.com
  *
  * Started: Monday  7 March 2016, 04:40:22
- * Last Modified: Saturday 15 October 2016, 11:29:11
+ * Last Modified: Sunday 23 October 2016, 11:06:21
  */
 
 #include "dvbcmds.h"
@@ -52,12 +52,12 @@ char * getsf(int adaptornum,int filternum)/*{{{*/
                 channel=strdup(CP->val);
             }
             if(CP->tmp){
-                free(CP->tmp);
+                xfree(CP->tmp);
             }
-            free(CP);
+            xfree(CP);
         }
-        free(cmd);
-        free(line);
+        xfree(cmd);
+        xfree(line);
     }
     return channel;
 }/*}}}*/
@@ -68,7 +68,7 @@ char * getsfmrl(int adaptornum,char *sfname)/*{{{*/
 
     cmd=fitstring("getsfmrl %s",sfname);
     mrl=dvbcommand(cmd,adaptornum);
-    free(cmd);
+    xfree(cmd);
     return mrl;
 }/*}}}*/
 int addsf(int adaptornum,int filternum)/*{{{*/
@@ -79,8 +79,8 @@ int addsf(int adaptornum,int filternum)/*{{{*/
     cmd=fitstring("addsf dvb%d null://",filternum);
     junk=xmalloc(MAX_MSG_LEN);
     junk=dvbcommand(cmd,adaptornum);
-    free(cmd);
-    free(junk);
+    xfree(cmd);
+    xfree(junk);
     return filternum;
 }/*}}}*/
 int setsf(int adaptornum,int filternum,char *cname)/* {{{1 */
@@ -100,10 +100,10 @@ int setsf(int adaptornum,int filternum,char *cname)/* {{{1 */
         if(nl>0){
             DEBUG("setsf: %d lines",nl);
             DEBUG("setsf: output: %s",output);
-            free(output);
+            xfree(output);
             ret=0;
         }
-        free(cmd);
+        xfree(cmd);
     }else{
         WARN("setsf: failed to allocate cmd string for filter %d and channel %s",filternum,cname);
     }
@@ -127,11 +127,11 @@ int setsfmrl(int adaptornum, int filternum, char *mrl)/* {{{1 */
             DEBUG("setsfmrl: %d lines",nl);
             DEBUG("setsfmrl: output: %s",output);
             if(output){
-                free(output);
+                xfree(output);
             }
             ret=0;
         }
-        free(cmd);
+        xfree(cmd);
     }else{
         WARN("setsfmrl: failed to allocate cmd string for filter %d and mrl %s",filternum,mrl);
     }
@@ -150,7 +150,7 @@ char *getmrl(int adaptornum,int filternum)/* {{{1 */
         cmd=fitstring("getsfmrl dvb%d",filternum);
     }
     mrl=dvbcommand(cmd,adaptornum);
-    free(cmd);
+    xfree(cmd);
     return mrl;
 }/* }}} */
 int getsfmux(int adaptornum)/*{{{*/
@@ -189,13 +189,13 @@ int selectlcn(int adaptornum,int channelnum)/*{{{*/
         CP=parseColon(line);
         INFO("selectlcn set channel %d (%s) on Primary filter of adaptor %d",channelnum,CP->val,adaptornum);
         if(CP->tmp){
-            free(CP->tmp);
+            xfree(CP->tmp);
         }
-        free(CP);
+        xfree(CP);
         ret=channelnum;
     }
-    free(line);
-    free(cmd);
+    xfree(line);
+    xfree(cmd);
     return ret;
 }/*}}}*/
 int findfreefilter(struct AdaptorStatus *AX)/*{{{*/
@@ -249,7 +249,7 @@ struct AdaptorStatus *adaptorStatus(int adaptornum)/*{{{*/
     DEBUG("lssfs: %s",lines);
     AI->numfilters=numLines(lines);
     DEBUG("num filters (lines): %d",AI->numfilters);
-    free(lines);
+    xfree(lines);
     AI->recording=0;
     AI->FS=newFilterStatusArray(AI->numfilters);
     AI->mux=0;
@@ -303,21 +303,21 @@ void freeAdaptorStatus(struct AdaptorStatus *AStatus)/*{{{*/
 
     for(cn=0; cn<AStatus->numfilters; cn++){
         freeFilterStatus(AStatus->FS[cn]);
-        free(AStatus->FS[cn]);
+        xfree(AStatus->FS[cn]);
     }
-    free(AStatus->FS);
-    free(AStatus);
+    xfree(AStatus->FS);
+    xfree(AStatus);
 }/*}}}*/
 void freeFilterStatus(struct FilterStatus *FI)/*{{{*/
 {
     if(FI->name){
-        free(FI->name);
+        xfree(FI->name);
     }
     if(FI->mrl){
-        free(FI->mrl);
+        xfree(FI->mrl);
     }
     if(FI->channel){
-        free(FI->channel);
+        xfree(FI->channel);
     }
 }/*}}}*/
 void logAdaptorStatus(struct AdaptorStatus *AS)/*{{{*/
@@ -385,7 +385,7 @@ int streamNewProgram(char *fn,struct Program *CP)/* {{{1 */
                 }else{
                     WARN("streamNewProgram: failed to set mrl on adaptor: %d with filter: %d of: %s",adaptor,freefilter,mrl);
                 }
-                free(mrl);
+                xfree(mrl);
             }else{
                 WARN("streamNewProgram: failed to allocate memory for mrl");
             }
@@ -414,7 +414,7 @@ int findFilterForFile(int adaptornum,char *fn)/* {{{1 */
                 break;
             }
         }
-        free(cmp);
+        xfree(cmp);
     }
     return ret;
 }/* }}} */
